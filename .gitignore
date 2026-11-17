@@ -5,3 +5,4 @@ coverage/
 .claude/
 dist/
 .kilo/
+.phase2/

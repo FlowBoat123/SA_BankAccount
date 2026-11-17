@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { Prisma } from "@prisma/client";
 import { PrismaService } from "@src/infrastructure/prisma";
+import { TransactionBusyError } from '../../domain/errors';
 import {
   AccountSnapshot,
   CreateTransactionEntryInput,
@@ -28,10 +29,29 @@ export class PrismaUnitOfWork implements UnitOfWorkPort {
   async execute<T>(
     work: (ctx: MoneyMovementTransactionContext) => Promise<T>,
   ): Promise<T> {
-    return this.prisma.$transaction(async (tx) => {
-      const ctx = this.buildContext(tx);
-      return work(ctx);
-    });
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        return await this.prisma.$transaction(async (tx) => {
+          const ctx = this.buildContext(tx);
+          return work(ctx);
+        });
+      } catch (error) {
+        // Only retry errors that certify this transaction was aborted. Never
+        // retry connection/commit-ambiguity errors, constraints or business errors.
+        const aborted = error instanceof Prisma.PrismaClientKnownRequestError && (
+          error.code === 'P2034' ||
+          (error.code === 'P2028' && /expired transaction|transaction[^\n]*expired/i.test(
+            error.message + ' ' + String(error.meta?.error ?? ''),
+          ))
+        );
+        if (!aborted) throw error;
+        if (attempt === 1) throw new TransactionBusyError();
+        // PostgreSQL/Prisma has rolled back before $transaction rejects. A small
+        // jitter prevents immediately joining the same hot-row queue again.
+        await new Promise(resolve => setTimeout(resolve, 10 + Math.random() * 30));
+      }
+    }
+    throw new TransactionBusyError();
   }
 
   private buildContext(tx: PrismaTx): MoneyMovementTransactionContext {
@@ -87,9 +107,27 @@ export class PrismaUnitOfWork implements UnitOfWorkPort {
             data: { currentBalance: newBalance },
           });
         },
+        updateBalances: async (balances): Promise<void> => {
+          if (balances.length === 0) return;
+          // The use case already holds both row locks. One statement replaces
+          // two network round trips without weakening transaction isolation.
+          const values = balances.map(({ accountId, balance }) =>
+            Prisma.sql`(${accountId}::text, ${balance}::numeric)`);
+          const updated = await tx.$executeRaw(Prisma.sql`
+            UPDATE bank_accounts AS a
+            SET current_balance = b.balance, updated_at = CURRENT_TIMESTAMP
+            FROM (VALUES ${Prisma.join(values)}) AS b(id, balance)
+            WHERE a.id = b.id
+          `);
+          if (updated !== balances.length) throw new Error('Account update count mismatch');
+        },
       },
 
       transactions: {
+        createMany: async (inputs): Promise<void> => {
+          // Do not skip duplicates: any constraint failure must roll back money.
+          await tx.financialTransaction.createMany({ data: inputs });
+        },
         create: async (
           input: CreateTransactionEntryInput,
         ): Promise<TransactionEntryRecord> => {
@@ -104,7 +142,7 @@ export class PrismaUnitOfWork implements UnitOfWorkPort {
               description: input.description ?? null,
             },
           });
-          return record as unknown as TransactionEntryRecord;
+          return { ...record, amount: record.amount.toString(), balanceAfter: record.balanceAfter.toString() };
         },
       },
 
@@ -121,7 +159,7 @@ export class PrismaUnitOfWork implements UnitOfWorkPort {
               },
             },
           });
-          return record ? (record as unknown as TransferRecord) : null;
+          return record ? { ...record, amount: record.amount.toString() } : null;
         },
 
         create: async (input: CreateTransferInput): Promise<TransferRecord> => {
@@ -135,7 +173,7 @@ export class PrismaUnitOfWork implements UnitOfWorkPort {
               idempotencyKey: input.idempotencyKey,
             },
           });
-          return record as unknown as TransferRecord;
+          return { ...record, amount: record.amount.toString() };
         },
       },
     };

@@ -10,6 +10,7 @@ coverage
 .kilo
 .codex
 .agents
+.phase2
 docs
 test
 *.log

@@ -9,7 +9,8 @@ import {
   AccountNotFoundError, 
   AccountClosedError, 
   InsufficientFundsError, 
-  SameSourceDestinationError 
+  SameSourceDestinationError,
+  IdempotencyKeyReusedError
 } from '../../domain/errors';
 
 export interface TransferMoneyCommand {
@@ -61,6 +62,11 @@ export class TransferMoneyUseCase {
       );
 
       if (existingTransfer) {
+        if (existingTransfer.destinationAccountId !== destSnapshot.id ||
+            existingTransfer.amount.toString() !== Money.fromString(command.amount, { allowZero: false }).toDecimalString() ||
+            existingTransfer.description !== (command.description ?? null)) {
+          throw new IdempotencyKeyReusedError();
+        }
         return { transfer: existingTransfer, isReplay: true };
       }
 
@@ -89,8 +95,10 @@ export class TransferMoneyUseCase {
       }
       const newDestBalance = newDestBalanceMoney.toDecimalString();
 
-      await ctx.accounts.updateBalance(sourceAccount.id, newSourceBalance);
-      await ctx.accounts.updateBalance(destAccount.id, newDestBalance);
+      await ctx.accounts.updateBalances([
+        { accountId: sourceAccount.id, balance: newSourceBalance },
+        { accountId: destAccount.id, balance: newDestBalance },
+      ]);
 
       const transferRecord = await ctx.transfers.create({
         sourceAccountId: sourceAccount.id,
@@ -101,7 +109,7 @@ export class TransferMoneyUseCase {
         description: command.description ?? null,
       });
 
-      await ctx.transactions.create({
+      await ctx.transactions.createMany([{
         accountId: sourceAccount.id,
         transferId: transferRecord.id,
         transactionType: 'DEBIT',
@@ -109,9 +117,7 @@ export class TransferMoneyUseCase {
         amount: command.amount,
         balanceAfter: newSourceBalance,
         description: command.description ?? null,
-      });
-
-      await ctx.transactions.create({
+      }, {
         accountId: destAccount.id,
         transferId: transferRecord.id,
         transactionType: 'CREDIT',
@@ -119,7 +125,7 @@ export class TransferMoneyUseCase {
         amount: command.amount,
         balanceAfter: newDestBalance,
         description: command.description ?? null,
-      });
+      }]);
 
       return { transfer: transferRecord, isReplay: false };
     });

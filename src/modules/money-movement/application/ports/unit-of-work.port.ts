@@ -71,10 +71,13 @@ export interface MoneyMovementTransactionContext {
     lockForUpdate(accountId: string): Promise<AccountSnapshot | null>;
     findByAccountNumber(accountNumber: string): Promise<AccountSnapshot | null>;
     updateBalance(accountId: string, newBalance: string): Promise<void>;
+    /** Caller must already hold the account locks in ascending ID order. */
+    updateBalances(balances: { accountId: string; balance: string }[]): Promise<void>;
   };
 
   transactions: {
     create(input: CreateTransactionEntryInput): Promise<TransactionEntryRecord>;
+    createMany(inputs: CreateTransactionEntryInput[]): Promise<void>;
   };
 
   transfers: {

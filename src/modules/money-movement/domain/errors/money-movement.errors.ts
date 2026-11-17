@@ -47,3 +47,12 @@ export class IdempotencyKeyReusedError extends AppError {
     super(message);
   }
 }
+
+export class TransactionBusyError extends AppError {
+  readonly errorCode = 'TRANSACTION_BUSY';
+  readonly httpStatus = 503;
+
+  constructor() {
+    super('Transaction could not complete after a bounded retry; retry later');
+  }
+}

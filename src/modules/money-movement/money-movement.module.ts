@@ -6,6 +6,8 @@ import { DepositMoneyUseCase } from "./application/use-cases/deposit-money.use-c
 import { WithdrawMoneyUseCase } from "./application/use-cases/withdraw-money.use-case";
 import { TransferMoneyUseCase } from "./application/use-cases/transfer-money.use-case";
 import { GetTransactionHistoryUseCase } from "./application/use-cases/get-transaction-history.use-case";
+import { GetTransactionFeedUseCase } from "./application/use-cases/get-transaction-feed.use-case";
+import { TransactionFeedQueryPort } from "./application/ports/transaction-query.port";
 import { UNIT_OF_WORK, UnitOfWorkPort } from "./application/ports/unit-of-work.port";
 import { TRANSACTION_QUERY, TransactionQueryPort } from "./application/ports/transaction-query.port";
 import { PrismaUnitOfWork } from "./infrastructure/persistence/prisma-unit-of-work";
@@ -18,6 +20,11 @@ import { PrismaTransactionQuery } from "./infrastructure/persistence/prisma-tran
     TransfersController,
   ],
   providers: [
+    {
+      provide: GetTransactionFeedUseCase,
+      useFactory: (query: TransactionFeedQueryPort) => new GetTransactionFeedUseCase(query),
+      inject: [TRANSACTION_QUERY],
+    },
     {
       provide: UNIT_OF_WORK,
       useClass: PrismaUnitOfWork,

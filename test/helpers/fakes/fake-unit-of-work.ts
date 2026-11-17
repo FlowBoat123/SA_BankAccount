@@ -16,6 +16,12 @@ export class FakeUnitOfWork implements UnitOfWorkPort {
     ): Promise<T> {
       const ctx: MoneyMovementTransactionContext = {
         accounts: {
+          updateBalances: async (balances) => {
+            for (const { accountId, balance } of balances) {
+              const account = this.accountsDb.get(accountId);
+              if (account) account.currentBalance = balance;
+            }
+          },
           lockForUpdate: async (accountId) => {
             return this.accountsDb.get(accountId) || null;
           },
@@ -35,6 +41,15 @@ export class FakeUnitOfWork implements UnitOfWorkPort {
           }
         },
         transactions: {
+          createMany: async (inputs) => {
+            for (const input of inputs) {
+              const record: TransactionEntryRecord = {
+                ...input, id: 'tx-' + Math.random(), status: 'COMPLETED', createdAt: new Date(),
+                transferId: input.transferId ?? null, description: input.description ?? null,
+              };
+              this.transactionsDb.set(record.id, record);
+            }
+          },
           create: async (input) => {
             const record: TransactionEntryRecord  = { 
               ...input, 

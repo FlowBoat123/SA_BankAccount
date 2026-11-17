@@ -231,3 +231,37 @@ test('transfer header validation, insufficient funds and closed destination do n
   assert.equal((await http(`/accounts/${a.id}`, { token: alice.token })).data.currentBalance, '100');
   assert.equal((await http(`/accounts/${a.id}/transactions`, { token: alice.token })).pagination.total, 1);
 });
+
+test('phase2 HTTP: same key and changed payload returns 409 without another debit', async () => {
+  const a = await open(alice, '100');
+  const b = await open(bob);
+  const body = { sourceAccountId: a.id, destinationAccountNumber: b.accountNumber, amount: '10' };
+  const headers = { 'Idempotency-Key': randomUUID() };
+  await http('/transfers', { method: 'POST', token: alice.token, body, headers, status: 201 });
+  await http('/transfers', { method: 'POST', token: alice.token, body: { ...body, amount: '11' }, headers, status: 409, code: 'IDEMPOTENCY_KEY_REUSED' });
+  const replay = await http('/transfers', { method: 'POST', token: alice.token, body, headers });
+  assert.equal(replay.data.amount, '10');
+  assert.equal((await http(`/accounts/${a.id}`, { token: alice.token })).data.currentBalance, '90');
+});
+
+test('phase2 HTTP: feed pagination, ownership, cursor validation and legacy history', async () => {
+  const a = await open(alice, '100');
+  for (let i = 0; i < 3; i++) await http(`/accounts/${a.id}/transactions`, {
+    method: 'POST', token: alice.token, body: { type: 'CREDIT', amount: '1' }, status: 201,
+  });
+  const endpoint = `/accounts/${a.id}/transactions/feed`;
+  await http(endpoint, { status: 401, code: 'UNAUTHORIZED' });
+  await http(endpoint, { token: bob.token, status: 404, code: 'ACCOUNT_NOT_FOUND' });
+  for (const query of ['limit=0', 'limit=101', 'cursor=invalid', 'page=2', 'from=invalid']) {
+    await http(`${endpoint}?${query}`, { token: alice.token, status: 400, code: 'VALIDATION_ERROR' });
+  }
+  const first = (await http(`${endpoint}?limit=2`, { token: alice.token })).data;
+  assert.equal(first.items.length, 2); assert.equal(first.hasMore, true);
+  const second = (await http(`${endpoint}?limit=2&cursor=${first.nextCursor}`, { token: alice.token })).data;
+  assert.equal(second.hasMore, false); assert.equal(second.nextCursor, null);
+  assert.equal(new Set([...first.items, ...second.items].map(t => t.id)).size, 4);
+  const legacy = await http(`/accounts/${a.id}/transactions?limit=20`, { token: alice.token });
+  assert.equal(legacy.pagination.total, 4);
+  assert.deepEqual([...first.items, ...second.items].map(t => t.id), legacy.data.map(t => t.id));
+  await http(`${endpoint}?cursor=${randomUUID()}`, { token: alice.token, status: 400, code: 'VALIDATION_ERROR' });
+});

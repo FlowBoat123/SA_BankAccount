@@ -70,7 +70,10 @@ async function main() {
         if (!path.includes('/auth/')) assert.ok(operation.responses['401']);
       }
     }
-    assert.equal(operations.length, 9);
+    assert.equal(operations.length, 10);
+    const feed = document.paths['/api/v1/accounts/{accountId}/transactions/feed'].get;
+    assert.ok(feed.parameters.some(parameter => parameter.name === 'cursor'));
+    assert.ok(responseSchema(feed, '200').properties.data.properties.nextCursor);
     const schemas = document.components.schemas;
     assert.ok(schemas.RegisterDto.required.includes('confirmPassword'));
     assert.ok(new RegExp(schemas.RegisterDto.properties.password.pattern)

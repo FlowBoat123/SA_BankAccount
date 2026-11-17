@@ -1,4 +1,6 @@
-import { successResponse, errorResponse } from '@src/common/http/swagger/response.schemas';
+import { successResponse, errorResponse, objectSchema, uuidSchema } from '@src/common/http/swagger/response.schemas';
+import { GetTransactionFeedUseCase } from '../../application/use-cases/get-transaction-feed.use-case';
+import { TransactionFeedQueryDto } from './dto/transaction-feed-query.dto';
 import { transactionResponseSchema } from './dto/money-movement-response.schema';
 import { 
   Body, 
@@ -32,13 +34,37 @@ export class TransactionController {
     private readonly depositMoneyUseCase: DepositMoneyUseCase,
     private readonly withdrawMoneyUseCase: WithdrawMoneyUseCase,
     private readonly getTransactionHistoryUseCase: GetTransactionHistoryUseCase,
+    private readonly getTransactionFeedUseCase: GetTransactionFeedUseCase,
   ) {}
+
+  @Get(':accountId/transactions/feed')
+  @ApiOperation({ summary: 'Browse history using an indexed cursor (no OFFSET or total count)' })
+  @ApiParam({ name: 'accountId', format: 'uuid' })
+  @ApiResponse(successResponse(200, 'History page, with a cursor for the next page', objectSchema({
+    items: { type: 'array', items: transactionResponseSchema },
+    nextCursor: { ...uuidSchema, nullable: true },
+    hasMore: { type: 'boolean' },
+  })))
+  @ApiResponse(errorResponse(404, 'ACCOUNT_NOT_FOUND: account is not owned by authenticated user'))
+  async getTransactionFeed(
+    @Param('accountId', new ParseUUIDPipe({ version: '4' })) accountId: string,
+    @Query() query: TransactionFeedQueryDto,
+    @CurrentUser() user: AccessTokenPayload,
+  ) {
+    return this.getTransactionFeedUseCase.execute({
+      accountId, userId: user.sub, limit: query.limit ?? 20,
+      cursor: query.cursor, type: query.type,
+      from: query.from ? new Date(query.from) : undefined,
+      to: query.to ? new Date(query.to) : undefined,
+    });
+  }
 
   @ApiOperation({ summary: 'Create a deposit or withdrawal transaction (UC-05, UC-06)' })
   @ApiResponse(successResponse(201, 'Transaction executed successfully', transactionResponseSchema))
   @ApiResponse(errorResponse(400, 'VALIDATION_ERROR: Invalid amount or transaction type'))
   @ApiResponse(errorResponse(404, 'ACCOUNT_NOT_FOUND: Account not found or not owned by user'))
   @ApiResponse(errorResponse(409, 'INSUFFICIENT_FUNDS hoặc ACCOUNT_NOT_ACTIVE'))
+  @ApiResponse(errorResponse(503, 'TRANSACTION_BUSY: transaction đã rollback nhưng vẫn bận sau một lần thử lại'))
   @ApiParam({ name: 'accountId', description: 'UUID of the bank account', format: 'uuid' })
   @Post(':accountId/transactions')
   @HttpCode(HttpStatus.CREATED)
