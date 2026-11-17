@@ -115,9 +115,13 @@ async function main(){
     await db.query("INSERT INTO users(user_id,email,full_name,password_hash,updated_at) VALUES($1,$2,'Followup benchmark','unused',now())",[user,`followup-${user}@example.test`]);
     for(let i=0;i<ids.length;i++)await db.query("INSERT INTO bank_accounts(id,user_id,account_number,account_name,account_type,current_balance,updated_at) VALUES($1,$2,$3,'Followup','PAYMENT',$4::numeric,now())",[ids[i],user,numbers[i],initial.toString()]);
     const hash=file=>createHash('sha256').update(fs.readFileSync(file)).digest('hex');
+    assert.equal(hash(path.join(baseline,'modules/money-movement/infrastructure/persistence/prisma-unit-of-work.js')),
+      hash(path.join(root,'dist/modules/money-movement/infrastructure/persistence/prisma-unit-of-work.js')),
+      'Run prepare-followup-baseline after the latest build; UoW must be byte-identical');
     fs.writeFileSync(path.join(output,'environment.json'),JSON.stringify({runId,timestamp:new Date().toISOString(),platform:os.platform(),release:os.release(),cpu:os.cpus()[0].model,
       logicalCpus:os.cpus().length,ramBytes:os.totalmem(),node:process.version,postgres:(await db.query('SELECT version()')).rows[0].version,
       rounds,duration,baselineCommit:'8ad478154e3772eb60e08cc8a741b087843dd35f',
+      improvedCommit:execFileSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8'}).trim(),
       baselineTransferJsSha256:hash(path.join(baseline,'modules/money-movement/application/use-cases/transfer-money.use-case.js')),
       improvedTransferJsSha256:hash(path.join(root,'dist/modules/money-movement/application/use-cases/transfer-money.use-case.js')),
       uowIdentical:hash(path.join(baseline,'modules/money-movement/infrastructure/persistence/prisma-unit-of-work.js'))===hash(path.join(root,'dist/modules/money-movement/infrastructure/persistence/prisma-unit-of-work.js')),

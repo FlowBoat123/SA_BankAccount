@@ -9,8 +9,9 @@ const source=execFileSync('git',['show',`${commit}:src/${relative}.ts`],{cwd:roo
 const config=ts.readConfigFile(path.join(root,'tsconfig.json'),ts.sys.readFile);
 if(config.error)throw Error(ts.flattenDiagnosticMessageText(config.error.messageText,'\n'));
 const compilerOptions=ts.convertCompilerOptionsFromJson(config.config.compilerOptions,root).options;
-const {outputText,diagnostics}=ts.transpileModule(source,{compilerOptions,fileName:relative+'.ts',reportDiagnostics:true});
-if(diagnostics?.some(d=>d.category===ts.DiagnosticCategory.Error))throw Error('Baseline compilation failed');
+const {outputText,diagnostics}=ts.transpileModule(source,{compilerOptions,fileName:path.join(root,'src',relative+'.ts'),reportDiagnostics:true});
+if(diagnostics?.some(d=>d.category===ts.DiagnosticCategory.Error))
+  throw Error(diagnostics.map(d=>ts.flattenDiagnosticMessageText(d.messageText,'\n')).join('\n'));
 const target=path.join(root,'.phase2/followup-baseline-dist');
 fs.cpSync(path.join(root,'dist'),target,{recursive:true});
 fs.writeFileSync(path.join(target,relative+'.js'),outputText);
