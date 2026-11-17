@@ -9,12 +9,14 @@ import matplotlib.pyplot as plt
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--results', type=Path, default=Path('docs/performance/phase2/results'))
+parser.add_argument('--title', default='SA BankAccount Phase 2')
 args = parser.parse_args()
 summary = json.loads((args.results / 'summary.json').read_text(encoding='utf-8'))
 environment = json.loads((args.results / 'environment.json').read_text(encoding='utf-8'))
 labels = {
     'transfer_hot_1': 'Transfer\nsame pair, 1 client',
     'transfer_hot_10': 'Transfer\nsame pair, 10 clients',
+    'transfer_hot_50': 'Transfer\nsame pair, 50 clients',
     'transfer_distributed_10': 'Transfer\n10 separate pairs',
     'history_10000_deep': 'History\n10,000 rows',
     'history_300000_deep': 'History\n300,000 rows',
@@ -39,8 +41,14 @@ for axis, metric, title in zip(axes, ['p95', 'rps'], ['p95 latency (ms) — lowe
     axis.margins(y=.2)
 axes[0].legend(frameon=False)
 location = environment.get('location', 'Windows local')
-fig.suptitle(f'SA BankAccount Phase 2 | {location} | {environment["rounds"]} runs × {environment["seconds"]}s', fontsize=14)
-fig.text(.01, -.015, 'Bars: median across runs. Error bars: min–max p95. History compares OFFSET + exact count with cursor browsing without count.', fontsize=8)
+seconds = environment.get('seconds', environment.get('duration'))
+fig.suptitle(f'{args.title} | {location} | {environment["rounds"]} runs × {seconds}s', fontsize=14)
+caption = 'Bars: median across runs. Error bars: min–max p95.'
+if any(row['scenario'].startswith('history_') for row in summary):
+    caption += ' History compares OFFSET + exact count with cursor browsing without count.'
+else:
+    caption += ' Transfer flow comparison; both versions use identical telemetry and schema.'
+fig.text(.01, -.015, caption, fontsize=8)
 fig.savefig(args.results / 'comparison.png', dpi=160, bbox_inches='tight')
 fig.savefig(args.results / 'comparison.svg', bbox_inches='tight')
 plt.close(fig)

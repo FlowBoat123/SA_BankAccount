@@ -10,12 +10,15 @@ export class FakeUnitOfWork implements UnitOfWorkPort {
     public accountsDb = new Map<string, AccountSnapshot>();
     public transfersDb = new Map<string, TransferRecord>();
     public transactionsDb = new Map<string, TransactionEntryRecord>();
+    private cashKeys = new Map<string, string>();
 
     async execute<T>(
         work: (ctx: MoneyMovementTransactionContext) => Promise<T>
     ): Promise<T> {
       const ctx: MoneyMovementTransactionContext = {
         accounts: {
+          lockManyForUpdate: async (accountIds) => [...new Set(accountIds)].sort()
+            .flatMap(id => { const account = this.accountsDb.get(id); return account ? [account] : []; }),
           updateBalances: async (balances) => {
             for (const { accountId, balance } of balances) {
               const account = this.accountsDb.get(accountId);
@@ -41,6 +44,10 @@ export class FakeUnitOfWork implements UnitOfWorkPort {
           }
         },
         transactions: {
+          findByAccountAndIdempotencyKey: async (accountId, key) => {
+            const id = this.cashKeys.get(`${accountId}:${key}`);
+            return id ? this.transactionsDb.get(id) ?? null : null;
+          },
           createMany: async (inputs) => {
             for (const input of inputs) {
               const record: TransactionEntryRecord = {
@@ -60,6 +67,7 @@ export class FakeUnitOfWork implements UnitOfWorkPort {
               description: input.description ?? null
             };
             this.transactionsDb.set(record.id, record);
+            if (input.idempotencyKey) this.cashKeys.set(`${input.accountId}:${input.idempotencyKey}`, record.id);
             return record;
           }
         },

@@ -1,4 +1,6 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, Optional } from "@nestjs/common";
+import { performance } from 'node:perf_hooks';
+import { MoneyMovementTelemetry } from '@src/common/observability/money-movement-telemetry';
 import { Prisma } from "@prisma/client";
 import { PrismaService } from "@src/infrastructure/prisma";
 import { TransactionBusyError } from '../../domain/errors';
@@ -24,18 +26,39 @@ interface RawAccountLockRow {
 
 @Injectable()
 export class PrismaUnitOfWork implements UnitOfWorkPort {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    @Optional() private readonly telemetry: MoneyMovementTelemetry = new MoneyMovementTelemetry(),
+  ) {}
 
   async execute<T>(
     work: (ctx: MoneyMovementTransactionContext) => Promise<T>,
   ): Promise<T> {
     for (let attempt = 0; attempt < 2; attempt++) {
+      const start = performance.now();
+      let settled = start;
+      let callbackEnd: number | undefined;
+      this.telemetry.increment('attempts');
       try {
-        return await this.prisma.$transaction(async (tx) => {
+        const result = await this.prisma.$transaction(async (tx) => {
+          const entered = performance.now();
+          // Includes pool acquisition, BEGIN and Prisma overhead; not pure pool wait.
+          this.telemetry.observe('transaction_start', entered - start);
           const ctx = this.buildContext(tx);
-          return work(ctx);
+          try { return await work(ctx); }
+          finally {
+            callbackEnd = performance.now();
+            this.telemetry.observe('transaction_callback', callbackEnd - entered);
+          }
         });
+        settled = performance.now();
+        this.telemetry.increment('committed');
+        return result;
       } catch (error) {
+        settled = performance.now();
+        // Counts rejected attempts, including failure to start, not proof of rollback
+        // for transport/ambiguous commit errors. Those are never retried.
+        this.telemetry.increment('rejected');
         // Only retry errors that certify this transaction was aborted. Never
         // retry connection/commit-ambiguity errors, constraints or business errors.
         const aborted = error instanceof Prisma.PrismaClientKnownRequestError && (
@@ -45,10 +68,17 @@ export class PrismaUnitOfWork implements UnitOfWorkPort {
           ))
         );
         if (!aborted) throw error;
-        if (attempt === 1) throw new TransactionBusyError();
+        if (attempt === 1) {
+          this.telemetry.increment('retry_exhausted');
+          throw new TransactionBusyError();
+        }
+        this.telemetry.increment('retries');
         // PostgreSQL/Prisma has rolled back before $transaction rejects. A small
         // jitter prevents immediately joining the same hot-row queue again.
         await new Promise(resolve => setTimeout(resolve, 10 + Math.random() * 30));
+      } finally {
+        this.telemetry.observe('transaction_attempt', settled - start);
+        if (callbackEnd !== undefined) this.telemetry.observe('transaction_finish', settled - callbackEnd);
       }
     }
     throw new TransactionBusyError();
@@ -57,22 +87,42 @@ export class PrismaUnitOfWork implements UnitOfWorkPort {
   private buildContext(tx: PrismaTx): MoneyMovementTransactionContext {
     return {
       accounts: {
+        lockManyForUpdate: async (accountIds): Promise<AccountSnapshot[]> => {
+          if (!accountIds.length) return [];
+          const start = performance.now();
+          try {
+            // IDs cannot change. Sorting before LockRows preserves the same lock
+            // order for A->B and B->A, while avoiding a second client round trip.
+            return await tx.$queryRaw<RawAccountLockRow[]>(Prisma.sql`
+              SELECT id, user_id AS "userId", current_balance::text AS "currentBalance", status
+              FROM bank_accounts
+              WHERE id IN (${Prisma.join([...new Set(accountIds)])})
+              ORDER BY id ASC
+              FOR UPDATE
+            `);
+          } finally {
+            this.telemetry.observe('account_lock_query', performance.now() - start);
+          }
+        },
         lockForUpdate: async (
           accountId: string,
         ): Promise<AccountSnapshot | null> => {
-          const rows = await tx.$queryRaw<RawAccountLockRow[]>(
-            Prisma.sql`
-              SELECT  
-                id,
-                user_id AS "userId",
-                current_balance::text AS "currentBalance",
-                status  
-              FROM bank_accounts
-              WHERE id = ${accountId}
-              FOR UPDATE
-            `,
-          );
-          return rows[0] ?? null;
+          const start = performance.now();
+          try {
+            const rows = await tx.$queryRaw<RawAccountLockRow[]>(
+              Prisma.sql`
+                SELECT id, user_id AS "userId",
+                  current_balance::text AS "currentBalance", status
+                FROM bank_accounts
+                WHERE id = ${accountId}
+                FOR UPDATE
+              `,
+            );
+            return rows[0] ?? null;
+          } finally {
+            // SQL execution + row-lock wait + adapter overhead, not pure lock wait.
+            this.telemetry.observe('account_lock_query', performance.now() - start);
+          }
         },
 
         findByAccountNumber: async (
@@ -124,6 +174,12 @@ export class PrismaUnitOfWork implements UnitOfWorkPort {
       },
 
       transactions: {
+        findByAccountAndIdempotencyKey: async (accountId, key) => {
+          const record = await tx.financialTransaction.findUnique({
+            where: { uq_cash_idempotency: { accountId, idempotencyKey: key } },
+          });
+          return record ? this.toTransactionRecord(record) : null;
+        },
         createMany: async (inputs): Promise<void> => {
           // Do not skip duplicates: any constraint failure must roll back money.
           await tx.financialTransaction.createMany({ data: inputs });
@@ -140,9 +196,10 @@ export class PrismaUnitOfWork implements UnitOfWorkPort {
               amount: input.amount,
               balanceAfter: input.balanceAfter,
               description: input.description ?? null,
+              idempotencyKey: input.idempotencyKey,
             },
           });
-          return { ...record, amount: record.amount.toString(), balanceAfter: record.balanceAfter.toString() };
+          return this.toTransactionRecord(record);
         },
       },
 
@@ -176,6 +233,21 @@ export class PrismaUnitOfWork implements UnitOfWorkPort {
           return { ...record, amount: record.amount.toString() };
         },
       },
+    };
+  }
+
+  private toTransactionRecord(record: {
+    id: string; accountId: string; transferId: string | null;
+    transactionType: 'CREDIT' | 'DEBIT'; referenceType: TransactionEntryRecord['referenceType'];
+    amount: Prisma.Decimal; balanceAfter: Prisma.Decimal; status: string;
+    description: string | null; createdAt: Date;
+  }): TransactionEntryRecord {
+    // Keep persistence-only idempotency keys out of HTTP/history responses.
+    return {
+      id: record.id, accountId: record.accountId, transferId: record.transferId,
+      transactionType: record.transactionType, referenceType: record.referenceType,
+      amount: record.amount.toString(), balanceAfter: record.balanceAfter.toString(),
+      status: record.status, description: record.description, createdAt: record.createdAt,
     };
   }
 }

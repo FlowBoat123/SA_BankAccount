@@ -8,6 +8,8 @@ const { PrismaPg } = require('@prisma/adapter-pg');
 const { PrismaUnitOfWork } = require('../../dist/modules/money-movement/infrastructure/persistence/prisma-unit-of-work');
 const { TransferMoneyUseCase } = require('../../dist/modules/money-movement/application/use-cases/transfer-money.use-case');
 const { WithdrawMoneyUseCase } = require('../../dist/modules/money-movement/application/use-cases/withdraw-money.use-case');
+const { DepositMoneyUseCase } = require('../../dist/modules/money-movement/application/use-cases/deposit-money.use-case');
+const { MoneyMovementTelemetry } = require('../../dist/common/observability/money-movement-telemetry');
 const { PrismaTransactionQuery } = require('../../dist/modules/money-movement/infrastructure/persistence/prisma-transaction-query');
 const { GetTransactionFeedUseCase } = require('../../dist/modules/money-movement/application/use-cases/get-transaction-feed.use-case');
 const url = process.env.DATABASE_URL;
@@ -130,4 +132,138 @@ test('new latest entry between pages does not shift or duplicate the next page',
   const expected=(await db.query('SELECT id FROM financial_transactions WHERE account_id=$1 ORDER BY created_at DESC,id DESC OFFSET 3 LIMIT 3',[ids[0]])).rows.map(r=>r.id);
   await db.query("INSERT INTO financial_transactions(id,account_id,transaction_type,reference_type,amount,balance_after) VALUES($1,$2,'CREDIT','CASH_DEPOSIT',1,100)",[randomUUID(),ids[0]]);
   const next=await feed.execute({accountId:ids[0],userId,limit:3,cursor:first.nextCursor});assert.deepEqual(next.items.map(r=>r.id),expected);
+});
+
+for (const [name, UseCase, expected] of [['deposit', DepositMoneyUseCase, '110'], ['withdrawal', WithdrawMoneyUseCase, '90']]) {
+  test(`20 simultaneous ${name} requests with one key commit exactly once`, async () => {
+    const cash = new UseCase(uow), cmd = { accountId: ids[0], userId, amount: '10', idempotencyKey: randomUUID() };
+    const results = await Promise.all(Array.from({length:20}, () => cash.executeWithResult(cmd)));
+    assert.equal(results.filter(r=>!r.isReplay).length, 1);
+    assert.equal(new Set(results.map(r=>r.transaction.id)).size, 1);
+    assert.equal((await prisma.bankAccount.findUnique({where:{id:ids[0]}})).currentBalance.toString(), expected);
+    assert.equal(await prisma.financialTransaction.count({where:{accountId:ids[0]}}), 1);
+    assert.ok(results.every(r=>!Object.hasOwn(r.transaction,'idempotencyKey')));
+  });
+}
+
+test('cash same key with changed amount, description or type conflicts; concurrent conflict also commits once', async () => {
+  const deposit = new DepositMoneyUseCase(uow), withdraw = new WithdrawMoneyUseCase(uow);
+  const cmd = {accountId:ids[0],userId,amount:'10',idempotencyKey:randomUUID()};
+  await deposit.execute(cmd);
+  for (const change of [{amount:'11'},{description:'changed'}])
+    await assert.rejects(deposit.execute({...cmd,...change}),e=>e.errorCode==='IDEMPOTENCY_KEY_REUSED');
+  await assert.rejects(withdraw.execute(cmd),e=>e.errorCode==='IDEMPOTENCY_KEY_REUSED');
+  const second = {...cmd,idempotencyKey:randomUUID()};
+  const results=await Promise.allSettled([deposit.execute(second),deposit.execute({...second,amount:'11'})]);
+  assert.equal(results.filter(r=>r.status==='fulfilled').length,1);
+  assert.equal(results.find(r=>r.status==='rejected').reason.errorCode,'IDEMPOTENCY_KEY_REUSED');
+  assert.equal(await prisma.financialTransaction.count({where:{accountId:ids[0]}}),2);
+});
+
+test('cash keys are account-scoped and ownership is checked before replay', async () => {
+  const deposit=new DepositMoneyUseCase(uow), cmd={accountId:ids[0],userId,amount:'10',idempotencyKey:randomUUID()};
+  const first=await deposit.execute(cmd), other=await deposit.execute({...cmd,accountId:ids[1]});
+  assert.notEqual(first.id,other.id);
+  await assert.rejects(deposit.execute({...cmd,userId:stranger}),e=>e.errorCode==='ACCOUNT_NOT_FOUND');
+  assert.equal(await prisma.financialTransaction.count({where:{accountId:{in:ids}}}),2);
+});
+
+test('cash replay after later writes and close returns original snapshot, not current balance', async () => {
+  const withdraw=new WithdrawMoneyUseCase(uow), cmd={accountId:ids[0],userId,amount:'10',idempotencyKey:randomUUID()};
+  const first=await withdraw.execute(cmd);
+  await withdraw.execute({...cmd,amount:'90',idempotencyKey:randomUUID()});
+  await db.query("UPDATE bank_accounts SET status='CLOSED',closed_at=now() WHERE id=$1",[ids[0]]);
+  assert.deepEqual(await withdraw.execute(cmd),first);
+  await assert.rejects(withdraw.execute({...cmd,idempotencyKey:randomUUID()}),e=>e.errorCode==='ACCOUNT_NOT_ACTIVE');
+  assert.equal(await prisma.financialTransaction.count({where:{accountId:ids[0]}}),2);
+});
+
+test('rollback after cash ledger insert leaves no balance change or reserved key', async () => {
+  const cmd={accountId:ids[0],userId,amount:'10',idempotencyKey:randomUUID()};
+  const broken={execute:work=>uow.execute(ctx=>work({...ctx,transactions:{...ctx.transactions,create:async input=>{
+    await ctx.transactions.create(input);throw Error('cash failure after ledger');
+  }}}))};
+  await assert.rejects(new DepositMoneyUseCase(broken).execute(cmd),/cash failure after ledger/);
+  assert.equal((await prisma.bankAccount.findUnique({where:{id:ids[0]}})).currentBalance.toString(),'100');
+  assert.equal(await prisma.financialTransaction.count({where:{accountId:ids[0]}}),0);
+  assert.equal((await new DepositMoneyUseCase(uow).executeWithResult(cmd)).isReplay,false);
+});
+
+test('insufficient-funds failure does not reserve a cash key; legacy calls remain separate', async () => {
+  const withdraw=new WithdrawMoneyUseCase(uow), deposit=new DepositMoneyUseCase(uow);
+  const cmd={accountId:ids[0],userId,amount:'110',idempotencyKey:randomUUID()};
+  await assert.rejects(withdraw.execute(cmd),e=>e.errorCode==='INSUFFICIENT_FUNDS');
+  await deposit.execute({accountId:ids[0],userId,amount:'10'});
+  await deposit.execute({accountId:ids[0],userId,amount:'10'});
+  assert.equal((await withdraw.executeWithResult(cmd)).isReplay,false);
+  assert.equal((await prisma.bankAccount.findUnique({where:{id:ids[0]}})).currentBalance.toString(),'10');
+  assert.equal(await prisma.financialTransaction.count({where:{accountId:ids[0]}}),3);
+});
+
+test('database unique constraint protects cash keys even if application locking is bypassed', async () => {
+  const cmd={accountId:ids[0],userId,amount:'10',idempotencyKey:randomUUID()};
+  await new DepositMoneyUseCase(uow).execute(cmd);
+  await assert.rejects(prisma.financialTransaction.create({data:{accountId:ids[0],transactionType:'CREDIT',
+    referenceType:'CASH_DEPOSIT',amount:'10',balanceAfter:'120',idempotencyKey:cmd.idempotencyKey}}),e=>e.code==='P2002');
+});
+
+test('cash key normalization, boundary validation and no-op rejection', async () => {
+  const deposit=new DepositMoneyUseCase(uow),key=randomUUID(),cmd={accountId:ids[0],userId,amount:'10',idempotencyKey:key};
+  const first=await deposit.execute(cmd);
+  assert.equal((await deposit.execute({...cmd,idempotencyKey:`  ${key}  `})).id,first.id);
+  for(const idempotencyKey of ['', 'x'.repeat(15), 'x'.repeat(129)])
+    await assert.rejects(deposit.execute({...cmd,idempotencyKey}),e=>e.errorCode==='VALIDATION_ERROR');
+  for(const idempotencyKey of ['a'.repeat(16),'z'.repeat(128)])
+    await deposit.execute({...cmd,idempotencyKey});
+  assert.equal(await prisma.financialTransaction.count({where:{accountId:ids[0]}}),3);
+});
+
+test('cash timeout AFTER ledger insertion rolls back key and balance before bounded retry', async () => {
+  let attempts=0;
+  const delayed={execute:work=>uow.execute(ctx=>{
+    attempts++;return work({...ctx,transactions:{...ctx.transactions,create:async input=>{
+      const result=await ctx.transactions.create(input);
+      if(attempts===1)await new Promise(ok=>setTimeout(ok,5150));
+      return result;
+    }}});
+  })};
+  const cmd={accountId:ids[0],userId,amount:'10',idempotencyKey:randomUUID()};
+  const posted=await new DepositMoneyUseCase(delayed).execute(cmd);
+  assert.equal(attempts,2);
+  assert.equal((await prisma.bankAccount.findUnique({where:{id:ids[0]}})).currentBalance.toString(),'110');
+  assert.equal(await prisma.financialTransaction.count({where:{accountId:ids[0]}}),1);
+  assert.equal((await new DepositMoneyUseCase(uow).execute(cmd)).id,posted.id);
+});
+
+test('three-account cyclic transfers with concurrent cash writes conserve money without deadlock', async () => {
+  const deposit=new DepositMoneyUseCase(uow),withdraw=new WithdrawMoneyUseCase(uow);
+  await Promise.all([
+    ...Array.from({length:60},(_,i)=>transfer.execute(command({sourceAccountId:ids[i%3],destinationAccountNumber:numbers[(i+1)%3],amount:'1'}))),
+    ...Array.from({length:10},()=>deposit.execute({accountId:ids[0],userId,amount:'1',idempotencyKey:randomUUID()})),
+    ...Array.from({length:10},()=>withdraw.execute({accountId:ids[0],userId,amount:'1',idempotencyKey:randomUUID()})),
+  ]);
+  assert.ok((await balances()).every(r=>r.balance==='100'));
+  assert.equal(await prisma.financialTransaction.count({where:{accountId:{in:ids}}}),140);
+});
+
+test('telemetry observes a real blocked lock and one transfer uses one locking query', async () => {
+  const holder=new Client({connectionString:url});await holder.connect();
+  const telemetry=new MoneyMovementTelemetry(), measured=new TransferMoneyUseCase(new PrismaUnitOfWork(prisma,telemetry));
+  let pending;
+  try {
+    await holder.query('BEGIN');await holder.query('SELECT id FROM bank_accounts WHERE id=$1 FOR UPDATE',[ids[0]]);
+    const pid=(await holder.query('SELECT pg_backend_pid() AS pid')).rows[0].pid;
+    pending=measured.execute(command());
+    const deadline=Date.now()+3000;let blocked=false;
+    while(Date.now()<deadline){
+      blocked=(await db.query('SELECT count(*)::int n FROM pg_stat_activity WHERE $1=ANY(pg_blocking_pids(pid))',[pid])).rows[0].n>0;
+      if(blocked)break;await new Promise(ok=>setTimeout(ok,10));
+    }
+    assert.equal(blocked,true);await new Promise(ok=>setTimeout(ok,60));
+    await holder.query('COMMIT');await pending;
+    const snapshot=telemetry.snapshot();
+    assert.equal(snapshot.counters.committed,1);assert.equal(snapshot.counters.attempts,1);
+    assert.equal(snapshot.timings.account_lock_query.count,1);assert.ok(snapshot.timings.account_lock_query.maxMs>=60);
+    assert.ok(!JSON.stringify(snapshot).includes(ids[0]));
+  } finally { await holder.query('ROLLBACK');await holder.end();if(pending)await pending; }
 });

@@ -97,6 +97,7 @@ class ValidationPipe {
 // ValidationPipeOptions, LoggerService — chỉ là TypeScript interface, không có runtime value.
 
 module.exports = {
+  Optional: noopParamDecorator,
   // Decorators
   Injectable,
   Global,

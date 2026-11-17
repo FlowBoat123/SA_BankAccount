@@ -93,6 +93,10 @@ async function main() {
     assert.ok(transfer.parameters.some(parameter =>
       parameter.in === 'header' && parameter.name === 'Idempotency-Key' && parameter.required));
     assert.deepEqual(responseSchema(transfer, '200'), responseSchema(transfer, '201'));
+    const cash = document.paths['/api/v1/accounts/{accountId}/transactions'].post;
+    assert.ok(cash.parameters.some(parameter => parameter.in === 'header' &&
+      parameter.name === 'Idempotency-Key' && parameter.required === false));
+    assert.deepEqual(responseSchema(cash, '200'), responseSchema(cash, '201'));
     const user = responseSchema(document.paths['/api/v1/auth/register'].post, '201').properties.data;
     assert.ok(user.properties.createAt);
     assert.ok(!user.properties.passwordHash);

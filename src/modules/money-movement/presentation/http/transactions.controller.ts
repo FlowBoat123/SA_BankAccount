@@ -11,9 +11,12 @@ import {
   Param, 
   Post, 
   Query,
-  ParseUUIDPipe 
+  ParseUUIDPipe,
+  Headers,
+  Res,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags, ApiParam } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags, ApiParam, ApiHeader } from '@nestjs/swagger';
+import type { Response } from 'express';
 import { Paginated } from '../../../../common/http/interceptors/response-envelope.interceptor';
 import { CurrentUser } from '../../../../common/security/decorators';
 import { AccessTokenPayload } from '../../../../common/security/ports';
@@ -60,10 +63,16 @@ export class TransactionController {
   }
 
   @ApiOperation({ summary: 'Create a deposit or withdrawal transaction (UC-05, UC-06)' })
+  @ApiHeader({
+    name: 'Idempotency-Key', required: false,
+    description: 'Tùy chọn, trim 16–128 ký tự. Cùng tài khoản/key/nội dung trả lại bút toán cũ (200); khác loại, số tiền hoặc mô tả trả 409. Bỏ header: mỗi request là giao dịch mới.',
+    schema: { type: 'string', minLength: 16, maxLength: 128 },
+  })
   @ApiResponse(successResponse(201, 'Transaction executed successfully', transactionResponseSchema))
+  @ApiResponse(successResponse(200, 'Replay of an identical completed deposit or withdrawal', transactionResponseSchema))
   @ApiResponse(errorResponse(400, 'VALIDATION_ERROR: Invalid amount or transaction type'))
   @ApiResponse(errorResponse(404, 'ACCOUNT_NOT_FOUND: Account not found or not owned by user'))
-  @ApiResponse(errorResponse(409, 'INSUFFICIENT_FUNDS hoặc ACCOUNT_NOT_ACTIVE'))
+  @ApiResponse(errorResponse(409, 'INSUFFICIENT_FUNDS, ACCOUNT_NOT_ACTIVE hoặc IDEMPOTENCY_KEY_REUSED'))
   @ApiResponse(errorResponse(503, 'TRANSACTION_BUSY: transaction đã rollback nhưng vẫn bận sau một lần thử lại'))
   @ApiParam({ name: 'accountId', description: 'UUID of the bank account', format: 'uuid' })
   @Post(':accountId/transactions')
@@ -72,22 +81,16 @@ export class TransactionController {
     @Param('accountId', new ParseUUIDPipe({ version: '4' })) accountId: string,  
     @Body() dto: CreateTransactionDto,
     @CurrentUser() user: AccessTokenPayload,
+    @Headers('idempotency-key') idempotencyKey: string | undefined,
+    @Res({ passthrough: true }) res: Response,
   ) {
-    if (dto.type === TransactionTypeDto.CREDIT) {
-      return this.depositMoneyUseCase.execute({
-        accountId: accountId,
-        userId: user.sub, 
-        amount: dto.amount,
-        description: dto.description,
-      });
-    } else {
-      return this.withdrawMoneyUseCase.execute({
-        accountId: accountId,
-        userId: user.sub,
-        amount: dto.amount,
-        description: dto.description,
-      });
-    }
+    const command = { accountId, userId: user.sub, amount: dto.amount,
+      description: dto.description, idempotencyKey };
+    const result = dto.type === TransactionTypeDto.CREDIT
+      ? await this.depositMoneyUseCase.executeWithResult(command)
+      : await this.withdrawMoneyUseCase.executeWithResult(command);
+    res.status(result.isReplay ? HttpStatus.OK : HttpStatus.CREATED);
+    return result.transaction;
   }
 
   @ApiOperation({ summary: 'Get paginated transaction history with filters (UC-06)' })

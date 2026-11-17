@@ -25,6 +25,7 @@ export interface CreateTransactionEntryInput {
   amount: string;
   balanceAfter: string;
   description?: string | null;
+  idempotencyKey?: string;
 }
 
 export interface TransactionEntryRecord {
@@ -66,9 +67,16 @@ export interface TransferExecutionResult {
   isReplay: boolean;
 }
 
+export interface TransactionExecutionResult {
+  transaction: TransactionEntryRecord;
+  isReplay: boolean;
+}
+
 export interface MoneyMovementTransactionContext {
   accounts: {
     lockForUpdate(accountId: string): Promise<AccountSnapshot | null>;
+    /** Lock immutable account IDs in database ascending order in one statement. */
+    lockManyForUpdate(accountIds: string[]): Promise<AccountSnapshot[]>;
     findByAccountNumber(accountNumber: string): Promise<AccountSnapshot | null>;
     updateBalance(accountId: string, newBalance: string): Promise<void>;
     /** Caller must already hold the account locks in ascending ID order. */
@@ -76,6 +84,7 @@ export interface MoneyMovementTransactionContext {
   };
 
   transactions: {
+    findByAccountAndIdempotencyKey(accountId: string, key: string): Promise<TransactionEntryRecord | null>;
     create(input: CreateTransactionEntryInput): Promise<TransactionEntryRecord>;
     createMany(inputs: CreateTransactionEntryInput[]): Promise<void>;
   };

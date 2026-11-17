@@ -40,16 +40,9 @@ export class TransferMoneyUseCase {
         throw new SameSourceDestinationError();
       }
 
-      const [firstId, secondId] = 
-        command.sourceAccountId < destSnapshot.id
-          ? [command.sourceAccountId, destSnapshot.id]
-          : [destSnapshot.id, command.sourceAccountId];
-
-      const firstAccount = await ctx.accounts.lockForUpdate(firstId);
-      const secondAccount = await ctx.accounts.lockForUpdate(secondId);
-
-      const sourceAccount = firstId === command.sourceAccountId ? firstAccount : secondAccount;
-      const destAccount = firstId === command.sourceAccountId ? secondAccount : firstAccount;
+      const locked = await ctx.accounts.lockManyForUpdate([command.sourceAccountId, destSnapshot.id]);
+      const sourceAccount = locked.find(account => account.id === command.sourceAccountId);
+      const destAccount = locked.find(account => account.id === destSnapshot.id);
 
       if (!sourceAccount || sourceAccount.userId !== command.initiatedByUserId) {
         throw new AccountNotFoundError('Source account not found'); 

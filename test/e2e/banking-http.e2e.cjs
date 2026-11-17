@@ -140,6 +140,67 @@ after(async () => {
   }
 });
 
+test('cash HTTP idempotency: concurrent replay, conflicts, validation, ownership and history privacy', async () => {
+  const account=await open(alice,'100');
+  const headers={'Idempotency-Key':randomUUID()};
+  const body={type:'CREDIT',amount:'10',description:'one deposit'};
+  const path=`/accounts/${account.id}/transactions`;
+  const first=await http(path,{method:'POST',token:alice.token,body,headers,status:201});
+  const replay=await http(path,{method:'POST',token:alice.token,body,headers});
+  assert.deepEqual(replay.data,first.data);assert.equal(first.data.idempotencyKey,undefined);
+  await Promise.all(Array.from({length:10},async()=>{
+    assert.deepEqual((await http(path,{method:'POST',token:alice.token,body,headers})).data,first.data);
+  }));
+  for(const change of [{amount:'11'},{type:'DEBIT'},{description:'different'}])
+    await http(path,{method:'POST',token:alice.token,body:{...body,...change},headers,status:409,code:'IDEMPOTENCY_KEY_REUSED'});
+  for(const key of ['', 'short', 'x'.repeat(129)])
+    await http(path,{method:'POST',token:alice.token,body,headers:{'Idempotency-Key':key},status:400,code:'VALIDATION_ERROR'});
+  await http(path,{method:'POST',token:bob.token,body,headers,status:404,code:'ACCOUNT_NOT_FOUND'});
+  assert.equal((await http(`/accounts/${account.id}`,{token:alice.token})).data.currentBalance,'110');
+  for(const suffix of ['', '/feed']){
+    const history=await http(path+suffix,{token:alice.token});
+    const items=history.data.items||history.data;
+    assert.equal(items.length,2);assert.ok(items.every(row=>row.idempotencyKey===undefined));
+  }
+});
+
+test('cash HTTP withdrawal replay survives close and a response the caller did not retain', async () => {
+  const account=await open(alice,'100');
+  const path=`/accounts/${account.id}/transactions`,headers={'Idempotency-Key':randomUUID()},body={type:'DEBIT',amount:'100'};
+  // Model a caller that does not retain the successful response.
+  const ignored=await http(path,{method:'POST',token:alice.token,body,headers,status:201});
+  await http(`/accounts/${account.id}`,{method:'DELETE',token:alice.token,status:204});
+  const replay=await http(path,{method:'POST',token:alice.token,body,headers});
+  assert.deepEqual(replay.data,ignored.data);
+  await http(path,{method:'POST',token:alice.token,body,headers:{'Idempotency-Key':randomUUID()},status:409,code:'ACCOUNT_NOT_ACTIVE'});
+});
+
+test('real socket loss AFTER cash commit: a new request replays without posting money twice', async () => {
+  const account=await open(alice,'0'),key=randomUUID();
+  const cashPath=`/accounts/${account.id}/transactions`,body={type:'CREDIT',amount:'10'};
+  const {createServer: httpServer}=require('node:http');
+  let committedResponse;
+  const proxy=httpServer(async(request,response)=>{
+    try {
+      const chunks=[];for await(const chunk of request)chunks.push(chunk);
+      const upstream=await fetch(base+cashPath,{method:'POST',headers:{'Content-Type':'application/json',
+        Authorization:`Bearer ${alice.token}`,'Idempotency-Key':key},body:Buffer.concat(chunks)});
+      committedResponse={status:upstream.status,body:await upstream.json()};
+    } finally {response.destroy();} // Drop TCP before forwarding any HTTP response.
+  });
+  await new Promise(ok=>proxy.listen(0,'127.0.0.1',ok));
+  try {
+    await assert.rejects(fetch(`http://127.0.0.1:${proxy.address().port}/drop`,{
+      method:'POST',body:JSON.stringify(body),signal:AbortSignal.timeout(10000)}));
+    assert.equal(committedResponse.status,201);
+    const replay=await http(cashPath,{method:'POST',token:alice.token,body,headers:{'Idempotency-Key':key}});
+    assert.deepEqual(replay.data,committedResponse.body.data);
+    assert.equal((await http(`/accounts/${account.id}`,{token:alice.token})).data.currentBalance,'10');
+    const posted=(await db.query('SELECT count(*)::int n FROM financial_transactions WHERE account_id=$1',[account.id])).rows[0].n;
+    assert.equal(posted,1);
+  } finally { await new Promise(ok=>proxy.close(ok)); }
+});
+
 test('full lifecycle over HTTP: money, history, close, and replay after close', async () => {
   const a = await open(alice, '100000');
   const b = await open(bob);
