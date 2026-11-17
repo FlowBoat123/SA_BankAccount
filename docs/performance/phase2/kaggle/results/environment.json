@@ -1,0 +1,21 @@
+{
+  "runId": "95ed0703-ab2c-4a01-ae4f-0d55344e0fc9",
+  "timestamp": "2026-11-17T06:32:23.924Z",
+  "platform": "linux",
+  "release": "6.18.55+",
+  "cpu": "Intel(R) Xeon(R) CPU @ 2.20GHz",
+  "logicalCpus": 4,
+  "ramBytes": 33658159104,
+  "node": "v24.22.0",
+  "postgres": "PostgreSQL 16.15 (Ubuntu 16.15-0ubuntu0.24.04.1) on x86_64-pc-linux-gnu, compiled by gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0, 64-bit",
+  "location": "Kaggle CPU",
+  "baselineCommit": "c347c921d77ba533cfacd8e180feccef720be013",
+  "improvedDiff": " .gitignore                                         |  3 +-\n package.json                                       |  4 ++\n .../application/ports/transaction-query.port.ts    | 15 +++++++\n .../application/ports/unit-of-work.port.ts         |  3 ++\n .../use-cases/transfer-money.use-case.ts           | 22 +++++----\n .../domain/errors/money-movement.errors.ts         |  9 ++++\n .../persistence/prisma-transaction-query.ts        | 45 ++++++++++++++++++-\n .../persistence/prisma-unit-of-work.ts             | 52 +++++++++++++++++++---\n .../money-movement/money-movement.module.ts        |  7 +++\n .../presentation/http/transactions.controller.ts   | 28 +++++++++++-\n .../presentation/http/transfers.controller.ts      |  5 ++-\n test/e2e/banking-http.e2e.cjs                      | 34 ++++++++++++++\n test/helpers/fakes/fake-unit-of-work.ts            | 15 +++++++\n test/swagger.contract.cjs                          |  5 ++-\n 14 files changed, 226 insertions(+), 21 deletions(-)\n",
+  "rounds": 3,
+  "seconds": 60,
+  "historySizes": [
+    10000,
+    300000
+  ],
+  "protocol": "Closed-loop HTTP, zero think time, 2s warm-up, no login traffic; API CPU endpoints sampled outside timing; DB/generator/API share host. Feed omits exact total, legacy includes it."
+}

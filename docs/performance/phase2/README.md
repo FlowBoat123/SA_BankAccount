@@ -1,6 +1,6 @@
 # Chạy lại đánh giá giai đoạn 2
 
-Các cải tiến tập trung vào chuyển khoản, idempotency và lịch sử dùng cursor. Xem [báo cáo thực nghiệm](REPORT.md). Kết quả lưu kèm là đo tại Windows + Docker, chưa phải Kaggle.
+Các cải tiến tập trung vào chuyển khoản, idempotency và lịch sử dùng cursor. Đã hoàn tất [đánh giá trên Kaggle CPU](kaggle/REPORT.md) và [đánh giá tại Windows + Docker](REPORT.md). Hai bộ số liệu được lưu riêng, không gộp giữa các cấu hình.
 
 ## Chuẩn bị tại máy
 
@@ -40,10 +40,20 @@ Idempotency: gửi lại đúng nguồn/key/đích/số tiền/mô tả nhận k
 
 Notebook [phase2-kaggle.ipynb](phase2-kaggle.ipynb) cài môi trường, lấy bản gốc theo commit cố định và áp dụng file `phase2.patch` được bàn giao. Đưa patch vào Kaggle Dataset/Input, mở notebook, bật Internet và chọn CPU. Notebook dựng cả hai bản trong cùng phiên Kaggle, chạy test trước, sau đó đo và xuất ZIP kết quả. Cấu hình mặc định notebook là 60 giây/lượt, 3 lượt/kịch bản.
 
-Notebook chưa được thực thi trong phiên làm việc này vì chưa có kết nối/tài khoản Kaggle. Nếu chưa có patch, tạo từ Git checkout đã có commit cải tiến:
+Đã chạy thành công [phiên bản Kaggle chính thức](https://www.kaggle.com/code/flowboat/sa-bankaccount-phase-2-before-after-evaluation?scriptVersionId=370555759). Bản nguồn đã nhập và ZIP đầu ra gốc được giữ trong thư mục [kaggle](kaggle/README.md). Lần đo chính thức dùng Node 24.22.0 và PostgreSQL 16.15 trên cùng một phiên CPU; bộ đo tại máy dùng PostgreSQL 15.19. Nếu chưa có patch, tạo từ Git checkout đã có commit cải tiến:
 
 ```powershell
 git diff --binary c347c921d77ba533cfacd8e180feccef720be013 HEAD --output=phase2.patch
 ```
 
 Sau khi Kaggle chạy thành công, giữ riêng ZIP mới và dùng môi trường/thời lượng trong ZIP đó khi báo cáo; không gộp với số liệu tại máy.
+
+## Biểu đồ
+
+Biểu đồ được tạo trực tiếp từ summary.json bằng scripts/phase2/plot.py. Có thể dùng một môi trường Python riêng và cài scripts/phase2/requirements-plot.txt, sau đó chạy:
+
+```powershell
+python scripts/phase2/plot.py --results docs/performance/phase2/kaggle/results
+```
+
+Độ trễ của bộ đo HTTP Node.js bao gồm nhận response, đọc JSON và kiểm tra kết quả tại client. Không so sánh trực tiếp các con số này với độ trễ k6 của báo cáo giai đoạn 1.

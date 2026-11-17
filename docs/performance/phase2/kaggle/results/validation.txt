@@ -1,0 +1,112 @@
+PASS: Build (9639 ms)
+
+
+
+PASS: Resolve aliases (216 ms)
+
+
+
+PASS: Unit (14743 ms)
+
+PASS test/unit/money-movement/transfer-money.use-case.spec.ts
+PASS test/unit/modules/identity/application/login.use-case.spec.ts
+PASS test/unit/common/domain/value-objects/money.value-object.spec.ts
+PASS test/unit/common/config/env.schema.spec.ts
+PASS test/unit/common/http/filters/global-exception.filter.spec.ts
+PASS test/unit/common/http/pipes/validation-pipe.factory.spec.ts
+PASS test/unit/common/security/guards/access-token.guard.spec.ts
+PASS test/unit/common/http/interceptors/response-envelope.interceptor.spec.ts
+PASS test/unit/modules/identity/application/register-user.use-case.spec.ts
+PASS test/unit/modules/identity/infrastructure/persistence/prisma-user.repository.spec.ts
+PASS test/unit/money-movement/get-transaction-history.use-case.spec.ts
+PASS test/unit/money-movement/withdraw-money.use-case.spec.ts
+PASS test/unit/accounts/close-account.spec.ts
+PASS test/unit/money-movement/deposit-money.use-case.spec.ts
+PASS test/unit/common/observability/logger.service.spec.ts
+PASS test/unit/resolve-recipient.spec.ts
+PASS test/unit/common/http/interceptors/http-logging.interceptor.spec.ts
+PASS test/unit/modules/identity/presentation/auth.controller.spec.ts
+PASS test/unit/accounts/open-account.spec.ts
+PASS test/unit/common/http/middleware/request-id.middleware.spec.ts
+PASS test/unit/modules/identity/infrastructure/security/jwt-token.service.spec.ts
+PASS test/unit/accounts/get-account.spec.ts
+PASS test/unit/accounts/list-accounts.spec.ts
+PASS test/unit/modules/identity/infrastructure/security/bcrypt-password-hasher.spec.ts
+PASS test/unit/modules/identity/domain/entities/user.entity.spec.ts
+
+Test Suites: 25 passed, 25 total
+Tests:       172 passed, 172 total
+Snapshots:   0 total
+Time:        14.24 s
+Ran all test suites.
+Test results written to: ../phase2-report-20261117-063003/results/unit.json
+
+
+PASS: Integration (real PostgreSQL) (9532 ms)
+
+PASS test/integration/money-movement/money-movement.spec.ts (5.153 s)
+PASS test/integration/banking-flow.spec.ts
+PASS test/integration/accounts/prisma-account.repository.spec.ts
+PASS test/integration/identity/identity.spec.ts
+PASS test/integration/database/check-constraints.spec.ts
+
+Test Suites: 5 passed, 5 total
+Tests:       46 passed, 46 total
+Snapshots:   0 total
+Time:        9.051 s
+Ran all test suites.
+Test results written to: ../phase2-report-20261117-063003/results/integration.json
+
+
+PASS: HTTP and persistence (12111 ms)
+✔ full lifecycle over HTTP: money, history, close, and replay after close (3697.564667ms)
+✔ guard rejects missing, invalid and expired bearer tokens (23.560766ms)
+✔ identity rejects duplicate email, wrong password and malformed DTOs (17.26704ms)
+✔ DTO validation rejects invalid UUIDs, pagination, body types and extra fields (50.026755ms)
+✔ ownership protects reads, history, writes, close and transfers with 404 (66.678465ms)
+✔ transfer header validation, insufficient funds and closed destination do not move money (84.073838ms)
+✔ phase2 HTTP: same key and changed payload returns 409 without another debit (78.661562ms)
+✔ phase2 HTTP: feed pagination, ownership, cursor validation and legacy history (115.69292ms)
+✔ 20 simultaneous retries: one transfer, two ledger entries, same response ID (452.123667ms)
+✔ same key with changed amount, destination, or description returns conflict without writes (60.611836ms)
+✔ concurrent same-key different payload: one creation and one conflict (36.210041ms)
+✔ 40 crossed transfers complete and conserve balances (649.06644ms)
+✔ 20 concurrent withdrawals of 10 from 100: exactly ten accepted (136.514797ms)
+✔ failure AFTER both balances and ledger insert rolls the entire transaction back (26.881735ms)
+✔ batch ledger constraint failure rolls back balances and transfer (24.977657ms)
+✔ expired transaction is rolled back before one retry; balances and entries change once (5223.944617ms)
+✔ cursor visits every row once: tied timestamps and microseconds, final page and empty history (48.664499ms)
+✔ cursor enforces ownership, account/filter scope and valid date interval (53.957561ms)
+✔ new latest entry between pages does not shift or duplicate the next page (22.17407ms)
+✔ bounded retry retries an aborted transaction once (40.742608ms)
+✔ retry exhaustion returns explicit 503 after exactly two attempts (27.441343ms)
+✔ never retries constraints, ambiguous commit, transport, or domain errors (1.295343ms)
+ℹ tests 22
+ℹ suites 0
+ℹ pass 22
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 12046.186808
+
+
+
+PASS: Swagger (1206 ms)
+Swagger contract passed: 10 operations, schemas, auth, pagination, UI/JSON routes and production gating.
+
+
+
+PASS: Before/after reliability (776 ms)
+{
+  baseline: {
+    changedRequestAmount: '11',
+    returnedAmount: '10',
+    isReplay: true,
+    problem: 'Changed payload silently treated as original request'
+  },
+  improved: { errorCode: 'IDEMPOTENCY_KEY_REUSED', httpStatus: 409 },
+  transferCount: 1,
+  ledgerEntryCount: 2
+}
+

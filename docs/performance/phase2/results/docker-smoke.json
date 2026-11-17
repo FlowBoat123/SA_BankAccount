@@ -1,0 +1,16 @@
+{
+  "passed": true,
+  "healthStatus": "healthy",
+  "imageId": "sha256:3846845649f4d1a2d61fe5550a06a581ce53a41d973190115a92d0eae5eb5ff9",
+  "containerNode": "v24.22.3",
+  "checks": [
+    "register/login",
+    "atomic transfer",
+    "identical replay",
+    "changed payload 409",
+    "balances",
+    "cursor pages",
+    "legacy pagination"
+  ],
+  "timestamp": "2026-11-17T06:47:40.144Z"
+}

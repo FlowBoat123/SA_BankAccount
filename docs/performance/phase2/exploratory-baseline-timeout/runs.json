@@ -1,0 +1,50 @@
+[
+  {
+    "round": 1,
+    "variant": "baseline",
+    "scenario": "transfer_hot_1",
+    "clients": 1,
+    "seconds": 10.015029100000001,
+    "requests": 603,
+    "successes": 603,
+    "errors": {},
+    "successRps": 60.209510524537556,
+    "p50": 16.31629999999859,
+    "p95": 19.73400000000038,
+    "p99": 23.756400000000212,
+    "apiCpuPercent": 52.265200108105525,
+    "apiRssBytes": 289812480,
+    "apiPeakRssBytes": 291790848,
+    "reconciliation": {
+      "transfers": 603,
+      "ledgerEntries": 1206,
+      "conserved": true,
+      "ledgerMatchesBalances": true
+    }
+  },
+  {
+    "round": 1,
+    "variant": "baseline",
+    "scenario": "transfer_hot_10",
+    "clients": 10,
+    "seconds": 10.1024136,
+    "requests": 850,
+    "successes": 849,
+    "errors": {
+      "500:INTERNAL_ERROR": 1
+    },
+    "successRps": 84.03932303860535,
+    "p50": 36.11670000000231,
+    "p95": 359.28259999999864,
+    "p99": 2322.1343000000015,
+    "apiCpuPercent": 59.85574575960739,
+    "apiRssBytes": 354426880,
+    "apiPeakRssBytes": 354426880,
+    "reconciliation": {
+      "transfers": 849,
+      "ledgerEntries": 1698,
+      "conserved": true,
+      "ledgerMatchesBalances": true
+    }
+  }
+]

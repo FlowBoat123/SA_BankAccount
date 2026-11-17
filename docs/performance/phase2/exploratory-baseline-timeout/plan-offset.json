@@ -1,0 +1,78 @@
+[
+  {
+    "QUERY PLAN": [
+      {
+        "Plan": {
+          "Node Type": "Limit",
+          "Parallel Aware": false,
+          "Async Capable": false,
+          "Startup Cost": 66846.9,
+          "Total Cost": 66852.47,
+          "Plan Rows": 20,
+          "Plan Width": 653,
+          "Actual Startup Time": 26.987,
+          "Actual Total Time": 26.991,
+          "Actual Rows": 20,
+          "Actual Loops": 1,
+          "Shared Hit Blocks": 10222,
+          "Shared Read Blocks": 0,
+          "Shared Dirtied Blocks": 0,
+          "Shared Written Blocks": 0,
+          "Local Hit Blocks": 0,
+          "Local Read Blocks": 0,
+          "Local Dirtied Blocks": 0,
+          "Local Written Blocks": 0,
+          "Temp Read Blocks": 0,
+          "Temp Written Blocks": 0,
+          "Plans": [
+            {
+              "Node Type": "Index Scan",
+              "Parent Relationship": "Outer",
+              "Parallel Aware": false,
+              "Async Capable": false,
+              "Scan Direction": "Forward",
+              "Index Name": "idx_transactions_account_created",
+              "Relation Name": "financial_transactions",
+              "Alias": "financial_transactions",
+              "Startup Cost": 0.42,
+              "Total Cost": 83672.99,
+              "Plan Rows": 300411,
+              "Plan Width": 653,
+              "Actual Startup Time": 0.012,
+              "Actual Total Time": 21.818,
+              "Actual Rows": 240020,
+              "Actual Loops": 1,
+              "Index Cond": "(account_id = 'bcb37645-dcef-4bbd-b923-17dd83d46bf6'::text)",
+              "Rows Removed by Index Recheck": 0,
+              "Shared Hit Blocks": 10222,
+              "Shared Read Blocks": 0,
+              "Shared Dirtied Blocks": 0,
+              "Shared Written Blocks": 0,
+              "Local Hit Blocks": 0,
+              "Local Read Blocks": 0,
+              "Local Dirtied Blocks": 0,
+              "Local Written Blocks": 0,
+              "Temp Read Blocks": 0,
+              "Temp Written Blocks": 0
+            }
+          ]
+        },
+        "Planning": {
+          "Shared Hit Blocks": 57,
+          "Shared Read Blocks": 0,
+          "Shared Dirtied Blocks": 0,
+          "Shared Written Blocks": 0,
+          "Local Hit Blocks": 0,
+          "Local Read Blocks": 0,
+          "Local Dirtied Blocks": 0,
+          "Local Written Blocks": 0,
+          "Temp Read Blocks": 0,
+          "Temp Written Blocks": 0
+        },
+        "Planning Time": 0.165,
+        "Triggers": [],
+        "Execution Time": 27.006
+      }
+    ]
+  }
+]

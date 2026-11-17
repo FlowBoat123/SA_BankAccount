@@ -1,0 +1,51 @@
++56ms
+[Nest] 1344  - 11/17/2026, 1:10:12 PM     LOG [HTTP] [aabbc272-a4f1-40fe-ac11-a8819fb16290] POST /api/v1/transfers 201 +163ms
+[Nest] 1344  - 11/17/2026, 1:10:12 PM     LOG [HTTP] [617ae5f0-518c-4f34-9c59-17202aab1fd0] POST /api/v1/transfers 201 +22ms
+[Nest] 1344  - 11/17/2026, 1:10:12 PM     LOG [HTTP] [021b00dd-3dd3-45fa-b9a7-51f42d0e2e2c] POST /api/v1/transfers 201 +23ms
+[Nest] 1344  - 11/17/2026, 1:10:12 PM     LOG [HTTP] [aa7a71c4-5dec-4e24-912c-f0a36711c2aa] POST /api/v1/transfers 201 +24ms
+[Nest] 1344  - 11/17/2026, 1:10:12 PM     LOG [HTTP] [3e9e6142-72bb-463c-9133-ead5cc958ad1] POST /api/v1/transfers 201 +23ms
+[Nest] 1344  - 11/17/2026, 1:10:12 PM     LOG [HTTP] [37bb39e8-2a66-4966-9b10-785cf66b759c] POST /api/v1/transfers 201 +23ms
+[Nest] 1344  - 11/17/2026, 1:10:12 PM     LOG [HTTP] [36f6f628-54b5-47c0-bf6f-bac9339debf4] POST /api/v1/transfers 201 +23ms
+[Nest] 1344  - 11/17/2026, 1:10:12 PM     LOG [HTTP] [9828414a-7196-4540-9048-25b366e45c36] POST /api/v1/transfers 201 +23ms
+[Nest] 1344  - 11/17/2026, 1:10:12 PM     LOG [HTTP] [e8d3a523-499b-42d5-bc7d-9a91730d80dc] POST /api/v1/transfers 201 +24ms
+[Nest] 1344  - 11/17/2026, 1:10:12 PM     LOG [HTTP] [5155409d-268e-4162-b2b0-e9d8f14df986] POST /api/v1/transfers 201 +299ms
+[Nest] 1344  - 11/17/2026, 1:10:12 PM     LOG [HTTP] [9025fc67-05a3-4cfd-9e32-23ec50486339] POST /api/v1/transfers 201 +23ms
+[Nest] 1344  - 11/17/2026, 1:10:12 PM     LOG [HTTP] [98b23a79-7c43-4ece-9fb0-6c089b976555] POST /api/v1/transfers 201 +22ms
+[Nest] 1344  - 11/17/2026, 1:10:12 PM     LOG [HTTP] [2c8d5952-91da-4220-9124-da561cb735a8] POST /api/v1/transfers 201 +22ms
+[Nest] 1344  - 11/17/2026, 1:10:12 PM     LOG [HTTP] [0701083f-94a2-4bd0-8912-9bf054bc8792] POST /api/v1/transfers 201 +57ms
+[Nest] 1344  - 11/17/2026, 1:10:12 PM     LOG [HTTP] [81cff746-6db6-4c5a-bd7b-5cecfb463eb6] POST /api/v1/transfers 201 +24ms
+[Nest] 1344  - 11/17/2026, 1:10:12 PM     LOG [HTTP] [756a47c4-bb5d-49e5-afba-cc5dfa87212f] POST /api/v1/transfers 201 +24ms
+[Nest] 1344  - 11/17/2026, 1:10:12 PM     LOG [HTTP] [3734b240-9eba-4945-b468-f997d6151ae6] POST /api/v1/transfers 201 +23ms
+[Nest] 1344  - 11/17/2026, 1:10:12 PM     LOG [HTTP] [74232ff5-6033-4914-963a-7d1edaea7950] POST /api/v1/transfers 201 +24ms
+[Nest] 1344  - 11/17/2026, 1:10:12 PM     LOG [HTTP] [f595dc05-feac-4ddc-bb39-bc8780161daa] POST /api/v1/transfers 201 +65ms
+[Nest] 1344  - 11/17/2026, 1:10:12 PM     LOG [HTTP] [b359766b-0383-43b6-8773-76bc27d52d5a] POST /api/v1/transfers 201 +24ms
+[Nest] 1344  - 11/17/2026, 1:10:12 PM     LOG [HTTP] [06bfaed4-6a67-4287-95bb-632660a65094] POST /api/v1/transfers 201 +22ms
+[Nest] 1344  - 11/17/2026, 1:10:12 PM     LOG [HTTP] [475e6963-9906-4622-8135-12d484b90ce1] POST /api/v1/transfers 201 +22ms
+[Nest] 1344  - 11/17/2026, 1:10:12 PM     LOG [HTTP] [8d8ac6bd-cfcd-40f0-9530-f723372d275f] POST /api/v1/transfers 201 +205ms
+[Nest] 1344  - 11/17/2026, 1:10:12 PM     LOG [HTTP] [3ac6fc76-7b99-48df-8781-5e85027c5bb3] POST /api/v1/transfers 201 +23ms
+[Nest] 1344  - 11/17/2026, 1:10:12 PM     LOG [HTTP] [b954418e-ca38-49dc-a045-c571a1a4d39c] POST /api/v1/transfers 201 +23ms
+[Nest] 1344  - 11/17/2026, 1:10:12 PM     LOG [HTTP] [f695e9d2-fd1a-4c6c-8c9d-5cad0d988018] POST /api/v1/transfers 201 +51ms
+[Nest] 1344  - 11/17/2026, 1:10:12 PM     LOG [HTTP] [2183cc0a-db8b-4d83-9341-1b3cb08ed8dd] POST /api/v1/transfers 201 +252ms
+[Nest] 1344  - 11/17/2026, 1:10:12 PM     LOG [HTTP] [7b08ad25-68f5-4779-8276-889b402dd12e] POST /api/v1/transfers 201 +29ms
+[Nest] 1344  - 11/17/2026, 1:10:12 PM     LOG [HTTP] [a68d3adc-3dc5-4cc7-8d40-8474b8bb7ffd] POST /api/v1/transfers 201 +23ms
+[Nest] 1344  - 11/17/2026, 1:10:12 PM     LOG [HTTP] [9fa97907-b408-4b60-8261-70af3a57c863] POST /api/v1/transfers 201 +52ms
+[Nest] 1344  - 11/17/2026, 1:10:12 PM     LOG [HTTP] [4ea9d974-1871-4b15-b5c9-bf7c2b4156cf] POST /api/v1/transfers 201 +68ms
+[Nest] 1344  - 11/17/2026, 1:10:12 PM     LOG [HTTP] [4bdef093-0554-42fb-90a2-04f20af58393] POST /api/v1/transfers 201 +133ms
+[Nest] 1344  - 11/17/2026, 1:10:12 PM     LOG [HTTP] [c2fc75da-96c2-4e2a-9949-8053a53f026e] POST /api/v1/transfers 201 +446ms
+[Nest] 1344  - 11/17/2026, 1:10:12 PM     LOG [HTTP] [0cfa96d2-b097-4a06-9117-2ef8a4ff0738] POST /api/v1/transfers 201 +1674ms
+[Nest] 1344  - 11/17/2026, 1:10:12 PM   ERROR [GlobalExceptionFilter] [ed54a406-112d-46e5-aee4-dc4bc8bb5b32] Unhandled exception
+PrismaClientKnownRequestError: 
+Invalid `prisma.$queryRaw()` invocation:
+
+
+Transaction API error: A query cannot be executed on an expired transaction. The timeout for this transaction was 5000 ms, however 7211 ms passed since the start of the transaction. Consider increasing the interactive transaction timeout or doing less work in the transaction.
+    at vn.handleRequestError (C:\Users\ADMIN\Music\SA_BankAccount\node_modules\@prisma\client\runtime\client.js:65:8643)
+    at vn.handleAndLogRequestError (C:\Users\ADMIN\Music\SA_BankAccount\node_modules\@prisma\client\runtime\client.js:65:7932)
+    at vn.request (C:\Users\ADMIN\Music\SA_BankAccount\node_modules\@prisma\client\runtime\client.js:65:7639)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async a (C:\Users\ADMIN\Music\SA_BankAccount\node_modules\@prisma\client\runtime\client.js:99:6935)
+    at async Object.lockForUpdate (C:\Users\ADMIN\Music\SA_BankAccount\dist\modules\money-movement\infrastructure\persistence\prisma-unit-of-work.js:31:34)
+    at async C:\Users\ADMIN\Music\SA_BankAccount\dist\modules\money-movement\application\use-cases\transfer-money.use-case.js:26:35
+    at async Proxy._transactionWithCallback (C:\Users\ADMIN\Music\SA_BankAccount\node_modules\@prisma\client\runtime\client.js:99:4868)
+    at async TransfersController.transfer (C:\Users\ADMIN\Music\SA_BankAccount\dist\modules\money-movement\presentation\http\transfers.controller.js:32:24)
+[Nest] 1344  - 11/17/2026, 1:10:12 PM     LOG [HTTP] [159e1f3a-e6ea-45ea-93d0-7bb07f6e0ecc] POST /api/v1/transfers 201 +1370ms

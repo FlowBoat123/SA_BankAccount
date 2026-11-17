@@ -1,0 +1,27 @@
+[
+  {
+    "round": 1,
+    "variant": "improved",
+    "scenario": "transfer_hot_10",
+    "clients": 10,
+    "seconds": 30.0631534,
+    "requests": 3473,
+    "successes": 3470,
+    "errors": {
+      "500:INTERNAL_ERROR": 3
+    },
+    "successRps": 115.42368672475988,
+    "p50": 25.961100000000442,
+    "p95": 206.26190000000497,
+    "p99": 1656.990700000002,
+    "apiCpuPercent": 58.67855831783768,
+    "apiRssBytes": 386572288,
+    "apiPeakRssBytes": 387223552,
+    "reconciliation": {
+      "transfers": 3470,
+      "ledgerEntries": 6940,
+      "conserved": true,
+      "ledgerMatchesBalances": true
+    }
+  }
+]

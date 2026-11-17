@@ -1,0 +1,8 @@
+{
+  "notebookUrl": "https://www.kaggle.com/code/flowboat/sa-bankaccount-phase-2-before-after-evaluation?scriptVersionId=370555759",
+  "sourcePatchSha256": "d4fa86ba70b43fd87133b99337e07bd0c68f5af15fc53bdf12056c96c6740449",
+  "apiSourceCommit": "ec44a870a2cd645ab23b62a5d03805eed8b27820",
+  "originalZipSha256": "11ce917933799abc93ff8e2f09371c1e5972ed79e09fbf7aa0e3a8d02d3135e4",
+  "improvedSourceCommit": "ec44a870a2cd645ab23b62a5d03805eed8b27820",
+  "sourceFile": "source-used.ipynb"
+}

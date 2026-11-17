@@ -52,7 +52,7 @@ Cursor là ID giao dịch cuối trang. Timestamp được đọc ngay trong Pos
 
 ## Thiết kế phép đo
 
-Mỗi kịch bản chạy ${env.rounds} lần cho mỗi bản, ${env.seconds} giây/lượt, warm-up 2 giây riêng. Thứ tự bản gốc/cải tiến được đảo giữa các vòng. Dùng HTTP thực, tải vòng kín không think-time; số client là số luồng yêu cầu đồng thời, không phải requests/giây. p95 ở bảng là trung vị của p95 từng lượt; không phải p95 gộp toàn bộ request.
+Mỗi kịch bản chạy ${env.rounds} lần cho mỗi bản, ${env.seconds} giây/lượt, warm-up 2 giây riêng. Thứ tự bản gốc/cải tiến được đảo giữa các vòng. Dùng HTTP thực, tải vòng kín không think-time; số client là số luồng yêu cầu đồng thời, không phải requests/giây. Độ trễ tại client gồm nhận response, đọc JSON và kiểm tra kết quả. Bộ tạo tải dùng Node.js, không dùng k6; không so sánh trực tiếp với số liệu k6 của nhóm gốc. p95 ở bảng là trung vị của p95 từng lượt; không phải p95 gộp toàn bộ request.
 
 - transfer_hot_1/10: 1 hoặc 10 client chuyển 1 VND trên cùng cặp tài khoản, mỗi request có key mới.
 - transfer_distributed_10: 10 client trên 10 cặp tài khoản độc lập.
@@ -103,6 +103,8 @@ EXPLAIN ANALYZE BUFFERS trên cùng trang sâu 300.000 bản ghi, không kèm CO
 ## Kiểm thử và giới hạn
 
 Kết quả kiểm thử được lưu riêng trong results/validation.txt. Bộ kiểm thử mới sử dụng PostgreSQL thật: gửi lại đồng thời, payload xung đột, chuyển chéo, chống thấu chi, lỗi sau khi đã ghi dữ liệu, lỗi ràng buộc khi ghi theo lô; cursor có timestamp trùng và khác nhau ở microsecond, phân quyền, bộ lọc và chèn bản ghi giữa hai trang. Kiểm thử HTTP xác nhận DTO/Guard/envelope và API cũ.
+
+Đạt 172 unit test, 46 integration test và 22 test HTTP/persistence/retry, tổng cộng 240 test. Swagger contract cũng đạt cho 10 API. Adapter chuẩn hóa Decimal thành chuỗi thật theo hợp đồng port; test integration đã kiểm chứng kiểu dữ liệu trả về. Kết quả Docker được ghi riêng ở bộ dữ liệu tại máy.
 
 Chưa xác định tải tối đa, chưa kiểm thử soak dài hạn, chưa kiểm chứng nhiều bản sao API hoặc mô hình multi-node. Dữ liệu lịch sử được sinh tổng hợp để đo truy vấn; không coi là sổ giao dịch tài chính đã đối soát. Mỗi lượt chính thức chỉ ${env.seconds} giây nên kết luận giới hạn trong cấu hình và kịch bản đã đo. Không suy rộng thành cam kết hiệu năng production.
 
