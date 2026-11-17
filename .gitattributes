@@ -1,0 +1,3 @@
+# Preserve raw evaluation bytes so recorded SHA-256 values survive checkout.
+docs/performance/phase2-followup/results/** -text
+docs/performance/phase2-followup/exploratory-*/** -text

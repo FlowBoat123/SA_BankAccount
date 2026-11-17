@@ -1,0 +1,99 @@
+PASS: Build (5764 ms)
+
+
+
+PASS: Resolve aliases (272 ms)
+
+
+
+PASS: Unit (5300 ms)
+
+
+Test Suites: 25 passed, 25 total
+Tests:       172 passed, 172 total
+Snapshots:   0 total
+Time:        4.857 s, estimated 6 s
+Ran all test suites.
+Test results written to: docs\performance\phase2-followup\results\unit.json
+
+
+PASS: Integration (real PostgreSQL) (6229 ms)
+
+
+Test Suites: 5 passed, 5 total
+Tests:       46 passed, 46 total
+Snapshots:   0 total
+Time:        5.8 s, estimated 6 s
+Ran all test suites.
+Test results written to: docs\performance\phase2-followup\results\integration.json
+
+
+PASS: HTTP and persistence (23794 ms)
+✔ cash HTTP idempotency: concurrent replay, conflicts, validation, ownership and history privacy (8286.1066ms)
+✔ cash HTTP withdrawal replay survives close and a response the caller did not retain (51.4188ms)
+✔ real socket loss AFTER cash commit: a new request replays without posting money twice (50.2794ms)
+✔ full lifecycle over HTTP: money, history, close, and replay after close (135.3314ms)
+✔ guard rejects missing, invalid and expired bearer tokens (8.7713ms)
+✔ identity rejects duplicate email, wrong password and malformed DTOs (10.7164ms)
+✔ DTO validation rejects invalid UUIDs, pagination, body types and extra fields (27.014ms)
+✔ ownership protects reads, history, writes, close and transfers with 404 (42.9093ms)
+✔ transfer header validation, insufficient funds and closed destination do not move money (54.5699ms)
+✔ phase2 HTTP: same key and changed payload returns 409 without another debit (54.1723ms)
+✔ phase2 HTTP: feed pagination, ownership, cursor validation and legacy history (86.7409ms)
+✔ 20 simultaneous retries: one transfer, two ledger entries, same response ID (208.3931ms)
+✔ same key with changed amount, destination, or description returns conflict without writes (40.8604ms)
+✔ concurrent same-key different payload: one creation and one conflict (23.9811ms)
+✔ 40 crossed transfers complete and conserve balances (348.5202ms)
+✔ 20 concurrent withdrawals of 10 from 100: exactly ten accepted (80.1595ms)
+✔ failure AFTER both balances and ledger insert rolls the entire transaction back (18.7037ms)
+✔ batch ledger constraint failure rolls back balances and transfer (20.4292ms)
+✔ expired transaction is rolled back before one retry; balances and entries change once (5214.602ms)
+✔ cursor visits every row once: tied timestamps and microseconds, final page and empty history (32.7635ms)
+✔ cursor enforces ownership, account/filter scope and valid date interval (24.9909ms)
+✔ new latest entry between pages does not shift or duplicate the next page (16.6355ms)
+✔ 20 simultaneous deposit requests with one key commit exactly once (93.0068ms)
+✔ 20 simultaneous withdrawal requests with one key commit exactly once (78.7456ms)
+✔ cash same key with changed amount, description or type conflicts; concurrent conflict also commits once (43.0303ms)
+✔ cash keys are account-scoped and ownership is checked before replay (26.512ms)
+✔ cash replay after later writes and close returns original snapshot, not current balance (34.1658ms)
+✔ rollback after cash ledger insert leaves no balance change or reserved key (23.6334ms)
+✔ insufficient-funds failure does not reserve a cash key; legacy calls remain separate (43.2815ms)
+✔ database unique constraint protects cash keys even if application locking is bypassed (19.4175ms)
+✔ cash key normalization, boundary validation and no-op rejection (38.8261ms)
+✔ cash timeout AFTER ledger insertion rolls back key and balance before bounded retry (5233.1013ms)
+✔ three-account cyclic transfers with concurrent cash writes conserve money without deadlock (718.1591ms)
+✔ telemetry observes a real blocked lock and one transfer uses one locking query (140.5245ms)
+✔ bounded retry retries an aborted transaction once (35.8209ms)
+✔ retry exhaustion returns explicit 503 after exactly two attempts (30.7437ms)
+✔ never retries constraints, ambiguous commit, transport, or domain errors (0.4159ms)
+✔ telemetry retains bounded aggregates; snapshots and reset do not mutate prior snapshots (2.4067ms)
+✔ telemetry distinguishes committed, rejected, retried and exhausted attempts (66.4707ms)
+ℹ tests 39
+ℹ suites 0
+ℹ pass 39
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 23729.0633
+
+
+
+PASS: Swagger (1933 ms)
+Swagger contract passed: 10 operations, schemas, auth, pagination, UI/JSON routes and production gating.
+
+
+
+PASS: Before/after reliability (858 ms)
+{
+  baseline: {
+    changedRequestAmount: '11',
+    returnedAmount: '10',
+    isReplay: true,
+    problem: 'Changed payload silently treated as original request'
+  },
+  improved: { errorCode: 'IDEMPOTENCY_KEY_REUSED', httpStatus: 409 },
+  transferCount: 1,
+  ledgerEntryCount: 2
+}
+

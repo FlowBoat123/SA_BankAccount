@@ -1,0 +1,19 @@
+{
+  "runId": "83f44b08-58a3-47d7-9a54-186dcc1f98be",
+  "timestamp": "2026-11-17T08:03:26.636Z",
+  "platform": "win32",
+  "release": "10.0.26300",
+  "cpu": "AMD Ryzen AI 9 365 w/ Radeon 880M              ",
+  "logicalCpus": 20,
+  "ramBytes": 29841813504,
+  "node": "v24.11.1",
+  "postgres": "PostgreSQL 15.19 (Debian 15.19-1.pgdg13+2) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit",
+  "rounds": 3,
+  "duration": 15,
+  "baselineCommit": "8ad478154e3772eb60e08cc8a741b087843dd35f",
+  "baselineTransferJsSha256": "9a105ca5b1dc3b22ee1008da159967e82306e8a07ea655d9ca0e7b221bb8a572",
+  "improvedTransferJsSha256": "3695f9d3d1f44a294940d9a2c4a06907117a32ed79f42504245705ecb3b95f12",
+  "uowIdentical": false,
+  "protocol": "Same schema, telemetry, UoW and runtime; only compiled transfer use case differs. Closed-loop HTTP, zero think time, 2-second warmup. Alternating version order. SQL deltas exclude warmup/reset/reconciliation. 50ms lock sampling is approximate. All services share the host.",
+  "sourceDiff": " README.md | 2 ++\n 1 file changed, 2 insertions(+)\n"
+}

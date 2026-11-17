@@ -1,0 +1,32 @@
+{
+  "recordedAt": "2026-11-17T08:17:42.138Z",
+  "apiSourceCommit": "87dd3ae89bd2c800b92b22665fbf7fc9130f5d4a",
+  "baselineUseCaseCommit": "8ad478154e3772eb60e08cc8a741b087843dd35f",
+  "checks": {
+    "unit": 172,
+    "integration": 46,
+    "httpPersistenceRetryTelemetry": 39,
+    "total": 257,
+    "swaggerOperations": 10,
+    "dockerSmoke": true,
+    "prismaValidate": true,
+    "prismaMigrateDiff": "No difference detected"
+  },
+  "measuredRequests": 69366,
+  "errors": 0,
+  "reconciledRuns": 24,
+  "packageLockUnchanged": true,
+  "sha256": {
+    "comparison.png": "d775f72a01c2593471fb24af086b22cc782fa7a5749a367663148c1a72becdbe",
+    "comparison.svg": "be8bb41e0482719d451952c26fb223e5ed7cca7de9598bf1583765566f317c6a",
+    "dependency-audit.json": "733908926e18621f5f8c0e22a3fd7594a79cd14931375acfb69731f681731596",
+    "docker-smoke.json": "f77eb65b452ea5897a9ecb4ceabb02cfdc07ed740d5888a4fb4551e4c39dc7f1",
+    "environment.json": "ee562fcb078eb2be42146bb686108253728e9fd8874ca2597cfc1a95979e07f2",
+    "idempotency-before-after.json": "db72ebda0269bf6620473eab80a0875c9aa7300dd7dfe57699e720bf4215e6ec",
+    "integration.json": "f19675b3f99dbb035dc227b7187adf5f12d338853650886cb1e39afb99b7381f",
+    "runs.json": "8ca377f44f375ec6f468a683adcae18cd4acf081344eeb052036dc03d019283a",
+    "summary.json": "06373ccf1d89bae26aa07ee084c56f4847415ebb542022f6952345cd6a234012",
+    "unit.json": "e83e6ac40ff46fb29c2ca1352279ffbacf3988969435ec43f0b7a367ead7b84e",
+    "validation.txt": "7f92e9ecad3887b87a43afbb93f2ae7e68a755400e8375c4f04ae4a03f8e10f5"
+  }
+}

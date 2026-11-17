@@ -1,0 +1,19 @@
+{
+  "runId": "71ee5902-02e2-4cb0-b9f6-fdcf2f975c62",
+  "timestamp": "2026-11-17T07:53:22.003Z",
+  "platform": "win32",
+  "release": "10.0.26300",
+  "cpu": "AMD Ryzen AI 9 365 w/ Radeon 880M              ",
+  "logicalCpus": 20,
+  "ramBytes": 29841813504,
+  "node": "v24.11.1",
+  "postgres": "PostgreSQL 15.19 (Debian 15.19-1.pgdg13+2) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit",
+  "rounds": 3,
+  "duration": 15,
+  "baselineCommit": "8ad478154e3772eb60e08cc8a741b087843dd35f",
+  "baselineTransferJsSha256": "9a105ca5b1dc3b22ee1008da159967e82306e8a07ea655d9ca0e7b221bb8a572",
+  "improvedTransferJsSha256": "3695f9d3d1f44a294940d9a2c4a06907117a32ed79f42504245705ecb3b95f12",
+  "uowIdentical": true,
+  "protocol": "Same schema, telemetry, UoW and runtime; only compiled transfer use case differs. Closed-loop HTTP, zero think time, 2-second warmup. Alternating version order. SQL deltas exclude warmup/reset/reconciliation. 50ms lock sampling is approximate. All services share the host.",
+  "sourceDiff": " prisma/schema.prisma                               |   2 +\n scripts/phase2/verify.cjs                          |   2 +-\n src/common/observability/observability.module.ts   |   5 +-\n src/main.ts                                        |  32 +-----\n .../application/ports/unit-of-work.port.ts         |   9 ++\n .../use-cases/deposit-money.use-case.ts            |  64 ++----------\n .../use-cases/transfer-money.use-case.ts           |  13 +--\n .../use-cases/withdraw-money.use-case.ts           |  62 ++----------\n .../persistence/prisma-unit-of-work.ts             |  87 +++++++++++++++--\n .../presentation/http/transactions.controller.ts   |  39 ++++----\n test/__mocks__/@nestjs/common.js                   |   1 +\n test/e2e/banking-http.e2e.cjs                      |  36 +++++++\n test/e2e/phase2-persistence.e2e.cjs                | 108 +++++++++++++++++++++\n test/helpers/fakes/fake-unit-of-work.ts            |   8 ++\n test/swagger.contract.cjs                          |   4 +\n 15 files changed, 299 insertions(+), 173 deletions(-)\n"
+}

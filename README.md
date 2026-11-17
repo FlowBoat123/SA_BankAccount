@@ -1,5 +1,7 @@
 # SA Bank Account - Dịch vụ quản lý tài khoản và giao dịch ngân hàng
 
+> **Đợt cải tiến tiếp theo:** [báo cáo đánh giá](docs/performance/phase2-followup/REPORT.md) và [hướng dẫn/API](docs/performance/phase2-followup/README.md): telemetry transaction/khóa, gộp truy vấn lấy khóa hai tài khoản và idempotency cho nạp/rút tiền.
+
 > **Giai đoạn 2:** [báo cáo chính thức trên Kaggle CPU](docs/performance/phase2/kaggle/REPORT.md), [báo cáo tại máy](docs/performance/phase2/REPORT.md), [thiết kế cải tiến](docs/performance/phase2/ARCHITECTURE.md) và [hướng dẫn chạy lại](docs/performance/phase2/README.md). Phần giai đoạn 2 bổ sung ghi theo lô trong chuyển khoản, kiểm tra payload của idempotency key, thử lại transaction có giới hạn và API lịch sử dùng cursor. Số liệu giai đoạn 1 bên dưới được giữ làm tài liệu của nhóm gốc.
 
 Dự án môn học **Kiến trúc Phần mềm**.

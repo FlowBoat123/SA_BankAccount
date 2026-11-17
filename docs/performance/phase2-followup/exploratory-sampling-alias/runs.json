@@ -1,0 +1,4673 @@
+[
+  {
+    "round": 1,
+    "variant": "baseline",
+    "scenario": "transfer_hot_1",
+    "clients": 1,
+    "seconds": 15.0101247,
+    "requests": 1082,
+    "successes": 1082,
+    "errors": {},
+    "successRps": 72.08467761763498,
+    "p50": 13.54280000000017,
+    "p95": 16.23439999999937,
+    "p99": 22.776800000001458,
+    "telemetry": {
+      "counters": {
+        "attempts": 1082,
+        "committed": 1082
+      },
+      "timings": {
+        "transaction_start": {
+          "count": 1082,
+          "sumMs": 1313.3534000000345,
+          "maxMs": 5.13879999999881,
+          "buckets": [
+            325,
+            1062,
+            1081,
+            1082,
+            1082,
+            1082,
+            1082,
+            1082,
+            1082,
+            1082,
+            1082,
+            1082,
+            1082
+          ]
+        },
+        "account_lock_query": {
+          "count": 2164,
+          "sumMs": 2199.786900000021,
+          "maxMs": 5.098900000000867,
+          "buckets": [
+            1314,
+            2142,
+            2163,
+            2164,
+            2164,
+            2164,
+            2164,
+            2164,
+            2164,
+            2164,
+            2164,
+            2164,
+            2164
+          ]
+        },
+        "transaction_callback": {
+          "count": 1082,
+          "sumMs": 9566.0761,
+          "maxMs": 22.582399999999325,
+          "buckets": [
+            0,
+            0,
+            0,
+            980,
+            1080,
+            1082,
+            1082,
+            1082,
+            1082,
+            1082,
+            1082,
+            1082,
+            1082
+          ]
+        },
+        "transaction_attempt": {
+          "count": 1082,
+          "sumMs": 12618.240800000027,
+          "maxMs": 29.138100000000122,
+          "buckets": [
+            0,
+            0,
+            0,
+            60,
+            1073,
+            1082,
+            1082,
+            1082,
+            1082,
+            1082,
+            1082,
+            1082,
+            1082
+          ]
+        },
+        "transaction_finish": {
+          "count": 1082,
+          "sumMs": 1738.8112999999921,
+          "maxMs": 11.206499999999323,
+          "buckets": [
+            0,
+            990,
+            1081,
+            1081,
+            1082,
+            1082,
+            1082,
+            1082,
+            1082,
+            1082,
+            1082,
+            1082,
+            1082
+          ]
+        }
+      },
+      "bucketUpperBoundsMs": [
+        1,
+        2,
+        5,
+        10,
+        20,
+        50,
+        100,
+        200,
+        500,
+        1000,
+        2000,
+        5000,
+        10000
+      ]
+    },
+    "lockSampling": {
+      "intervalMs": 50,
+      "samples": 273,
+      "maxWaiting": null,
+      "meanWaiting": null,
+      "blockedSampleFraction": 0
+    },
+    "sql": [
+      {
+        "queryId": "6958696115885947755",
+        "normalizedQuery": "INSERT INTO \"public\".\"transfers\" (\"id\",\"source_account_id\",\"destination_account_id\",\"initiated_by_user_id\",\"amount\",\"description\",\"idempotency_key\",\"status\",\"created_at\") VALUES ($1,$2,$3,$4,$5,$6,$7,CAST($8::text AS \"public\".\"TransferStatus\"),$9) RETURNING \"public\".\"transfers\".\"id\", \"public\".\"transfers\".\"source_account_id\", \"public\".\"transfers\".\"destination_account_id\", \"public\".\"transfers\".\"initiated_by_user_id\", \"public\".\"transfers\".\"amount\", \"public\".\"transfers\".\"description\", \"public\".\"transfers\".\"idempotency_key\", \"public\".\"transfers\".\"status\"::text, \"public\".\"transfers\".\"created_at\"",
+        "calls": 1082,
+        "executionMs": 82.001585,
+        "rows": 1082
+      },
+      {
+        "queryId": "6797264611338302017",
+        "normalizedQuery": "SELECT \"public\".\"transfers\".\"id\", \"public\".\"transfers\".\"source_account_id\", \"public\".\"transfers\".\"destination_account_id\", \"public\".\"transfers\".\"initiated_by_user_id\", \"public\".\"transfers\".\"amount\", \"public\".\"transfers\".\"description\", \"public\".\"transfers\".\"idempotency_key\", \"public\".\"transfers\".\"status\"::text, \"public\".\"transfers\".\"created_at\" FROM \"public\".\"transfers\" WHERE ((\"public\".\"transfers\".\"source_account_id\" = $1 AND \"public\".\"transfers\".\"idempotency_key\" = $2) AND $5=$6) LIMIT $3 OFFSET $4",
+        "calls": 1082,
+        "executionMs": 16.66832400000001,
+        "rows": 0
+      },
+      {
+        "queryId": "1723362235184929282",
+        "normalizedQuery": "SELECT \"public\".\"bank_accounts\".\"id\", \"public\".\"bank_accounts\".\"user_id\", \"public\".\"bank_accounts\".\"current_balance\", \"public\".\"bank_accounts\".\"status\"::text, \"public\".\"bank_accounts\".\"account_number\" FROM \"public\".\"bank_accounts\" WHERE (\"public\".\"bank_accounts\".\"account_number\" = $1 AND $4=$5) LIMIT $2 OFFSET $3",
+        "calls": 1082,
+        "executionMs": 14.018148000000012,
+        "rows": 1082
+      },
+      {
+        "queryId": "3880641413338555219",
+        "normalizedQuery": "INSERT INTO \"public\".\"financial_transactions\" (\"id\",\"account_id\",\"transfer_id\",\"transaction_type\",\"reference_type\",\"amount\",\"balance_after\",\"status\",\"description\",\"created_at\") VALUES ($1,$2,$3,CAST($4::text AS \"public\".\"TransactionType\"),CAST($5::text AS \"public\".\"ReferenceType\"),$6,$7,CAST($8::text AS \"public\".\"TransactionStatus\"),$9,$10), ($11,$12,$13,CAST($14::text AS \"public\".\"TransactionType\"),CAST($15::text AS \"public\".\"ReferenceType\"),$16,$17,CAST($18::text AS \"public\".\"TransactionStatus\"),$19,$20)",
+        "calls": 1082,
+        "executionMs": 221.8587310000001,
+        "rows": 2164
+      },
+      {
+        "queryId": "2991475109097125592",
+        "normalizedQuery": "SELECT  \n                id,\n                user_id AS \"userId\",\n                current_balance::text AS \"currentBalance\",\n                status  \n              FROM bank_accounts\n              WHERE id = $1\n              FOR UPDATE",
+        "calls": 2164,
+        "executionMs": 28.306407999999976,
+        "rows": 2164
+      },
+      {
+        "queryId": "8214046582632011480",
+        "normalizedQuery": "UPDATE bank_accounts AS a\n            SET current_balance = b.balance, updated_at = CURRENT_TIMESTAMP\n            FROM (VALUES ($1::text, $2::numeric),($3::text, $4::numeric)) AS b(id, balance)\n            WHERE a.id = b.id",
+        "calls": 1082,
+        "executionMs": 56.079739999999916,
+        "rows": 2164
+      }
+    ],
+    "reconciliation": {
+      "transfers": 1082,
+      "ledgerEntries": 2164,
+      "conserved": true,
+      "ledgerMatchesBalances": true
+    }
+  },
+  {
+    "round": 1,
+    "variant": "baseline",
+    "scenario": "transfer_hot_10",
+    "clients": 10,
+    "seconds": 15.0863479,
+    "requests": 1633,
+    "successes": 1633,
+    "errors": {},
+    "successRps": 108.2435597285941,
+    "p50": 28.13630000000194,
+    "p95": 226.77170000000115,
+    "p99": 1719.1306999999942,
+    "telemetry": {
+      "counters": {
+        "attempts": 1635,
+        "committed": 1633,
+        "rejected": 2,
+        "retries": 2
+      },
+      "timings": {
+        "transaction_start": {
+          "count": 1635,
+          "sumMs": 1637.4213999999884,
+          "maxMs": 6.181399999997666,
+          "buckets": [
+            1160,
+            1616,
+            1630,
+            1635,
+            1635,
+            1635,
+            1635,
+            1635,
+            1635,
+            1635,
+            1635,
+            1635,
+            1635
+          ]
+        },
+        "account_lock_query": {
+          "count": 3270,
+          "sumMs": 131961.53049999994,
+          "maxMs": 6116.464599999999,
+          "buckets": [
+            49,
+            1518,
+            1636,
+            1637,
+            2765,
+            3031,
+            3144,
+            3183,
+            3222,
+            3241,
+            3257,
+            3268,
+            3270
+          ]
+        },
+        "transaction_callback": {
+          "count": 1635,
+          "sumMs": 142673.09050000028,
+          "maxMs": 6120.4908,
+          "buckets": [
+            0,
+            0,
+            0,
+            1,
+            23,
+            1352,
+            1498,
+            1546,
+            1587,
+            1606,
+            1622,
+            1633,
+            1635
+          ]
+        },
+        "transaction_attempt": {
+          "count": 1635,
+          "sumMs": 147138.1522999999,
+          "maxMs": 6123.471799999999,
+          "buckets": [
+            0,
+            0,
+            0,
+            0,
+            2,
+            1328,
+            1494,
+            1546,
+            1587,
+            1606,
+            1622,
+            1633,
+            1635
+          ]
+        },
+        "transaction_finish": {
+          "count": 1635,
+          "sumMs": 2827.6403999998874,
+          "maxMs": 6.861800000002404,
+          "buckets": [
+            2,
+            1411,
+            1634,
+            1635,
+            1635,
+            1635,
+            1635,
+            1635,
+            1635,
+            1635,
+            1635,
+            1635,
+            1635
+          ]
+        }
+      },
+      "bucketUpperBoundsMs": [
+        1,
+        2,
+        5,
+        10,
+        20,
+        50,
+        100,
+        200,
+        500,
+        1000,
+        2000,
+        5000,
+        10000
+      ]
+    },
+    "lockSampling": {
+      "intervalMs": 50,
+      "samples": 281,
+      "maxWaiting": null,
+      "meanWaiting": null,
+      "blockedSampleFraction": 0
+    },
+    "sql": [
+      {
+        "queryId": "6958696115885947755",
+        "normalizedQuery": "INSERT INTO \"public\".\"transfers\" (\"id\",\"source_account_id\",\"destination_account_id\",\"initiated_by_user_id\",\"amount\",\"description\",\"idempotency_key\",\"status\",\"created_at\") VALUES ($1,$2,$3,$4,$5,$6,$7,CAST($8::text AS \"public\".\"TransferStatus\"),$9) RETURNING \"public\".\"transfers\".\"id\", \"public\".\"transfers\".\"source_account_id\", \"public\".\"transfers\".\"destination_account_id\", \"public\".\"transfers\".\"initiated_by_user_id\", \"public\".\"transfers\".\"amount\", \"public\".\"transfers\".\"description\", \"public\".\"transfers\".\"idempotency_key\", \"public\".\"transfers\".\"status\"::text, \"public\".\"transfers\".\"created_at\"",
+        "calls": 1633,
+        "executionMs": 154.35985300000027,
+        "rows": 1633
+      },
+      {
+        "queryId": "6797264611338302017",
+        "normalizedQuery": "SELECT \"public\".\"transfers\".\"id\", \"public\".\"transfers\".\"source_account_id\", \"public\".\"transfers\".\"destination_account_id\", \"public\".\"transfers\".\"initiated_by_user_id\", \"public\".\"transfers\".\"amount\", \"public\".\"transfers\".\"description\", \"public\".\"transfers\".\"idempotency_key\", \"public\".\"transfers\".\"status\"::text, \"public\".\"transfers\".\"created_at\" FROM \"public\".\"transfers\" WHERE ((\"public\".\"transfers\".\"source_account_id\" = $1 AND \"public\".\"transfers\".\"idempotency_key\" = $2) AND $5=$6) LIMIT $3 OFFSET $4",
+        "calls": 1633,
+        "executionMs": 18.750728999999975,
+        "rows": 0
+      },
+      {
+        "queryId": "1723362235184929282",
+        "normalizedQuery": "SELECT \"public\".\"bank_accounts\".\"id\", \"public\".\"bank_accounts\".\"user_id\", \"public\".\"bank_accounts\".\"current_balance\", \"public\".\"bank_accounts\".\"status\"::text, \"public\".\"bank_accounts\".\"account_number\" FROM \"public\".\"bank_accounts\" WHERE (\"public\".\"bank_accounts\".\"account_number\" = $1 AND $4=$5) LIMIT $2 OFFSET $3",
+        "calls": 1635,
+        "executionMs": 31.066837000000007,
+        "rows": 1635
+      },
+      {
+        "queryId": "3880641413338555219",
+        "normalizedQuery": "INSERT INTO \"public\".\"financial_transactions\" (\"id\",\"account_id\",\"transfer_id\",\"transaction_type\",\"reference_type\",\"amount\",\"balance_after\",\"status\",\"description\",\"created_at\") VALUES ($1,$2,$3,CAST($4::text AS \"public\".\"TransactionType\"),CAST($5::text AS \"public\".\"ReferenceType\"),$6,$7,CAST($8::text AS \"public\".\"TransactionStatus\"),$9,$10), ($11,$12,$13,CAST($14::text AS \"public\".\"TransactionType\"),CAST($15::text AS \"public\".\"ReferenceType\"),$16,$17,CAST($18::text AS \"public\".\"TransactionStatus\"),$19,$20)",
+        "calls": 1633,
+        "executionMs": 234.04336100000074,
+        "rows": 3266
+      },
+      {
+        "queryId": "2991475109097125592",
+        "normalizedQuery": "SELECT  \n                id,\n                user_id AS \"userId\",\n                current_balance::text AS \"currentBalance\",\n                status  \n              FROM bank_accounts\n              WHERE id = $1\n              FOR UPDATE",
+        "calls": 3268,
+        "executionMs": 126827.18416899981,
+        "rows": 3268
+      },
+      {
+        "queryId": "8214046582632011480",
+        "normalizedQuery": "UPDATE bank_accounts AS a\n            SET current_balance = b.balance, updated_at = CURRENT_TIMESTAMP\n            FROM (VALUES ($1::text, $2::numeric),($3::text, $4::numeric)) AS b(id, balance)\n            WHERE a.id = b.id",
+        "calls": 1633,
+        "executionMs": 106.25624300000015,
+        "rows": 3266
+      }
+    ],
+    "reconciliation": {
+      "transfers": 1633,
+      "ledgerEntries": 3266,
+      "conserved": true,
+      "ledgerMatchesBalances": true
+    }
+  },
+  {
+    "round": 1,
+    "variant": "baseline",
+    "scenario": "transfer_hot_50",
+    "clients": 50,
+    "seconds": 15.595362000000002,
+    "requests": 1703,
+    "successes": 1703,
+    "errors": {},
+    "successRps": 109.19913240872509,
+    "p50": 448.4433999999965,
+    "p95": 499.17109999999957,
+    "p99": 558.6175000000003,
+    "telemetry": {
+      "counters": {
+        "attempts": 1703,
+        "committed": 1703
+      },
+      "timings": {
+        "transaction_start": {
+          "count": 1703,
+          "sumMs": 606992.6897000005,
+          "maxMs": 467.7511999999988,
+          "buckets": [
+            0,
+            0,
+            0,
+            0,
+            10,
+            14,
+            20,
+            30,
+            1703,
+            1703,
+            1703,
+            1703,
+            1703
+          ]
+        },
+        "account_lock_query": {
+          "count": 3406,
+          "sumMs": 138966.68139999997,
+          "maxMs": 121.80800000000454,
+          "buckets": [
+            25,
+            1639,
+            1704,
+            1704,
+            1717,
+            1722,
+            3372,
+            3406,
+            3406,
+            3406,
+            3406,
+            3406,
+            3406
+          ]
+        },
+        "transaction_callback": {
+          "count": 1703,
+          "sumMs": 150887.31620000023,
+          "maxMs": 133.47060000000056,
+          "buckets": [
+            0,
+            0,
+            0,
+            0,
+            1,
+            18,
+            1593,
+            1703,
+            1703,
+            1703,
+            1703,
+            1703,
+            1703
+          ]
+        },
+        "transaction_attempt": {
+          "count": 1703,
+          "sumMs": 760795.0286,
+          "maxMs": 598.328499999996,
+          "buckets": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            3,
+            9,
+            20,
+            1647,
+            1703,
+            1703,
+            1703,
+            1703
+          ]
+        },
+        "transaction_finish": {
+          "count": 1703,
+          "sumMs": 2915.0226999999213,
+          "maxMs": 6.496200000001409,
+          "buckets": [
+            0,
+            1470,
+            1701,
+            1703,
+            1703,
+            1703,
+            1703,
+            1703,
+            1703,
+            1703,
+            1703,
+            1703,
+            1703
+          ]
+        }
+      },
+      "bucketUpperBoundsMs": [
+        1,
+        2,
+        5,
+        10,
+        20,
+        50,
+        100,
+        200,
+        500,
+        1000,
+        2000,
+        5000,
+        10000
+      ]
+    },
+    "lockSampling": {
+      "intervalMs": 50,
+      "samples": 291,
+      "maxWaiting": null,
+      "meanWaiting": null,
+      "blockedSampleFraction": 0
+    },
+    "sql": [
+      {
+        "queryId": "6958696115885947755",
+        "normalizedQuery": "INSERT INTO \"public\".\"transfers\" (\"id\",\"source_account_id\",\"destination_account_id\",\"initiated_by_user_id\",\"amount\",\"description\",\"idempotency_key\",\"status\",\"created_at\") VALUES ($1,$2,$3,$4,$5,$6,$7,CAST($8::text AS \"public\".\"TransferStatus\"),$9) RETURNING \"public\".\"transfers\".\"id\", \"public\".\"transfers\".\"source_account_id\", \"public\".\"transfers\".\"destination_account_id\", \"public\".\"transfers\".\"initiated_by_user_id\", \"public\".\"transfers\".\"amount\", \"public\".\"transfers\".\"description\", \"public\".\"transfers\".\"idempotency_key\", \"public\".\"transfers\".\"status\"::text, \"public\".\"transfers\".\"created_at\"",
+        "calls": 1703,
+        "executionMs": 180.41274300000003,
+        "rows": 1703
+      },
+      {
+        "queryId": "6797264611338302017",
+        "normalizedQuery": "SELECT \"public\".\"transfers\".\"id\", \"public\".\"transfers\".\"source_account_id\", \"public\".\"transfers\".\"destination_account_id\", \"public\".\"transfers\".\"initiated_by_user_id\", \"public\".\"transfers\".\"amount\", \"public\".\"transfers\".\"description\", \"public\".\"transfers\".\"idempotency_key\", \"public\".\"transfers\".\"status\"::text, \"public\".\"transfers\".\"created_at\" FROM \"public\".\"transfers\" WHERE ((\"public\".\"transfers\".\"source_account_id\" = $1 AND \"public\".\"transfers\".\"idempotency_key\" = $2) AND $5=$6) LIMIT $3 OFFSET $4",
+        "calls": 1703,
+        "executionMs": 20.948882999999995,
+        "rows": 0
+      },
+      {
+        "queryId": "1723362235184929282",
+        "normalizedQuery": "SELECT \"public\".\"bank_accounts\".\"id\", \"public\".\"bank_accounts\".\"user_id\", \"public\".\"bank_accounts\".\"current_balance\", \"public\".\"bank_accounts\".\"status\"::text, \"public\".\"bank_accounts\".\"account_number\" FROM \"public\".\"bank_accounts\" WHERE (\"public\".\"bank_accounts\".\"account_number\" = $1 AND $4=$5) LIMIT $2 OFFSET $3",
+        "calls": 1703,
+        "executionMs": 25.893517999999943,
+        "rows": 1703
+      },
+      {
+        "queryId": "3880641413338555219",
+        "normalizedQuery": "INSERT INTO \"public\".\"financial_transactions\" (\"id\",\"account_id\",\"transfer_id\",\"transaction_type\",\"reference_type\",\"amount\",\"balance_after\",\"status\",\"description\",\"created_at\") VALUES ($1,$2,$3,CAST($4::text AS \"public\".\"TransactionType\"),CAST($5::text AS \"public\".\"ReferenceType\"),$6,$7,CAST($8::text AS \"public\".\"TransactionStatus\"),$9,$10), ($11,$12,$13,CAST($14::text AS \"public\".\"TransactionType\"),CAST($15::text AS \"public\".\"ReferenceType\"),$16,$17,CAST($18::text AS \"public\".\"TransactionStatus\"),$19,$20)",
+        "calls": 1703,
+        "executionMs": 246.894486999999,
+        "rows": 3406
+      },
+      {
+        "queryId": "2991475109097125592",
+        "normalizedQuery": "SELECT  \n                id,\n                user_id AS \"userId\",\n                current_balance::text AS \"currentBalance\",\n                status  \n              FROM bank_accounts\n              WHERE id = $1\n              FOR UPDATE",
+        "calls": 3406,
+        "executionMs": 133722.64402200017,
+        "rows": 3406
+      },
+      {
+        "queryId": "8214046582632011480",
+        "normalizedQuery": "UPDATE bank_accounts AS a\n            SET current_balance = b.balance, updated_at = CURRENT_TIMESTAMP\n            FROM (VALUES ($1::text, $2::numeric),($3::text, $4::numeric)) AS b(id, balance)\n            WHERE a.id = b.id",
+        "calls": 1703,
+        "executionMs": 84.32571700000051,
+        "rows": 3406
+      }
+    ],
+    "reconciliation": {
+      "transfers": 1703,
+      "ledgerEntries": 3406,
+      "conserved": true,
+      "ledgerMatchesBalances": true
+    }
+  },
+  {
+    "round": 1,
+    "variant": "baseline",
+    "scenario": "transfer_distributed_10",
+    "clients": 10,
+    "seconds": 15.017070900000006,
+    "requests": 4469,
+    "successes": 4469,
+    "errors": {},
+    "successRps": 297.59465276281,
+    "p50": 32.499400000000605,
+    "p95": 42.99289999999746,
+    "p99": 49.63430000000517,
+    "telemetry": {
+      "counters": {
+        "attempts": 4469,
+        "committed": 4469
+      },
+      "timings": {
+        "transaction_start": {
+          "count": 4469,
+          "sumMs": 15100.245100000036,
+          "maxMs": 13.884299999990617,
+          "buckets": [
+            0,
+            223,
+            4224,
+            4461,
+            4469,
+            4469,
+            4469,
+            4469,
+            4469,
+            4469,
+            4469,
+            4469,
+            4469
+          ]
+        },
+        "account_lock_query": {
+          "count": 8938,
+          "sumMs": 21980.18669999903,
+          "maxMs": 12.837599999998929,
+          "buckets": [
+            3,
+            3422,
+            8740,
+            8932,
+            8938,
+            8938,
+            8938,
+            8938,
+            8938,
+            8938,
+            8938,
+            8938,
+            8938
+          ]
+        },
+        "transaction_callback": {
+          "count": 4469,
+          "sumMs": 96619.85949999995,
+          "maxMs": 60.14290000000619,
+          "buckets": [
+            0,
+            0,
+            0,
+            0,
+            1626,
+            4457,
+            4469,
+            4469,
+            4469,
+            4469,
+            4469,
+            4469,
+            4469
+          ]
+        },
+        "transaction_attempt": {
+          "count": 4469,
+          "sumMs": 131406.69119999988,
+          "maxMs": 73.67850000000908,
+          "buckets": [
+            0,
+            0,
+            0,
+            0,
+            3,
+            4447,
+            4469,
+            4469,
+            4469,
+            4469,
+            4469,
+            4469,
+            4469
+          ]
+        },
+        "transaction_finish": {
+          "count": 4469,
+          "sumMs": 19686.586599999944,
+          "maxMs": 11.503100000001723,
+          "buckets": [
+            0,
+            30,
+            3282,
+            4462,
+            4469,
+            4469,
+            4469,
+            4469,
+            4469,
+            4469,
+            4469,
+            4469,
+            4469
+          ]
+        }
+      },
+      "bucketUpperBoundsMs": [
+        1,
+        2,
+        5,
+        10,
+        20,
+        50,
+        100,
+        200,
+        500,
+        1000,
+        2000,
+        5000,
+        10000
+      ]
+    },
+    "lockSampling": {
+      "intervalMs": 50,
+      "samples": 265,
+      "maxWaiting": null,
+      "meanWaiting": null,
+      "blockedSampleFraction": 0
+    },
+    "sql": [
+      {
+        "queryId": "6958696115885947755",
+        "normalizedQuery": "INSERT INTO \"public\".\"transfers\" (\"id\",\"source_account_id\",\"destination_account_id\",\"initiated_by_user_id\",\"amount\",\"description\",\"idempotency_key\",\"status\",\"created_at\") VALUES ($1,$2,$3,$4,$5,$6,$7,CAST($8::text AS \"public\".\"TransferStatus\"),$9) RETURNING \"public\".\"transfers\".\"id\", \"public\".\"transfers\".\"source_account_id\", \"public\".\"transfers\".\"destination_account_id\", \"public\".\"transfers\".\"initiated_by_user_id\", \"public\".\"transfers\".\"amount\", \"public\".\"transfers\".\"description\", \"public\".\"transfers\".\"idempotency_key\", \"public\".\"transfers\".\"status\"::text, \"public\".\"transfers\".\"created_at\"",
+        "calls": 4469,
+        "executionMs": 415.4228899999973,
+        "rows": 4469
+      },
+      {
+        "queryId": "6797264611338302017",
+        "normalizedQuery": "SELECT \"public\".\"transfers\".\"id\", \"public\".\"transfers\".\"source_account_id\", \"public\".\"transfers\".\"destination_account_id\", \"public\".\"transfers\".\"initiated_by_user_id\", \"public\".\"transfers\".\"amount\", \"public\".\"transfers\".\"description\", \"public\".\"transfers\".\"idempotency_key\", \"public\".\"transfers\".\"status\"::text, \"public\".\"transfers\".\"created_at\" FROM \"public\".\"transfers\" WHERE ((\"public\".\"transfers\".\"source_account_id\" = $1 AND \"public\".\"transfers\".\"idempotency_key\" = $2) AND $5=$6) LIMIT $3 OFFSET $4",
+        "calls": 4469,
+        "executionMs": 60.10267899999991,
+        "rows": 0
+      },
+      {
+        "queryId": "1723362235184929282",
+        "normalizedQuery": "SELECT \"public\".\"bank_accounts\".\"id\", \"public\".\"bank_accounts\".\"user_id\", \"public\".\"bank_accounts\".\"current_balance\", \"public\".\"bank_accounts\".\"status\"::text, \"public\".\"bank_accounts\".\"account_number\" FROM \"public\".\"bank_accounts\" WHERE (\"public\".\"bank_accounts\".\"account_number\" = $1 AND $4=$5) LIMIT $2 OFFSET $3",
+        "calls": 4469,
+        "executionMs": 81.12469999999963,
+        "rows": 4469
+      },
+      {
+        "queryId": "3880641413338555219",
+        "normalizedQuery": "INSERT INTO \"public\".\"financial_transactions\" (\"id\",\"account_id\",\"transfer_id\",\"transaction_type\",\"reference_type\",\"amount\",\"balance_after\",\"status\",\"description\",\"created_at\") VALUES ($1,$2,$3,CAST($4::text AS \"public\".\"TransactionType\"),CAST($5::text AS \"public\".\"ReferenceType\"),$6,$7,CAST($8::text AS \"public\".\"TransactionStatus\"),$9,$10), ($11,$12,$13,CAST($14::text AS \"public\".\"TransactionType\"),CAST($15::text AS \"public\".\"ReferenceType\"),$16,$17,CAST($18::text AS \"public\".\"TransactionStatus\"),$19,$20)",
+        "calls": 4469,
+        "executionMs": 599.2277719999979,
+        "rows": 8938
+      },
+      {
+        "queryId": "2991475109097125592",
+        "normalizedQuery": "SELECT  \n                id,\n                user_id AS \"userId\",\n                current_balance::text AS \"currentBalance\",\n                status  \n              FROM bank_accounts\n              WHERE id = $1\n              FOR UPDATE",
+        "calls": 8938,
+        "executionMs": 153.8449990040972,
+        "rows": 8938
+      },
+      {
+        "queryId": "8214046582632011480",
+        "normalizedQuery": "UPDATE bank_accounts AS a\n            SET current_balance = b.balance, updated_at = CURRENT_TIMESTAMP\n            FROM (VALUES ($1::text, $2::numeric),($3::text, $4::numeric)) AS b(id, balance)\n            WHERE a.id = b.id",
+        "calls": 4469,
+        "executionMs": 219.31218600000142,
+        "rows": 8938
+      }
+    ],
+    "reconciliation": {
+      "transfers": 4469,
+      "ledgerEntries": 8938,
+      "conserved": true,
+      "ledgerMatchesBalances": true
+    }
+  },
+  {
+    "round": 1,
+    "variant": "improved",
+    "scenario": "transfer_hot_1",
+    "clients": 1,
+    "seconds": 15.012313200000005,
+    "requests": 1175,
+    "successes": 1175,
+    "errors": {},
+    "successRps": 78.26908380781715,
+    "p50": 12.482499999998254,
+    "p95": 15.743100000006962,
+    "p99": 18.911999999996624,
+    "telemetry": {
+      "counters": {
+        "attempts": 1175,
+        "committed": 1175
+      },
+      "timings": {
+        "transaction_start": {
+          "count": 1175,
+          "sumMs": 1375.650999999989,
+          "maxMs": 2.747799999999188,
+          "buckets": [
+            366,
+            1165,
+            1175,
+            1175,
+            1175,
+            1175,
+            1175,
+            1175,
+            1175,
+            1175,
+            1175,
+            1175,
+            1175
+          ]
+        },
+        "account_lock_query": {
+          "count": 1175,
+          "sumMs": 1335.020500000006,
+          "maxMs": 5.794200000000274,
+          "buckets": [
+            403,
+            1158,
+            1174,
+            1175,
+            1175,
+            1175,
+            1175,
+            1175,
+            1175,
+            1175,
+            1175,
+            1175,
+            1175
+          ]
+        },
+        "transaction_callback": {
+          "count": 1175,
+          "sumMs": 9390.661099999972,
+          "maxMs": 15.065300000000207,
+          "buckets": [
+            0,
+            0,
+            0,
+            1118,
+            1175,
+            1175,
+            1175,
+            1175,
+            1175,
+            1175,
+            1175,
+            1175,
+            1175
+          ]
+        },
+        "transaction_attempt": {
+          "count": 1175,
+          "sumMs": 12666.113000000021,
+          "maxMs": 19.104199999999764,
+          "buckets": [
+            0,
+            0,
+            0,
+            361,
+            1175,
+            1175,
+            1175,
+            1175,
+            1175,
+            1175,
+            1175,
+            1175,
+            1175
+          ]
+        },
+        "transaction_finish": {
+          "count": 1175,
+          "sumMs": 1899.8009000000602,
+          "maxMs": 6.846299999997427,
+          "buckets": [
+            0,
+            1077,
+            1171,
+            1175,
+            1175,
+            1175,
+            1175,
+            1175,
+            1175,
+            1175,
+            1175,
+            1175,
+            1175
+          ]
+        }
+      },
+      "bucketUpperBoundsMs": [
+        1,
+        2,
+        5,
+        10,
+        20,
+        50,
+        100,
+        200,
+        500,
+        1000,
+        2000,
+        5000,
+        10000
+      ]
+    },
+    "lockSampling": {
+      "intervalMs": 50,
+      "samples": 271,
+      "maxWaiting": null,
+      "meanWaiting": null,
+      "blockedSampleFraction": 0
+    },
+    "sql": [
+      {
+        "queryId": "6958696115885947755",
+        "normalizedQuery": "INSERT INTO \"public\".\"transfers\" (\"id\",\"source_account_id\",\"destination_account_id\",\"initiated_by_user_id\",\"amount\",\"description\",\"idempotency_key\",\"status\",\"created_at\") VALUES ($1,$2,$3,$4,$5,$6,$7,CAST($8::text AS \"public\".\"TransferStatus\"),$9) RETURNING \"public\".\"transfers\".\"id\", \"public\".\"transfers\".\"source_account_id\", \"public\".\"transfers\".\"destination_account_id\", \"public\".\"transfers\".\"initiated_by_user_id\", \"public\".\"transfers\".\"amount\", \"public\".\"transfers\".\"description\", \"public\".\"transfers\".\"idempotency_key\", \"public\".\"transfers\".\"status\"::text, \"public\".\"transfers\".\"created_at\"",
+        "calls": 1175,
+        "executionMs": 94.96130500000106,
+        "rows": 1175
+      },
+      {
+        "queryId": "6797264611338302017",
+        "normalizedQuery": "SELECT \"public\".\"transfers\".\"id\", \"public\".\"transfers\".\"source_account_id\", \"public\".\"transfers\".\"destination_account_id\", \"public\".\"transfers\".\"initiated_by_user_id\", \"public\".\"transfers\".\"amount\", \"public\".\"transfers\".\"description\", \"public\".\"transfers\".\"idempotency_key\", \"public\".\"transfers\".\"status\"::text, \"public\".\"transfers\".\"created_at\" FROM \"public\".\"transfers\" WHERE ((\"public\".\"transfers\".\"source_account_id\" = $1 AND \"public\".\"transfers\".\"idempotency_key\" = $2) AND $5=$6) LIMIT $3 OFFSET $4",
+        "calls": 1175,
+        "executionMs": 15.09290100000004,
+        "rows": 0
+      },
+      {
+        "queryId": "1723362235184929282",
+        "normalizedQuery": "SELECT \"public\".\"bank_accounts\".\"id\", \"public\".\"bank_accounts\".\"user_id\", \"public\".\"bank_accounts\".\"current_balance\", \"public\".\"bank_accounts\".\"status\"::text, \"public\".\"bank_accounts\".\"account_number\" FROM \"public\".\"bank_accounts\" WHERE (\"public\".\"bank_accounts\".\"account_number\" = $1 AND $4=$5) LIMIT $2 OFFSET $3",
+        "calls": 1175,
+        "executionMs": 20.41457800000026,
+        "rows": 1175
+      },
+      {
+        "queryId": "3880641413338555219",
+        "normalizedQuery": "INSERT INTO \"public\".\"financial_transactions\" (\"id\",\"account_id\",\"transfer_id\",\"transaction_type\",\"reference_type\",\"amount\",\"balance_after\",\"status\",\"description\",\"created_at\") VALUES ($1,$2,$3,CAST($4::text AS \"public\".\"TransactionType\"),CAST($5::text AS \"public\".\"ReferenceType\"),$6,$7,CAST($8::text AS \"public\".\"TransactionStatus\"),$9,$10), ($11,$12,$13,CAST($14::text AS \"public\".\"TransactionType\"),CAST($15::text AS \"public\".\"ReferenceType\"),$16,$17,CAST($18::text AS \"public\".\"TransactionStatus\"),$19,$20)",
+        "calls": 1175,
+        "executionMs": 147.1639600000051,
+        "rows": 2350
+      },
+      {
+        "queryId": "-7711971380209563197",
+        "normalizedQuery": "SELECT id, user_id AS \"userId\", current_balance::text AS \"currentBalance\", status\n              FROM bank_accounts\n              WHERE id IN ($1,$2)\n              ORDER BY id ASC\n              FOR UPDATE",
+        "calls": 1175,
+        "executionMs": 35.663392000000044,
+        "rows": 2350
+      },
+      {
+        "queryId": "8214046582632011480",
+        "normalizedQuery": "UPDATE bank_accounts AS a\n            SET current_balance = b.balance, updated_at = CURRENT_TIMESTAMP\n            FROM (VALUES ($1::text, $2::numeric),($3::text, $4::numeric)) AS b(id, balance)\n            WHERE a.id = b.id",
+        "calls": 1175,
+        "executionMs": 63.09142700000098,
+        "rows": 2350
+      }
+    ],
+    "reconciliation": {
+      "transfers": 1175,
+      "ledgerEntries": 2350,
+      "conserved": true,
+      "ledgerMatchesBalances": true
+    }
+  },
+  {
+    "round": 1,
+    "variant": "improved",
+    "scenario": "transfer_hot_10",
+    "clients": 10,
+    "seconds": 15.0681158,
+    "requests": 1875,
+    "successes": 1875,
+    "errors": {},
+    "successRps": 124.43493432669267,
+    "p50": 24.244899999990594,
+    "p95": 151.7771000000066,
+    "p99": 1591.1821000000054,
+    "telemetry": {
+      "counters": {
+        "attempts": 1877,
+        "committed": 1875,
+        "rejected": 2,
+        "retries": 2
+      },
+      "timings": {
+        "transaction_start": {
+          "count": 1877,
+          "sumMs": 1882.8497999999054,
+          "maxMs": 5.296500000004016,
+          "buckets": [
+            1242,
+            1859,
+            1875,
+            1877,
+            1877,
+            1877,
+            1877,
+            1877,
+            1877,
+            1877,
+            1877,
+            1877,
+            1877
+          ]
+        },
+        "account_lock_query": {
+          "count": 1877,
+          "sumMs": 128387.08280000006,
+          "maxMs": 6547.993200000001,
+          "buckets": [
+            0,
+            1,
+            1,
+            17,
+            1442,
+            1658,
+            1770,
+            1802,
+            1837,
+            1851,
+            1861,
+            1875,
+            1877
+          ]
+        },
+        "transaction_callback": {
+          "count": 1877,
+          "sumMs": 141649.9437000001,
+          "maxMs": 6552.318599999999,
+          "buckets": [
+            0,
+            0,
+            0,
+            1,
+            1026,
+            1619,
+            1761,
+            1801,
+            1836,
+            1850,
+            1861,
+            1875,
+            1877
+          ]
+        },
+        "transaction_attempt": {
+          "count": 1877,
+          "sumMs": 146753.03250000003,
+          "maxMs": 6553.870500000001,
+          "buckets": [
+            0,
+            0,
+            0,
+            0,
+            57,
+            1603,
+            1757,
+            1801,
+            1836,
+            1850,
+            1861,
+            1875,
+            1877
+          ]
+        },
+        "transaction_finish": {
+          "count": 1877,
+          "sumMs": 3220.238999999965,
+          "maxMs": 5.229400000003807,
+          "buckets": [
+            2,
+            1629,
+            1876,
+            1877,
+            1877,
+            1877,
+            1877,
+            1877,
+            1877,
+            1877,
+            1877,
+            1877,
+            1877
+          ]
+        }
+      },
+      "bucketUpperBoundsMs": [
+        1,
+        2,
+        5,
+        10,
+        20,
+        50,
+        100,
+        200,
+        500,
+        1000,
+        2000,
+        5000,
+        10000
+      ]
+    },
+    "lockSampling": {
+      "intervalMs": 50,
+      "samples": 280,
+      "maxWaiting": null,
+      "meanWaiting": null,
+      "blockedSampleFraction": 0
+    },
+    "sql": [
+      {
+        "queryId": "6958696115885947755",
+        "normalizedQuery": "INSERT INTO \"public\".\"transfers\" (\"id\",\"source_account_id\",\"destination_account_id\",\"initiated_by_user_id\",\"amount\",\"description\",\"idempotency_key\",\"status\",\"created_at\") VALUES ($1,$2,$3,$4,$5,$6,$7,CAST($8::text AS \"public\".\"TransferStatus\"),$9) RETURNING \"public\".\"transfers\".\"id\", \"public\".\"transfers\".\"source_account_id\", \"public\".\"transfers\".\"destination_account_id\", \"public\".\"transfers\".\"initiated_by_user_id\", \"public\".\"transfers\".\"amount\", \"public\".\"transfers\".\"description\", \"public\".\"transfers\".\"idempotency_key\", \"public\".\"transfers\".\"status\"::text, \"public\".\"transfers\".\"created_at\"",
+        "calls": 1875,
+        "executionMs": 190.9637700000037,
+        "rows": 1875
+      },
+      {
+        "queryId": "6797264611338302017",
+        "normalizedQuery": "SELECT \"public\".\"transfers\".\"id\", \"public\".\"transfers\".\"source_account_id\", \"public\".\"transfers\".\"destination_account_id\", \"public\".\"transfers\".\"initiated_by_user_id\", \"public\".\"transfers\".\"amount\", \"public\".\"transfers\".\"description\", \"public\".\"transfers\".\"idempotency_key\", \"public\".\"transfers\".\"status\"::text, \"public\".\"transfers\".\"created_at\" FROM \"public\".\"transfers\" WHERE ((\"public\".\"transfers\".\"source_account_id\" = $1 AND \"public\".\"transfers\".\"idempotency_key\" = $2) AND $5=$6) LIMIT $3 OFFSET $4",
+        "calls": 1875,
+        "executionMs": 26.340580000000415,
+        "rows": 0
+      },
+      {
+        "queryId": "1723362235184929282",
+        "normalizedQuery": "SELECT \"public\".\"bank_accounts\".\"id\", \"public\".\"bank_accounts\".\"user_id\", \"public\".\"bank_accounts\".\"current_balance\", \"public\".\"bank_accounts\".\"status\"::text, \"public\".\"bank_accounts\".\"account_number\" FROM \"public\".\"bank_accounts\" WHERE (\"public\".\"bank_accounts\".\"account_number\" = $1 AND $4=$5) LIMIT $2 OFFSET $3",
+        "calls": 1877,
+        "executionMs": 50.08187299999963,
+        "rows": 1877
+      },
+      {
+        "queryId": "3880641413338555219",
+        "normalizedQuery": "INSERT INTO \"public\".\"financial_transactions\" (\"id\",\"account_id\",\"transfer_id\",\"transaction_type\",\"reference_type\",\"amount\",\"balance_after\",\"status\",\"description\",\"created_at\") VALUES ($1,$2,$3,CAST($4::text AS \"public\".\"TransactionType\"),CAST($5::text AS \"public\".\"ReferenceType\"),$6,$7,CAST($8::text AS \"public\".\"TransactionStatus\"),$9,$10), ($11,$12,$13,CAST($14::text AS \"public\".\"TransactionType\"),CAST($15::text AS \"public\".\"ReferenceType\"),$16,$17,CAST($18::text AS \"public\".\"TransactionStatus\"),$19,$20)",
+        "calls": 1875,
+        "executionMs": 265.60137099999724,
+        "rows": 3750
+      },
+      {
+        "queryId": "-7711971380209563197",
+        "normalizedQuery": "SELECT id, user_id AS \"userId\", current_balance::text AS \"currentBalance\", status\n              FROM bank_accounts\n              WHERE id IN ($1,$2)\n              ORDER BY id ASC\n              FOR UPDATE",
+        "calls": 1877,
+        "executionMs": 125558.366026,
+        "rows": 3754
+      },
+      {
+        "queryId": "8214046582632011480",
+        "normalizedQuery": "UPDATE bank_accounts AS a\n            SET current_balance = b.balance, updated_at = CURRENT_TIMESTAMP\n            FROM (VALUES ($1::text, $2::numeric),($3::text, $4::numeric)) AS b(id, balance)\n            WHERE a.id = b.id",
+        "calls": 1875,
+        "executionMs": 154.94200099999898,
+        "rows": 3750
+      }
+    ],
+    "reconciliation": {
+      "transfers": 1875,
+      "ledgerEntries": 3750,
+      "conserved": true,
+      "ledgerMatchesBalances": true
+    }
+  },
+  {
+    "round": 1,
+    "variant": "improved",
+    "scenario": "transfer_hot_50",
+    "clients": 50,
+    "seconds": 15.395396800000002,
+    "requests": 1892,
+    "successes": 1892,
+    "errors": {},
+    "successRps": 122.89387695418151,
+    "p50": 352.13219999999274,
+    "p95": 761.0963999999949,
+    "p99": 945.5020999999979,
+    "telemetry": {
+      "counters": {
+        "attempts": 1892,
+        "committed": 1892
+      },
+      "timings": {
+        "transaction_start": {
+          "count": 1892,
+          "sumMs": 604510.8687999994,
+          "maxMs": 396.79869999999937,
+          "buckets": [
+            0,
+            0,
+            0,
+            0,
+            10,
+            14,
+            20,
+            33,
+            1892,
+            1892,
+            1892,
+            1892,
+            1892
+          ]
+        },
+        "account_lock_query": {
+          "count": 1892,
+          "sumMs": 134228.77270000012,
+          "maxMs": 1431.6935999999987,
+          "buckets": [
+            0,
+            1,
+            1,
+            2,
+            1155,
+            1533,
+            1627,
+            1673,
+            1835,
+            1890,
+            1892,
+            1892,
+            1892
+          ]
+        },
+        "transaction_callback": {
+          "count": 1892,
+          "sumMs": 148226.26250000007,
+          "maxMs": 1439.8624999999956,
+          "buckets": [
+            0,
+            0,
+            0,
+            1,
+            179,
+            1496,
+            1619,
+            1672,
+            1831,
+            1890,
+            1892,
+            1892,
+            1892
+          ]
+        },
+        "transaction_attempt": {
+          "count": 1892,
+          "sumMs": 756188.7744000006,
+          "maxMs": 1779.6322999999975,
+          "buckets": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            4,
+            10,
+            23,
+            1667,
+            1877,
+            1892,
+            1892,
+            1892
+          ]
+        },
+        "transaction_finish": {
+          "count": 1892,
+          "sumMs": 3451.643100000023,
+          "maxMs": 6.527200000004086,
+          "buckets": [
+            0,
+            1489,
+            1890,
+            1892,
+            1892,
+            1892,
+            1892,
+            1892,
+            1892,
+            1892,
+            1892,
+            1892,
+            1892
+          ]
+        }
+      },
+      "bucketUpperBoundsMs": [
+        1,
+        2,
+        5,
+        10,
+        20,
+        50,
+        100,
+        200,
+        500,
+        1000,
+        2000,
+        5000,
+        10000
+      ]
+    },
+    "lockSampling": {
+      "intervalMs": 50,
+      "samples": 286,
+      "maxWaiting": null,
+      "meanWaiting": null,
+      "blockedSampleFraction": 0
+    },
+    "sql": [
+      {
+        "queryId": "6958696115885947755",
+        "normalizedQuery": "INSERT INTO \"public\".\"transfers\" (\"id\",\"source_account_id\",\"destination_account_id\",\"initiated_by_user_id\",\"amount\",\"description\",\"idempotency_key\",\"status\",\"created_at\") VALUES ($1,$2,$3,$4,$5,$6,$7,CAST($8::text AS \"public\".\"TransferStatus\"),$9) RETURNING \"public\".\"transfers\".\"id\", \"public\".\"transfers\".\"source_account_id\", \"public\".\"transfers\".\"destination_account_id\", \"public\".\"transfers\".\"initiated_by_user_id\", \"public\".\"transfers\".\"amount\", \"public\".\"transfers\".\"description\", \"public\".\"transfers\".\"idempotency_key\", \"public\".\"transfers\".\"status\"::text, \"public\".\"transfers\".\"created_at\"",
+        "calls": 1892,
+        "executionMs": 151.0125090000015,
+        "rows": 1892
+      },
+      {
+        "queryId": "6797264611338302017",
+        "normalizedQuery": "SELECT \"public\".\"transfers\".\"id\", \"public\".\"transfers\".\"source_account_id\", \"public\".\"transfers\".\"destination_account_id\", \"public\".\"transfers\".\"initiated_by_user_id\", \"public\".\"transfers\".\"amount\", \"public\".\"transfers\".\"description\", \"public\".\"transfers\".\"idempotency_key\", \"public\".\"transfers\".\"status\"::text, \"public\".\"transfers\".\"created_at\" FROM \"public\".\"transfers\" WHERE ((\"public\".\"transfers\".\"source_account_id\" = $1 AND \"public\".\"transfers\".\"idempotency_key\" = $2) AND $5=$6) LIMIT $3 OFFSET $4",
+        "calls": 1892,
+        "executionMs": 26.939498999999614,
+        "rows": 0
+      },
+      {
+        "queryId": "1723362235184929282",
+        "normalizedQuery": "SELECT \"public\".\"bank_accounts\".\"id\", \"public\".\"bank_accounts\".\"user_id\", \"public\".\"bank_accounts\".\"current_balance\", \"public\".\"bank_accounts\".\"status\"::text, \"public\".\"bank_accounts\".\"account_number\" FROM \"public\".\"bank_accounts\" WHERE (\"public\".\"bank_accounts\".\"account_number\" = $1 AND $4=$5) LIMIT $2 OFFSET $3",
+        "calls": 1892,
+        "executionMs": 31.581834000000157,
+        "rows": 1892
+      },
+      {
+        "queryId": "3880641413338555219",
+        "normalizedQuery": "INSERT INTO \"public\".\"financial_transactions\" (\"id\",\"account_id\",\"transfer_id\",\"transaction_type\",\"reference_type\",\"amount\",\"balance_after\",\"status\",\"description\",\"created_at\") VALUES ($1,$2,$3,CAST($4::text AS \"public\".\"TransactionType\"),CAST($5::text AS \"public\".\"ReferenceType\"),$6,$7,CAST($8::text AS \"public\".\"TransactionStatus\"),$9,$10), ($11,$12,$13,CAST($14::text AS \"public\".\"TransactionType\"),CAST($15::text AS \"public\".\"ReferenceType\"),$16,$17,CAST($18::text AS \"public\".\"TransactionStatus\"),$19,$20)",
+        "calls": 1892,
+        "executionMs": 236.7639240000051,
+        "rows": 3784
+      },
+      {
+        "queryId": "-7711971380209563197",
+        "normalizedQuery": "SELECT id, user_id AS \"userId\", current_balance::text AS \"currentBalance\", status\n              FROM bank_accounts\n              WHERE id IN ($1,$2)\n              ORDER BY id ASC\n              FOR UPDATE",
+        "calls": 1892,
+        "executionMs": 131224.44210099961,
+        "rows": 3784
+      },
+      {
+        "queryId": "8214046582632011480",
+        "normalizedQuery": "UPDATE bank_accounts AS a\n            SET current_balance = b.balance, updated_at = CURRENT_TIMESTAMP\n            FROM (VALUES ($1::text, $2::numeric),($3::text, $4::numeric)) AS b(id, balance)\n            WHERE a.id = b.id",
+        "calls": 1892,
+        "executionMs": 105.92512900000145,
+        "rows": 3784
+      }
+    ],
+    "reconciliation": {
+      "transfers": 1892,
+      "ledgerEntries": 3784,
+      "conserved": true,
+      "ledgerMatchesBalances": true
+    }
+  },
+  {
+    "round": 1,
+    "variant": "improved",
+    "scenario": "transfer_distributed_10",
+    "clients": 10,
+    "seconds": 15.022510800000019,
+    "requests": 4415,
+    "successes": 4415,
+    "errors": {},
+    "successRps": 293.8922833059301,
+    "p50": 33.30799999998999,
+    "p95": 41.602899999998044,
+    "p99": 45.72459999998682,
+    "telemetry": {
+      "counters": {
+        "attempts": 4415,
+        "committed": 4415
+      },
+      "timings": {
+        "transaction_start": {
+          "count": 4415,
+          "sumMs": 15507.304500000406,
+          "maxMs": 11.66990000000078,
+          "buckets": [
+            1,
+            69,
+            4108,
+            4414,
+            4415,
+            4415,
+            4415,
+            4415,
+            4415,
+            4415,
+            4415,
+            4415,
+            4415
+          ]
+        },
+        "account_lock_query": {
+          "count": 4415,
+          "sumMs": 14114.613499999658,
+          "maxMs": 9.959100000000035,
+          "buckets": [
+            0,
+            348,
+            4261,
+            4415,
+            4415,
+            4415,
+            4415,
+            4415,
+            4415,
+            4415,
+            4415,
+            4415,
+            4415
+          ]
+        },
+        "transaction_callback": {
+          "count": 4415,
+          "sumMs": 95456.80530000005,
+          "maxMs": 35.24799999999232,
+          "buckets": [
+            0,
+            0,
+            0,
+            0,
+            1383,
+            4415,
+            4415,
+            4415,
+            4415,
+            4415,
+            4415,
+            4415,
+            4415
+          ]
+        },
+        "transaction_attempt": {
+          "count": 4415,
+          "sumMs": 131524.97640000028,
+          "maxMs": 44.583599999998114,
+          "buckets": [
+            0,
+            0,
+            0,
+            0,
+            3,
+            4415,
+            4415,
+            4415,
+            4415,
+            4415,
+            4415,
+            4415,
+            4415
+          ]
+        },
+        "transaction_finish": {
+          "count": 4415,
+          "sumMs": 20560.86659999995,
+          "maxMs": 13.095199999996112,
+          "buckets": [
+            0,
+            5,
+            2954,
+            4408,
+            4415,
+            4415,
+            4415,
+            4415,
+            4415,
+            4415,
+            4415,
+            4415,
+            4415
+          ]
+        }
+      },
+      "bucketUpperBoundsMs": [
+        1,
+        2,
+        5,
+        10,
+        20,
+        50,
+        100,
+        200,
+        500,
+        1000,
+        2000,
+        5000,
+        10000
+      ]
+    },
+    "lockSampling": {
+      "intervalMs": 50,
+      "samples": 276,
+      "maxWaiting": null,
+      "meanWaiting": null,
+      "blockedSampleFraction": 0
+    },
+    "sql": [
+      {
+        "queryId": "6958696115885947755",
+        "normalizedQuery": "INSERT INTO \"public\".\"transfers\" (\"id\",\"source_account_id\",\"destination_account_id\",\"initiated_by_user_id\",\"amount\",\"description\",\"idempotency_key\",\"status\",\"created_at\") VALUES ($1,$2,$3,$4,$5,$6,$7,CAST($8::text AS \"public\".\"TransferStatus\"),$9) RETURNING \"public\".\"transfers\".\"id\", \"public\".\"transfers\".\"source_account_id\", \"public\".\"transfers\".\"destination_account_id\", \"public\".\"transfers\".\"initiated_by_user_id\", \"public\".\"transfers\".\"amount\", \"public\".\"transfers\".\"description\", \"public\".\"transfers\".\"idempotency_key\", \"public\".\"transfers\".\"status\"::text, \"public\".\"transfers\".\"created_at\"",
+        "calls": 4415,
+        "executionMs": 390.6094139999982,
+        "rows": 4415
+      },
+      {
+        "queryId": "6797264611338302017",
+        "normalizedQuery": "SELECT \"public\".\"transfers\".\"id\", \"public\".\"transfers\".\"source_account_id\", \"public\".\"transfers\".\"destination_account_id\", \"public\".\"transfers\".\"initiated_by_user_id\", \"public\".\"transfers\".\"amount\", \"public\".\"transfers\".\"description\", \"public\".\"transfers\".\"idempotency_key\", \"public\".\"transfers\".\"status\"::text, \"public\".\"transfers\".\"created_at\" FROM \"public\".\"transfers\" WHERE ((\"public\".\"transfers\".\"source_account_id\" = $1 AND \"public\".\"transfers\".\"idempotency_key\" = $2) AND $5=$6) LIMIT $3 OFFSET $4",
+        "calls": 4415,
+        "executionMs": 58.83185599999996,
+        "rows": 0
+      },
+      {
+        "queryId": "1723362235184929282",
+        "normalizedQuery": "SELECT \"public\".\"bank_accounts\".\"id\", \"public\".\"bank_accounts\".\"user_id\", \"public\".\"bank_accounts\".\"current_balance\", \"public\".\"bank_accounts\".\"status\"::text, \"public\".\"bank_accounts\".\"account_number\" FROM \"public\".\"bank_accounts\" WHERE (\"public\".\"bank_accounts\".\"account_number\" = $1 AND $4=$5) LIMIT $2 OFFSET $3",
+        "calls": 4415,
+        "executionMs": 81.56806200000068,
+        "rows": 4415
+      },
+      {
+        "queryId": "3880641413338555219",
+        "normalizedQuery": "INSERT INTO \"public\".\"financial_transactions\" (\"id\",\"account_id\",\"transfer_id\",\"transaction_type\",\"reference_type\",\"amount\",\"balance_after\",\"status\",\"description\",\"created_at\") VALUES ($1,$2,$3,CAST($4::text AS \"public\".\"TransactionType\"),CAST($5::text AS \"public\".\"ReferenceType\"),$6,$7,CAST($8::text AS \"public\".\"TransactionStatus\"),$9,$10), ($11,$12,$13,CAST($14::text AS \"public\".\"TransactionType\"),CAST($15::text AS \"public\".\"ReferenceType\"),$16,$17,CAST($18::text AS \"public\".\"TransactionStatus\"),$19,$20)",
+        "calls": 4415,
+        "executionMs": 552.253739000013,
+        "rows": 8830
+      },
+      {
+        "queryId": "-7711971380209563197",
+        "normalizedQuery": "SELECT id, user_id AS \"userId\", current_balance::text AS \"currentBalance\", status\n              FROM bank_accounts\n              WHERE id IN ($1,$2)\n              ORDER BY id ASC\n              FOR UPDATE",
+        "calls": 4415,
+        "executionMs": 118.07908600283554,
+        "rows": 8830
+      },
+      {
+        "queryId": "8214046582632011480",
+        "normalizedQuery": "UPDATE bank_accounts AS a\n            SET current_balance = b.balance, updated_at = CURRENT_TIMESTAMP\n            FROM (VALUES ($1::text, $2::numeric),($3::text, $4::numeric)) AS b(id, balance)\n            WHERE a.id = b.id",
+        "calls": 4415,
+        "executionMs": 223.88228800000047,
+        "rows": 8830
+      }
+    ],
+    "reconciliation": {
+      "transfers": 4415,
+      "ledgerEntries": 8830,
+      "conserved": true,
+      "ledgerMatchesBalances": true
+    }
+  },
+  {
+    "round": 2,
+    "variant": "improved",
+    "scenario": "transfer_hot_1",
+    "clients": 1,
+    "seconds": 15.003381200000003,
+    "requests": 1158,
+    "successes": 1158,
+    "errors": {},
+    "successRps": 77.18260201240503,
+    "p50": 12.605500000005122,
+    "p95": 16.2160000000149,
+    "p99": 20.02400000000489,
+    "telemetry": {
+      "counters": {
+        "attempts": 1158,
+        "committed": 1158
+      },
+      "timings": {
+        "transaction_start": {
+          "count": 1158,
+          "sumMs": 1410.4694000000281,
+          "maxMs": 5.047799999996641,
+          "buckets": [
+            325,
+            1141,
+            1156,
+            1158,
+            1158,
+            1158,
+            1158,
+            1158,
+            1158,
+            1158,
+            1158,
+            1158,
+            1158
+          ]
+        },
+        "account_lock_query": {
+          "count": 1158,
+          "sumMs": 1325.135099999954,
+          "maxMs": 2.4406999999991967,
+          "buckets": [
+            385,
+            1137,
+            1158,
+            1158,
+            1158,
+            1158,
+            1158,
+            1158,
+            1158,
+            1158,
+            1158,
+            1158,
+            1158
+          ]
+        },
+        "transaction_callback": {
+          "count": 1158,
+          "sumMs": 9434.977900000009,
+          "maxMs": 16.875600000000304,
+          "buckets": [
+            0,
+            0,
+            0,
+            1085,
+            1158,
+            1158,
+            1158,
+            1158,
+            1158,
+            1158,
+            1158,
+            1158,
+            1158
+          ]
+        },
+        "transaction_attempt": {
+          "count": 1158,
+          "sumMs": 12736.64129999999,
+          "maxMs": 21.95429999999942,
+          "buckets": [
+            0,
+            0,
+            0,
+            298,
+            1157,
+            1158,
+            1158,
+            1158,
+            1158,
+            1158,
+            1158,
+            1158,
+            1158
+          ]
+        },
+        "transaction_finish": {
+          "count": 1158,
+          "sumMs": 1891.193999999954,
+          "maxMs": 5.430399999999281,
+          "buckets": [
+            0,
+            1037,
+            1157,
+            1158,
+            1158,
+            1158,
+            1158,
+            1158,
+            1158,
+            1158,
+            1158,
+            1158,
+            1158
+          ]
+        }
+      },
+      "bucketUpperBoundsMs": [
+        1,
+        2,
+        5,
+        10,
+        20,
+        50,
+        100,
+        200,
+        500,
+        1000,
+        2000,
+        5000,
+        10000
+      ]
+    },
+    "lockSampling": {
+      "intervalMs": 50,
+      "samples": 271,
+      "maxWaiting": null,
+      "meanWaiting": null,
+      "blockedSampleFraction": 0
+    },
+    "sql": [
+      {
+        "queryId": "6958696115885947755",
+        "normalizedQuery": "INSERT INTO \"public\".\"transfers\" (\"id\",\"source_account_id\",\"destination_account_id\",\"initiated_by_user_id\",\"amount\",\"description\",\"idempotency_key\",\"status\",\"created_at\") VALUES ($1,$2,$3,$4,$5,$6,$7,CAST($8::text AS \"public\".\"TransferStatus\"),$9) RETURNING \"public\".\"transfers\".\"id\", \"public\".\"transfers\".\"source_account_id\", \"public\".\"transfers\".\"destination_account_id\", \"public\".\"transfers\".\"initiated_by_user_id\", \"public\".\"transfers\".\"amount\", \"public\".\"transfers\".\"description\", \"public\".\"transfers\".\"idempotency_key\", \"public\".\"transfers\".\"status\"::text, \"public\".\"transfers\".\"created_at\"",
+        "calls": 1158,
+        "executionMs": 95.89861099999825,
+        "rows": 1158
+      },
+      {
+        "queryId": "6797264611338302017",
+        "normalizedQuery": "SELECT \"public\".\"transfers\".\"id\", \"public\".\"transfers\".\"source_account_id\", \"public\".\"transfers\".\"destination_account_id\", \"public\".\"transfers\".\"initiated_by_user_id\", \"public\".\"transfers\".\"amount\", \"public\".\"transfers\".\"description\", \"public\".\"transfers\".\"idempotency_key\", \"public\".\"transfers\".\"status\"::text, \"public\".\"transfers\".\"created_at\" FROM \"public\".\"transfers\" WHERE ((\"public\".\"transfers\".\"source_account_id\" = $1 AND \"public\".\"transfers\".\"idempotency_key\" = $2) AND $5=$6) LIMIT $3 OFFSET $4",
+        "calls": 1158,
+        "executionMs": 15.473668999999859,
+        "rows": 0
+      },
+      {
+        "queryId": "1723362235184929282",
+        "normalizedQuery": "SELECT \"public\".\"bank_accounts\".\"id\", \"public\".\"bank_accounts\".\"user_id\", \"public\".\"bank_accounts\".\"current_balance\", \"public\".\"bank_accounts\".\"status\"::text, \"public\".\"bank_accounts\".\"account_number\" FROM \"public\".\"bank_accounts\" WHERE (\"public\".\"bank_accounts\".\"account_number\" = $1 AND $4=$5) LIMIT $2 OFFSET $3",
+        "calls": 1158,
+        "executionMs": 18.904536999999436,
+        "rows": 1158
+      },
+      {
+        "queryId": "3880641413338555219",
+        "normalizedQuery": "INSERT INTO \"public\".\"financial_transactions\" (\"id\",\"account_id\",\"transfer_id\",\"transaction_type\",\"reference_type\",\"amount\",\"balance_after\",\"status\",\"description\",\"created_at\") VALUES ($1,$2,$3,CAST($4::text AS \"public\".\"TransactionType\"),CAST($5::text AS \"public\".\"ReferenceType\"),$6,$7,CAST($8::text AS \"public\".\"TransactionStatus\"),$9,$10), ($11,$12,$13,CAST($14::text AS \"public\".\"TransactionType\"),CAST($15::text AS \"public\".\"ReferenceType\"),$16,$17,CAST($18::text AS \"public\".\"TransactionStatus\"),$19,$20)",
+        "calls": 1158,
+        "executionMs": 165.53257999999505,
+        "rows": 2316
+      },
+      {
+        "queryId": "-7711971380209563197",
+        "normalizedQuery": "SELECT id, user_id AS \"userId\", current_balance::text AS \"currentBalance\", status\n              FROM bank_accounts\n              WHERE id IN ($1,$2)\n              ORDER BY id ASC\n              FOR UPDATE",
+        "calls": 1158,
+        "executionMs": 34.36986400029855,
+        "rows": 2316
+      },
+      {
+        "queryId": "8214046582632011480",
+        "normalizedQuery": "UPDATE bank_accounts AS a\n            SET current_balance = b.balance, updated_at = CURRENT_TIMESTAMP\n            FROM (VALUES ($1::text, $2::numeric),($3::text, $4::numeric)) AS b(id, balance)\n            WHERE a.id = b.id",
+        "calls": 1158,
+        "executionMs": 62.61520399999927,
+        "rows": 2316
+      }
+    ],
+    "reconciliation": {
+      "transfers": 1158,
+      "ledgerEntries": 2316,
+      "conserved": true,
+      "ledgerMatchesBalances": true
+    }
+  },
+  {
+    "round": 2,
+    "variant": "improved",
+    "scenario": "transfer_hot_10",
+    "clients": 10,
+    "seconds": 15.063267699999997,
+    "requests": 1728,
+    "successes": 1727,
+    "errors": {
+      "503:TRANSACTION_BUSY\n\n503 !== 201\n": 1
+    },
+    "successRps": 114.64975823273727,
+    "p50": 27.20270000002347,
+    "p95": 152.24560000002384,
+    "p99": 1488.3638999999966,
+    "telemetry": {
+      "counters": {
+        "attempts": 1730,
+        "committed": 1727,
+        "rejected": 3,
+        "retries": 2,
+        "retry_exhausted": 1
+      },
+      "timings": {
+        "transaction_start": {
+          "count": 1730,
+          "sumMs": 1884.7368000000715,
+          "maxMs": 5.726399999999558,
+          "buckets": [
+            851,
+            1705,
+            1728,
+            1730,
+            1730,
+            1730,
+            1730,
+            1730,
+            1730,
+            1730,
+            1730,
+            1730,
+            1730
+          ]
+        },
+        "account_lock_query": {
+          "count": 1730,
+          "sumMs": 128354.23609999985,
+          "maxMs": 10049.535199999998,
+          "buckets": [
+            0,
+            0,
+            1,
+            13,
+            1180,
+            1508,
+            1621,
+            1660,
+            1692,
+            1705,
+            1716,
+            1727,
+            1729
+          ]
+        },
+        "transaction_callback": {
+          "count": 1730,
+          "sumMs": 141766.1490000001,
+          "maxMs": 10052.765099999997,
+          "buckets": [
+            0,
+            0,
+            0,
+            1,
+            525,
+            1457,
+            1613,
+            1660,
+            1691,
+            1705,
+            1716,
+            1727,
+            1729
+          ]
+        },
+        "transaction_attempt": {
+          "count": 1730,
+          "sumMs": 146846.8164,
+          "maxMs": 10054.278700000003,
+          "buckets": [
+            0,
+            0,
+            0,
+            0,
+            57,
+            1439,
+            1608,
+            1658,
+            1690,
+            1705,
+            1716,
+            1727,
+            1729
+          ]
+        },
+        "transaction_finish": {
+          "count": 1730,
+          "sumMs": 3195.930599999927,
+          "maxMs": 5.225600000005215,
+          "buckets": [
+            3,
+            1283,
+            1729,
+            1730,
+            1730,
+            1730,
+            1730,
+            1730,
+            1730,
+            1730,
+            1730,
+            1730,
+            1730
+          ]
+        }
+      },
+      "bucketUpperBoundsMs": [
+        1,
+        2,
+        5,
+        10,
+        20,
+        50,
+        100,
+        200,
+        500,
+        1000,
+        2000,
+        5000,
+        10000
+      ]
+    },
+    "lockSampling": {
+      "intervalMs": 50,
+      "samples": 278,
+      "maxWaiting": null,
+      "meanWaiting": null,
+      "blockedSampleFraction": 0
+    },
+    "sql": [
+      {
+        "queryId": "6958696115885947755",
+        "normalizedQuery": "INSERT INTO \"public\".\"transfers\" (\"id\",\"source_account_id\",\"destination_account_id\",\"initiated_by_user_id\",\"amount\",\"description\",\"idempotency_key\",\"status\",\"created_at\") VALUES ($1,$2,$3,$4,$5,$6,$7,CAST($8::text AS \"public\".\"TransferStatus\"),$9) RETURNING \"public\".\"transfers\".\"id\", \"public\".\"transfers\".\"source_account_id\", \"public\".\"transfers\".\"destination_account_id\", \"public\".\"transfers\".\"initiated_by_user_id\", \"public\".\"transfers\".\"amount\", \"public\".\"transfers\".\"description\", \"public\".\"transfers\".\"idempotency_key\", \"public\".\"transfers\".\"status\"::text, \"public\".\"transfers\".\"created_at\"",
+        "calls": 1727,
+        "executionMs": 193.7905910000004,
+        "rows": 1727
+      },
+      {
+        "queryId": "6797264611338302017",
+        "normalizedQuery": "SELECT \"public\".\"transfers\".\"id\", \"public\".\"transfers\".\"source_account_id\", \"public\".\"transfers\".\"destination_account_id\", \"public\".\"transfers\".\"initiated_by_user_id\", \"public\".\"transfers\".\"amount\", \"public\".\"transfers\".\"description\", \"public\".\"transfers\".\"idempotency_key\", \"public\".\"transfers\".\"status\"::text, \"public\".\"transfers\".\"created_at\" FROM \"public\".\"transfers\" WHERE ((\"public\".\"transfers\".\"source_account_id\" = $1 AND \"public\".\"transfers\".\"idempotency_key\" = $2) AND $5=$6) LIMIT $3 OFFSET $4",
+        "calls": 1727,
+        "executionMs": 26.03819499999952,
+        "rows": 0
+      },
+      {
+        "queryId": "1723362235184929282",
+        "normalizedQuery": "SELECT \"public\".\"bank_accounts\".\"id\", \"public\".\"bank_accounts\".\"user_id\", \"public\".\"bank_accounts\".\"current_balance\", \"public\".\"bank_accounts\".\"status\"::text, \"public\".\"bank_accounts\".\"account_number\" FROM \"public\".\"bank_accounts\" WHERE (\"public\".\"bank_accounts\".\"account_number\" = $1 AND $4=$5) LIMIT $2 OFFSET $3",
+        "calls": 1730,
+        "executionMs": 51.08642400000025,
+        "rows": 1730
+      },
+      {
+        "queryId": "3880641413338555219",
+        "normalizedQuery": "INSERT INTO \"public\".\"financial_transactions\" (\"id\",\"account_id\",\"transfer_id\",\"transaction_type\",\"reference_type\",\"amount\",\"balance_after\",\"status\",\"description\",\"created_at\") VALUES ($1,$2,$3,CAST($4::text AS \"public\".\"TransactionType\"),CAST($5::text AS \"public\".\"ReferenceType\"),$6,$7,CAST($8::text AS \"public\".\"TransactionStatus\"),$9,$10), ($11,$12,$13,CAST($14::text AS \"public\".\"TransactionType\"),CAST($15::text AS \"public\".\"ReferenceType\"),$16,$17,CAST($18::text AS \"public\".\"TransactionStatus\"),$19,$20)",
+        "calls": 1727,
+        "executionMs": 272.442724,
+        "rows": 3454
+      },
+      {
+        "queryId": "-7711971380209563197",
+        "normalizedQuery": "SELECT id, user_id AS \"userId\", current_balance::text AS \"currentBalance\", status\n              FROM bank_accounts\n              WHERE id IN ($1,$2)\n              ORDER BY id ASC\n              FOR UPDATE",
+        "calls": 1730,
+        "executionMs": 125522.85131099948,
+        "rows": 3460
+      },
+      {
+        "queryId": "8214046582632011480",
+        "normalizedQuery": "UPDATE bank_accounts AS a\n            SET current_balance = b.balance, updated_at = CURRENT_TIMESTAMP\n            FROM (VALUES ($1::text, $2::numeric),($3::text, $4::numeric)) AS b(id, balance)\n            WHERE a.id = b.id",
+        "calls": 1727,
+        "executionMs": 155.76311699999883,
+        "rows": 3454
+      }
+    ],
+    "reconciliation": {
+      "transfers": 1727,
+      "ledgerEntries": 3454,
+      "conserved": true,
+      "ledgerMatchesBalances": true
+    }
+  },
+  {
+    "round": 2,
+    "variant": "improved",
+    "scenario": "transfer_hot_50",
+    "clients": 50,
+    "seconds": 15.36618220000001,
+    "requests": 1974,
+    "successes": 1974,
+    "errors": {},
+    "successRps": 128.4639199449294,
+    "p50": 336.1625000000058,
+    "p95": 720.6356000000087,
+    "p99": 1003.0668000000005,
+    "telemetry": {
+      "counters": {
+        "attempts": 1974,
+        "committed": 1974
+      },
+      "timings": {
+        "transaction_start": {
+          "count": 1974,
+          "sumMs": 603629.8826000001,
+          "maxMs": 396.2618000000002,
+          "buckets": [
+            0,
+            0,
+            0,
+            0,
+            10,
+            14,
+            21,
+            35,
+            1974,
+            1974,
+            1974,
+            1974,
+            1974
+          ]
+        },
+        "account_lock_query": {
+          "count": 1974,
+          "sumMs": 133936.77970000054,
+          "maxMs": 1064.0504,
+          "buckets": [
+            0,
+            1,
+            1,
+            2,
+            1371,
+            1593,
+            1696,
+            1753,
+            1915,
+            1973,
+            1974,
+            1974,
+            1974
+          ]
+        },
+        "transaction_callback": {
+          "count": 1974,
+          "sumMs": 148005.4033000004,
+          "maxMs": 1070.8302999999942,
+          "buckets": [
+            0,
+            0,
+            0,
+            1,
+            710,
+            1562,
+            1690,
+            1752,
+            1911,
+            1973,
+            1974,
+            1974,
+            1974
+          ]
+        },
+        "transaction_attempt": {
+          "count": 1974,
+          "sumMs": 754981.4643000001,
+          "maxMs": 1379.8012999999992,
+          "buckets": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            3,
+            11,
+            25,
+            1746,
+            1954,
+            1974,
+            1974,
+            1974
+          ]
+        },
+        "transaction_finish": {
+          "count": 1974,
+          "sumMs": 3346.178399999895,
+          "maxMs": 3.7547000000049593,
+          "buckets": [
+            0,
+            1756,
+            1974,
+            1974,
+            1974,
+            1974,
+            1974,
+            1974,
+            1974,
+            1974,
+            1974,
+            1974,
+            1974
+          ]
+        }
+      },
+      "bucketUpperBoundsMs": [
+        1,
+        2,
+        5,
+        10,
+        20,
+        50,
+        100,
+        200,
+        500,
+        1000,
+        2000,
+        5000,
+        10000
+      ]
+    },
+    "lockSampling": {
+      "intervalMs": 50,
+      "samples": 289,
+      "maxWaiting": null,
+      "meanWaiting": null,
+      "blockedSampleFraction": 0
+    },
+    "sql": [
+      {
+        "queryId": "6958696115885947755",
+        "normalizedQuery": "INSERT INTO \"public\".\"transfers\" (\"id\",\"source_account_id\",\"destination_account_id\",\"initiated_by_user_id\",\"amount\",\"description\",\"idempotency_key\",\"status\",\"created_at\") VALUES ($1,$2,$3,$4,$5,$6,$7,CAST($8::text AS \"public\".\"TransferStatus\"),$9) RETURNING \"public\".\"transfers\".\"id\", \"public\".\"transfers\".\"source_account_id\", \"public\".\"transfers\".\"destination_account_id\", \"public\".\"transfers\".\"initiated_by_user_id\", \"public\".\"transfers\".\"amount\", \"public\".\"transfers\".\"description\", \"public\".\"transfers\".\"idempotency_key\", \"public\".\"transfers\".\"status\"::text, \"public\".\"transfers\".\"created_at\"",
+        "calls": 1974,
+        "executionMs": 144.62533999999232,
+        "rows": 1974
+      },
+      {
+        "queryId": "6797264611338302017",
+        "normalizedQuery": "SELECT \"public\".\"transfers\".\"id\", \"public\".\"transfers\".\"source_account_id\", \"public\".\"transfers\".\"destination_account_id\", \"public\".\"transfers\".\"initiated_by_user_id\", \"public\".\"transfers\".\"amount\", \"public\".\"transfers\".\"description\", \"public\".\"transfers\".\"idempotency_key\", \"public\".\"transfers\".\"status\"::text, \"public\".\"transfers\".\"created_at\" FROM \"public\".\"transfers\" WHERE ((\"public\".\"transfers\".\"source_account_id\" = $1 AND \"public\".\"transfers\".\"idempotency_key\" = $2) AND $5=$6) LIMIT $3 OFFSET $4",
+        "calls": 1974,
+        "executionMs": 23.840780999999936,
+        "rows": 0
+      },
+      {
+        "queryId": "1723362235184929282",
+        "normalizedQuery": "SELECT \"public\".\"bank_accounts\".\"id\", \"public\".\"bank_accounts\".\"user_id\", \"public\".\"bank_accounts\".\"current_balance\", \"public\".\"bank_accounts\".\"status\"::text, \"public\".\"bank_accounts\".\"account_number\" FROM \"public\".\"bank_accounts\" WHERE (\"public\".\"bank_accounts\".\"account_number\" = $1 AND $4=$5) LIMIT $2 OFFSET $3",
+        "calls": 1974,
+        "executionMs": 33.454933999999184,
+        "rows": 1974
+      },
+      {
+        "queryId": "3880641413338555219",
+        "normalizedQuery": "INSERT INTO \"public\".\"financial_transactions\" (\"id\",\"account_id\",\"transfer_id\",\"transaction_type\",\"reference_type\",\"amount\",\"balance_after\",\"status\",\"description\",\"created_at\") VALUES ($1,$2,$3,CAST($4::text AS \"public\".\"TransactionType\"),CAST($5::text AS \"public\".\"ReferenceType\"),$6,$7,CAST($8::text AS \"public\".\"TransactionStatus\"),$9,$10), ($11,$12,$13,CAST($14::text AS \"public\".\"TransactionType\"),CAST($15::text AS \"public\".\"ReferenceType\"),$16,$17,CAST($18::text AS \"public\".\"TransactionStatus\"),$19,$20)",
+        "calls": 1974,
+        "executionMs": 236.08905000000186,
+        "rows": 3948
+      },
+      {
+        "queryId": "-7711971380209563197",
+        "normalizedQuery": "SELECT id, user_id AS \"userId\", current_balance::text AS \"currentBalance\", status\n              FROM bank_accounts\n              WHERE id IN ($1,$2)\n              ORDER BY id ASC\n              FOR UPDATE",
+        "calls": 1974,
+        "executionMs": 130786.25836900022,
+        "rows": 3948
+      },
+      {
+        "queryId": "8214046582632011480",
+        "normalizedQuery": "UPDATE bank_accounts AS a\n            SET current_balance = b.balance, updated_at = CURRENT_TIMESTAMP\n            FROM (VALUES ($1::text, $2::numeric),($3::text, $4::numeric)) AS b(id, balance)\n            WHERE a.id = b.id",
+        "calls": 1974,
+        "executionMs": 100.3875609999991,
+        "rows": 3948
+      }
+    ],
+    "reconciliation": {
+      "transfers": 1974,
+      "ledgerEntries": 3948,
+      "conserved": true,
+      "ledgerMatchesBalances": true
+    }
+  },
+  {
+    "round": 2,
+    "variant": "improved",
+    "scenario": "transfer_distributed_10",
+    "clients": 10,
+    "seconds": 15.019891700000008,
+    "requests": 4632,
+    "successes": 4632,
+    "errors": {},
+    "successRps": 308.39103853192216,
+    "p50": 31.6190999999817,
+    "p95": 39.56930000000284,
+    "p99": 44.05569999999716,
+    "telemetry": {
+      "counters": {
+        "attempts": 4632,
+        "committed": 4632
+      },
+      "timings": {
+        "transaction_start": {
+          "count": 4632,
+          "sumMs": 15995.807200000861,
+          "maxMs": 10.171199999997043,
+          "buckets": [
+            0,
+            113,
+            4301,
+            4631,
+            4632,
+            4632,
+            4632,
+            4632,
+            4632,
+            4632,
+            4632,
+            4632,
+            4632
+          ]
+        },
+        "account_lock_query": {
+          "count": 4632,
+          "sumMs": 13420.016899999799,
+          "maxMs": 10.300400000007357,
+          "buckets": [
+            0,
+            723,
+            4493,
+            4631,
+            4632,
+            4632,
+            4632,
+            4632,
+            4632,
+            4632,
+            4632,
+            4632,
+            4632
+          ]
+        },
+        "transaction_callback": {
+          "count": 4632,
+          "sumMs": 93856.56049999972,
+          "maxMs": 34.603799999997136,
+          "buckets": [
+            0,
+            0,
+            0,
+            0,
+            2548,
+            4632,
+            4632,
+            4632,
+            4632,
+            4632,
+            4632,
+            4632,
+            4632
+          ]
+        },
+        "transaction_attempt": {
+          "count": 4632,
+          "sumMs": 130609.8824000006,
+          "maxMs": 44.874299999995856,
+          "buckets": [
+            0,
+            0,
+            0,
+            0,
+            4,
+            4632,
+            4632,
+            4632,
+            4632,
+            4632,
+            4632,
+            4632,
+            4632
+          ]
+        },
+        "transaction_finish": {
+          "count": 4632,
+          "sumMs": 20757.51470000016,
+          "maxMs": 14.516199999998207,
+          "buckets": [
+            0,
+            17,
+            3380,
+            4626,
+            4632,
+            4632,
+            4632,
+            4632,
+            4632,
+            4632,
+            4632,
+            4632,
+            4632
+          ]
+        }
+      },
+      "bucketUpperBoundsMs": [
+        1,
+        2,
+        5,
+        10,
+        20,
+        50,
+        100,
+        200,
+        500,
+        1000,
+        2000,
+        5000,
+        10000
+      ]
+    },
+    "lockSampling": {
+      "intervalMs": 50,
+      "samples": 273,
+      "maxWaiting": null,
+      "meanWaiting": null,
+      "blockedSampleFraction": 0
+    },
+    "sql": [
+      {
+        "queryId": "6958696115885947755",
+        "normalizedQuery": "INSERT INTO \"public\".\"transfers\" (\"id\",\"source_account_id\",\"destination_account_id\",\"initiated_by_user_id\",\"amount\",\"description\",\"idempotency_key\",\"status\",\"created_at\") VALUES ($1,$2,$3,$4,$5,$6,$7,CAST($8::text AS \"public\".\"TransferStatus\"),$9) RETURNING \"public\".\"transfers\".\"id\", \"public\".\"transfers\".\"source_account_id\", \"public\".\"transfers\".\"destination_account_id\", \"public\".\"transfers\".\"initiated_by_user_id\", \"public\".\"transfers\".\"amount\", \"public\".\"transfers\".\"description\", \"public\".\"transfers\".\"idempotency_key\", \"public\".\"transfers\".\"status\"::text, \"public\".\"transfers\".\"created_at\"",
+        "calls": 4632,
+        "executionMs": 354.07459099999505,
+        "rows": 4632
+      },
+      {
+        "queryId": "6797264611338302017",
+        "normalizedQuery": "SELECT \"public\".\"transfers\".\"id\", \"public\".\"transfers\".\"source_account_id\", \"public\".\"transfers\".\"destination_account_id\", \"public\".\"transfers\".\"initiated_by_user_id\", \"public\".\"transfers\".\"amount\", \"public\".\"transfers\".\"description\", \"public\".\"transfers\".\"idempotency_key\", \"public\".\"transfers\".\"status\"::text, \"public\".\"transfers\".\"created_at\" FROM \"public\".\"transfers\" WHERE ((\"public\".\"transfers\".\"source_account_id\" = $1 AND \"public\".\"transfers\".\"idempotency_key\" = $2) AND $5=$6) LIMIT $3 OFFSET $4",
+        "calls": 4632,
+        "executionMs": 51.08687300000071,
+        "rows": 0
+      },
+      {
+        "queryId": "1723362235184929282",
+        "normalizedQuery": "SELECT \"public\".\"bank_accounts\".\"id\", \"public\".\"bank_accounts\".\"user_id\", \"public\".\"bank_accounts\".\"current_balance\", \"public\".\"bank_accounts\".\"status\"::text, \"public\".\"bank_accounts\".\"account_number\" FROM \"public\".\"bank_accounts\" WHERE (\"public\".\"bank_accounts\".\"account_number\" = $1 AND $4=$5) LIMIT $2 OFFSET $3",
+        "calls": 4632,
+        "executionMs": 71.00865600000509,
+        "rows": 4632
+      },
+      {
+        "queryId": "3880641413338555219",
+        "normalizedQuery": "INSERT INTO \"public\".\"financial_transactions\" (\"id\",\"account_id\",\"transfer_id\",\"transaction_type\",\"reference_type\",\"amount\",\"balance_after\",\"status\",\"description\",\"created_at\") VALUES ($1,$2,$3,CAST($4::text AS \"public\".\"TransactionType\"),CAST($5::text AS \"public\".\"ReferenceType\"),$6,$7,CAST($8::text AS \"public\".\"TransactionStatus\"),$9,$10), ($11,$12,$13,CAST($14::text AS \"public\".\"TransactionType\"),CAST($15::text AS \"public\".\"ReferenceType\"),$16,$17,CAST($18::text AS \"public\".\"TransactionStatus\"),$19,$20)",
+        "calls": 4632,
+        "executionMs": 502.39571300002035,
+        "rows": 9264
+      },
+      {
+        "queryId": "-7711971380209563197",
+        "normalizedQuery": "SELECT id, user_id AS \"userId\", current_balance::text AS \"currentBalance\", status\n              FROM bank_accounts\n              WHERE id IN ($1,$2)\n              ORDER BY id ASC\n              FOR UPDATE",
+        "calls": 4632,
+        "executionMs": 105.13224199903198,
+        "rows": 9264
+      },
+      {
+        "queryId": "8214046582632011480",
+        "normalizedQuery": "UPDATE bank_accounts AS a\n            SET current_balance = b.balance, updated_at = CURRENT_TIMESTAMP\n            FROM (VALUES ($1::text, $2::numeric),($3::text, $4::numeric)) AS b(id, balance)\n            WHERE a.id = b.id",
+        "calls": 4632,
+        "executionMs": 211.5884230000022,
+        "rows": 9264
+      }
+    ],
+    "reconciliation": {
+      "transfers": 4632,
+      "ledgerEntries": 9264,
+      "conserved": true,
+      "ledgerMatchesBalances": true
+    }
+  },
+  {
+    "round": 2,
+    "variant": "baseline",
+    "scenario": "transfer_hot_1",
+    "clients": 1,
+    "seconds": 15.001265199999994,
+    "requests": 1071,
+    "successes": 1071,
+    "errors": {},
+    "successRps": 71.39397815592251,
+    "p50": 13.40089999997872,
+    "p95": 18.658900000009453,
+    "p99": 22.615400000009686,
+    "telemetry": {
+      "counters": {
+        "attempts": 1071,
+        "committed": 1071
+      },
+      "timings": {
+        "transaction_start": {
+          "count": 1071,
+          "sumMs": 1245.9893999999927,
+          "maxMs": 5.354900000000271,
+          "buckets": [
+            332,
+            1059,
+            1070,
+            1071,
+            1071,
+            1071,
+            1071,
+            1071,
+            1071,
+            1071,
+            1071,
+            1071,
+            1071
+          ]
+        },
+        "account_lock_query": {
+          "count": 2142,
+          "sumMs": 2342.3564000000756,
+          "maxMs": 4.736300000000483,
+          "buckets": [
+            891,
+            2117,
+            2142,
+            2142,
+            2142,
+            2142,
+            2142,
+            2142,
+            2142,
+            2142,
+            2142,
+            2142,
+            2142
+          ]
+        },
+        "transaction_callback": {
+          "count": 1071,
+          "sumMs": 9902.428899999994,
+          "maxMs": 29.21440000000075,
+          "buckets": [
+            0,
+            0,
+            0,
+            858,
+            1070,
+            1071,
+            1071,
+            1071,
+            1071,
+            1071,
+            1071,
+            1071,
+            1071
+          ]
+        },
+        "transaction_attempt": {
+          "count": 1071,
+          "sumMs": 12852.840899999966,
+          "maxMs": 38.393299999999726,
+          "buckets": [
+            0,
+            0,
+            0,
+            66,
+            1061,
+            1071,
+            1071,
+            1071,
+            1071,
+            1071,
+            1071,
+            1071,
+            1071
+          ]
+        },
+        "transaction_finish": {
+          "count": 1071,
+          "sumMs": 1704.4225999999808,
+          "maxMs": 7.513999999999214,
+          "buckets": [
+            0,
+            973,
+            1070,
+            1071,
+            1071,
+            1071,
+            1071,
+            1071,
+            1071,
+            1071,
+            1071,
+            1071,
+            1071
+          ]
+        }
+      },
+      "bucketUpperBoundsMs": [
+        1,
+        2,
+        5,
+        10,
+        20,
+        50,
+        100,
+        200,
+        500,
+        1000,
+        2000,
+        5000,
+        10000
+      ]
+    },
+    "lockSampling": {
+      "intervalMs": 50,
+      "samples": 273,
+      "maxWaiting": null,
+      "meanWaiting": null,
+      "blockedSampleFraction": 0
+    },
+    "sql": [
+      {
+        "queryId": "6958696115885947755",
+        "normalizedQuery": "INSERT INTO \"public\".\"transfers\" (\"id\",\"source_account_id\",\"destination_account_id\",\"initiated_by_user_id\",\"amount\",\"description\",\"idempotency_key\",\"status\",\"created_at\") VALUES ($1,$2,$3,$4,$5,$6,$7,CAST($8::text AS \"public\".\"TransferStatus\"),$9) RETURNING \"public\".\"transfers\".\"id\", \"public\".\"transfers\".\"source_account_id\", \"public\".\"transfers\".\"destination_account_id\", \"public\".\"transfers\".\"initiated_by_user_id\", \"public\".\"transfers\".\"amount\", \"public\".\"transfers\".\"description\", \"public\".\"transfers\".\"idempotency_key\", \"public\".\"transfers\".\"status\"::text, \"public\".\"transfers\".\"created_at\"",
+        "calls": 1071,
+        "executionMs": 78.75976700000137,
+        "rows": 1071
+      },
+      {
+        "queryId": "6797264611338302017",
+        "normalizedQuery": "SELECT \"public\".\"transfers\".\"id\", \"public\".\"transfers\".\"source_account_id\", \"public\".\"transfers\".\"destination_account_id\", \"public\".\"transfers\".\"initiated_by_user_id\", \"public\".\"transfers\".\"amount\", \"public\".\"transfers\".\"description\", \"public\".\"transfers\".\"idempotency_key\", \"public\".\"transfers\".\"status\"::text, \"public\".\"transfers\".\"created_at\" FROM \"public\".\"transfers\" WHERE ((\"public\".\"transfers\".\"source_account_id\" = $1 AND \"public\".\"transfers\".\"idempotency_key\" = $2) AND $5=$6) LIMIT $3 OFFSET $4",
+        "calls": 1071,
+        "executionMs": 12.847795000000929,
+        "rows": 0
+      },
+      {
+        "queryId": "1723362235184929282",
+        "normalizedQuery": "SELECT \"public\".\"bank_accounts\".\"id\", \"public\".\"bank_accounts\".\"user_id\", \"public\".\"bank_accounts\".\"current_balance\", \"public\".\"bank_accounts\".\"status\"::text, \"public\".\"bank_accounts\".\"account_number\" FROM \"public\".\"bank_accounts\" WHERE (\"public\".\"bank_accounts\".\"account_number\" = $1 AND $4=$5) LIMIT $2 OFFSET $3",
+        "calls": 1071,
+        "executionMs": 18.19561600000077,
+        "rows": 1071
+      },
+      {
+        "queryId": "3880641413338555219",
+        "normalizedQuery": "INSERT INTO \"public\".\"financial_transactions\" (\"id\",\"account_id\",\"transfer_id\",\"transaction_type\",\"reference_type\",\"amount\",\"balance_after\",\"status\",\"description\",\"created_at\") VALUES ($1,$2,$3,CAST($4::text AS \"public\".\"TransactionType\"),CAST($5::text AS \"public\".\"ReferenceType\"),$6,$7,CAST($8::text AS \"public\".\"TransactionStatus\"),$9,$10), ($11,$12,$13,CAST($14::text AS \"public\".\"TransactionType\"),CAST($15::text AS \"public\".\"ReferenceType\"),$16,$17,CAST($18::text AS \"public\".\"TransactionStatus\"),$19,$20)",
+        "calls": 1071,
+        "executionMs": 123.88665499999661,
+        "rows": 2142
+      },
+      {
+        "queryId": "2991475109097125592",
+        "normalizedQuery": "SELECT  \n                id,\n                user_id AS \"userId\",\n                current_balance::text AS \"currentBalance\",\n                status  \n              FROM bank_accounts\n              WHERE id = $1\n              FOR UPDATE",
+        "calls": 2142,
+        "executionMs": 33.09812300145859,
+        "rows": 2142
+      },
+      {
+        "queryId": "8214046582632011480",
+        "normalizedQuery": "UPDATE bank_accounts AS a\n            SET current_balance = b.balance, updated_at = CURRENT_TIMESTAMP\n            FROM (VALUES ($1::text, $2::numeric),($3::text, $4::numeric)) AS b(id, balance)\n            WHERE a.id = b.id",
+        "calls": 1071,
+        "executionMs": 54.71847100000355,
+        "rows": 2142
+      }
+    ],
+    "reconciliation": {
+      "transfers": 1071,
+      "ledgerEntries": 2142,
+      "conserved": true,
+      "ledgerMatchesBalances": true
+    }
+  },
+  {
+    "round": 2,
+    "variant": "baseline",
+    "scenario": "transfer_hot_10",
+    "clients": 10,
+    "seconds": 15.135592999999993,
+    "requests": 1456,
+    "successes": 1456,
+    "errors": {},
+    "successRps": 96.19708986625108,
+    "p50": 32.591400000004796,
+    "p95": 218.23099999999977,
+    "p99": 2047.2915999999968,
+    "telemetry": {
+      "counters": {
+        "attempts": 1457,
+        "committed": 1456,
+        "rejected": 1,
+        "retries": 1
+      },
+      "timings": {
+        "transaction_start": {
+          "count": 1457,
+          "sumMs": 1667.0948999999928,
+          "maxMs": 6.457200000000739,
+          "buckets": [
+            671,
+            1422,
+            1452,
+            1457,
+            1457,
+            1457,
+            1457,
+            1457,
+            1457,
+            1457,
+            1457,
+            1457,
+            1457
+          ]
+        },
+        "account_lock_query": {
+          "count": 2914,
+          "sumMs": 132115.85099999988,
+          "maxMs": 5350.2834,
+          "buckets": [
+            23,
+            1216,
+            1456,
+            1462,
+            2295,
+            2677,
+            2788,
+            2841,
+            2866,
+            2887,
+            2899,
+            2913,
+            2914
+          ]
+        },
+        "transaction_callback": {
+          "count": 1457,
+          "sumMs": 143055.20410000015,
+          "maxMs": 5354.330499999996,
+          "buckets": [
+            0,
+            0,
+            0,
+            2,
+            59,
+            1166,
+            1321,
+            1381,
+            1409,
+            1430,
+            1442,
+            1456,
+            1457
+          ]
+        },
+        "transaction_attempt": {
+          "count": 1457,
+          "sumMs": 147574.47390000004,
+          "maxMs": 5356.406599999998,
+          "buckets": [
+            0,
+            0,
+            0,
+            0,
+            3,
+            1142,
+            1317,
+            1381,
+            1409,
+            1430,
+            1442,
+            1456,
+            1457
+          ]
+        },
+        "transaction_finish": {
+          "count": 1457,
+          "sumMs": 2852.1748999999545,
+          "maxMs": 13.721799999999348,
+          "buckets": [
+            1,
+            974,
+            1452,
+            1456,
+            1457,
+            1457,
+            1457,
+            1457,
+            1457,
+            1457,
+            1457,
+            1457,
+            1457
+          ]
+        }
+      },
+      "bucketUpperBoundsMs": [
+        1,
+        2,
+        5,
+        10,
+        20,
+        50,
+        100,
+        200,
+        500,
+        1000,
+        2000,
+        5000,
+        10000
+      ]
+    },
+    "lockSampling": {
+      "intervalMs": 50,
+      "samples": 275,
+      "maxWaiting": null,
+      "meanWaiting": null,
+      "blockedSampleFraction": 0
+    },
+    "sql": [
+      {
+        "queryId": "6958696115885947755",
+        "normalizedQuery": "INSERT INTO \"public\".\"transfers\" (\"id\",\"source_account_id\",\"destination_account_id\",\"initiated_by_user_id\",\"amount\",\"description\",\"idempotency_key\",\"status\",\"created_at\") VALUES ($1,$2,$3,$4,$5,$6,$7,CAST($8::text AS \"public\".\"TransferStatus\"),$9) RETURNING \"public\".\"transfers\".\"id\", \"public\".\"transfers\".\"source_account_id\", \"public\".\"transfers\".\"destination_account_id\", \"public\".\"transfers\".\"initiated_by_user_id\", \"public\".\"transfers\".\"amount\", \"public\".\"transfers\".\"description\", \"public\".\"transfers\".\"idempotency_key\", \"public\".\"transfers\".\"status\"::text, \"public\".\"transfers\".\"created_at\"",
+        "calls": 1456,
+        "executionMs": 141.70578199999954,
+        "rows": 1456
+      },
+      {
+        "queryId": "6797264611338302017",
+        "normalizedQuery": "SELECT \"public\".\"transfers\".\"id\", \"public\".\"transfers\".\"source_account_id\", \"public\".\"transfers\".\"destination_account_id\", \"public\".\"transfers\".\"initiated_by_user_id\", \"public\".\"transfers\".\"amount\", \"public\".\"transfers\".\"description\", \"public\".\"transfers\".\"idempotency_key\", \"public\".\"transfers\".\"status\"::text, \"public\".\"transfers\".\"created_at\" FROM \"public\".\"transfers\" WHERE ((\"public\".\"transfers\".\"source_account_id\" = $1 AND \"public\".\"transfers\".\"idempotency_key\" = $2) AND $5=$6) LIMIT $3 OFFSET $4",
+        "calls": 1456,
+        "executionMs": 22.930006000000958,
+        "rows": 0
+      },
+      {
+        "queryId": "1723362235184929282",
+        "normalizedQuery": "SELECT \"public\".\"bank_accounts\".\"id\", \"public\".\"bank_accounts\".\"user_id\", \"public\".\"bank_accounts\".\"current_balance\", \"public\".\"bank_accounts\".\"status\"::text, \"public\".\"bank_accounts\".\"account_number\" FROM \"public\".\"bank_accounts\" WHERE (\"public\".\"bank_accounts\".\"account_number\" = $1 AND $4=$5) LIMIT $2 OFFSET $3",
+        "calls": 1457,
+        "executionMs": 37.30273699999805,
+        "rows": 1457
+      },
+      {
+        "queryId": "3880641413338555219",
+        "normalizedQuery": "INSERT INTO \"public\".\"financial_transactions\" (\"id\",\"account_id\",\"transfer_id\",\"transaction_type\",\"reference_type\",\"amount\",\"balance_after\",\"status\",\"description\",\"created_at\") VALUES ($1,$2,$3,CAST($4::text AS \"public\".\"TransactionType\"),CAST($5::text AS \"public\".\"ReferenceType\"),$6,$7,CAST($8::text AS \"public\".\"TransactionStatus\"),$9,$10), ($11,$12,$13,CAST($14::text AS \"public\".\"TransactionType\"),CAST($15::text AS \"public\".\"ReferenceType\"),$16,$17,CAST($18::text AS \"public\".\"TransactionStatus\"),$19,$20)",
+        "calls": 1456,
+        "executionMs": 215.31346700001995,
+        "rows": 2912
+      },
+      {
+        "queryId": "2991475109097125592",
+        "normalizedQuery": "SELECT  \n                id,\n                user_id AS \"userId\",\n                current_balance::text AS \"currentBalance\",\n                status  \n              FROM bank_accounts\n              WHERE id = $1\n              FOR UPDATE",
+        "calls": 2913,
+        "executionMs": 127148.26300800021,
+        "rows": 2913
+      },
+      {
+        "queryId": "8214046582632011480",
+        "normalizedQuery": "UPDATE bank_accounts AS a\n            SET current_balance = b.balance, updated_at = CURRENT_TIMESTAMP\n            FROM (VALUES ($1::text, $2::numeric),($3::text, $4::numeric)) AS b(id, balance)\n            WHERE a.id = b.id",
+        "calls": 1456,
+        "executionMs": 111.06209699999204,
+        "rows": 2912
+      }
+    ],
+    "reconciliation": {
+      "transfers": 1456,
+      "ledgerEntries": 2912,
+      "conserved": true,
+      "ledgerMatchesBalances": true
+    }
+  },
+  {
+    "round": 2,
+    "variant": "baseline",
+    "scenario": "transfer_hot_50",
+    "clients": 50,
+    "seconds": 15.393032799999986,
+    "requests": 1721,
+    "successes": 1721,
+    "errors": {},
+    "successRps": 111.80382854767915,
+    "p50": 428.4118000000017,
+    "p95": 539.0580000000191,
+    "p99": 577.9635000000126,
+    "telemetry": {
+      "counters": {
+        "attempts": 1721,
+        "committed": 1721
+      },
+      "timings": {
+        "transaction_start": {
+          "count": 1721,
+          "sumMs": 604237.8042000008,
+          "maxMs": 475.5622000000003,
+          "buckets": [
+            0,
+            0,
+            0,
+            0,
+            10,
+            13,
+            19,
+            29,
+            1721,
+            1721,
+            1721,
+            1721,
+            1721
+          ]
+        },
+        "account_lock_query": {
+          "count": 3442,
+          "sumMs": 137326.99750000038,
+          "maxMs": 131.19420000000537,
+          "buckets": [
+            26,
+            1644,
+            1719,
+            1722,
+            1738,
+            1746,
+            3357,
+            3442,
+            3442,
+            3442,
+            3442,
+            3442,
+            3442
+          ]
+        },
+        "transaction_callback": {
+          "count": 1721,
+          "sumMs": 149143.53850000026,
+          "maxMs": 141.4016999999949,
+          "buckets": [
+            0,
+            0,
+            0,
+            0,
+            2,
+            24,
+            1506,
+            1721,
+            1721,
+            1721,
+            1721,
+            1721,
+            1721
+          ]
+        },
+        "transaction_attempt": {
+          "count": 1721,
+          "sumMs": 756198.7788999999,
+          "maxMs": 589.9974999999977,
+          "buckets": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            3,
+            8,
+            19,
+            1509,
+            1721,
+            1721,
+            1721,
+            1721
+          ]
+        },
+        "transaction_finish": {
+          "count": 1721,
+          "sumMs": 2817.4361999999965,
+          "maxMs": 3.8234000000011292,
+          "buckets": [
+            0,
+            1533,
+            1721,
+            1721,
+            1721,
+            1721,
+            1721,
+            1721,
+            1721,
+            1721,
+            1721,
+            1721,
+            1721
+          ]
+        }
+      },
+      "bucketUpperBoundsMs": [
+        1,
+        2,
+        5,
+        10,
+        20,
+        50,
+        100,
+        200,
+        500,
+        1000,
+        2000,
+        5000,
+        10000
+      ]
+    },
+    "lockSampling": {
+      "intervalMs": 50,
+      "samples": 284,
+      "maxWaiting": null,
+      "meanWaiting": null,
+      "blockedSampleFraction": 0
+    },
+    "sql": [
+      {
+        "queryId": "6958696115885947755",
+        "normalizedQuery": "INSERT INTO \"public\".\"transfers\" (\"id\",\"source_account_id\",\"destination_account_id\",\"initiated_by_user_id\",\"amount\",\"description\",\"idempotency_key\",\"status\",\"created_at\") VALUES ($1,$2,$3,$4,$5,$6,$7,CAST($8::text AS \"public\".\"TransferStatus\"),$9) RETURNING \"public\".\"transfers\".\"id\", \"public\".\"transfers\".\"source_account_id\", \"public\".\"transfers\".\"destination_account_id\", \"public\".\"transfers\".\"initiated_by_user_id\", \"public\".\"transfers\".\"amount\", \"public\".\"transfers\".\"description\", \"public\".\"transfers\".\"idempotency_key\", \"public\".\"transfers\".\"status\"::text, \"public\".\"transfers\".\"created_at\"",
+        "calls": 1721,
+        "executionMs": 131.23080000000027,
+        "rows": 1721
+      },
+      {
+        "queryId": "6797264611338302017",
+        "normalizedQuery": "SELECT \"public\".\"transfers\".\"id\", \"public\".\"transfers\".\"source_account_id\", \"public\".\"transfers\".\"destination_account_id\", \"public\".\"transfers\".\"initiated_by_user_id\", \"public\".\"transfers\".\"amount\", \"public\".\"transfers\".\"description\", \"public\".\"transfers\".\"idempotency_key\", \"public\".\"transfers\".\"status\"::text, \"public\".\"transfers\".\"created_at\" FROM \"public\".\"transfers\" WHERE ((\"public\".\"transfers\".\"source_account_id\" = $1 AND \"public\".\"transfers\".\"idempotency_key\" = $2) AND $5=$6) LIMIT $3 OFFSET $4",
+        "calls": 1721,
+        "executionMs": 22.126762999999528,
+        "rows": 0
+      },
+      {
+        "queryId": "1723362235184929282",
+        "normalizedQuery": "SELECT \"public\".\"bank_accounts\".\"id\", \"public\".\"bank_accounts\".\"user_id\", \"public\".\"bank_accounts\".\"current_balance\", \"public\".\"bank_accounts\".\"status\"::text, \"public\".\"bank_accounts\".\"account_number\" FROM \"public\".\"bank_accounts\" WHERE (\"public\".\"bank_accounts\".\"account_number\" = $1 AND $4=$5) LIMIT $2 OFFSET $3",
+        "calls": 1721,
+        "executionMs": 24.309540999999285,
+        "rows": 1721
+      },
+      {
+        "queryId": "3880641413338555219",
+        "normalizedQuery": "INSERT INTO \"public\".\"financial_transactions\" (\"id\",\"account_id\",\"transfer_id\",\"transaction_type\",\"reference_type\",\"amount\",\"balance_after\",\"status\",\"description\",\"created_at\") VALUES ($1,$2,$3,CAST($4::text AS \"public\".\"TransactionType\"),CAST($5::text AS \"public\".\"ReferenceType\"),$6,$7,CAST($8::text AS \"public\".\"TransactionStatus\"),$9,$10), ($11,$12,$13,CAST($14::text AS \"public\".\"TransactionType\"),CAST($15::text AS \"public\".\"ReferenceType\"),$16,$17,CAST($18::text AS \"public\".\"TransactionStatus\"),$19,$20)",
+        "calls": 1721,
+        "executionMs": 200.29980499999874,
+        "rows": 3442
+      },
+      {
+        "queryId": "2991475109097125592",
+        "normalizedQuery": "SELECT  \n                id,\n                user_id AS \"userId\",\n                current_balance::text AS \"currentBalance\",\n                status  \n              FROM bank_accounts\n              WHERE id = $1\n              FOR UPDATE",
+        "calls": 3442,
+        "executionMs": 132070.12975800113,
+        "rows": 3442
+      },
+      {
+        "queryId": "8214046582632011480",
+        "normalizedQuery": "UPDATE bank_accounts AS a\n            SET current_balance = b.balance, updated_at = CURRENT_TIMESTAMP\n            FROM (VALUES ($1::text, $2::numeric),($3::text, $4::numeric)) AS b(id, balance)\n            WHERE a.id = b.id",
+        "calls": 1721,
+        "executionMs": 82.46721900000284,
+        "rows": 3442
+      }
+    ],
+    "reconciliation": {
+      "transfers": 1721,
+      "ledgerEntries": 3442,
+      "conserved": true,
+      "ledgerMatchesBalances": true
+    }
+  },
+  {
+    "round": 2,
+    "variant": "baseline",
+    "scenario": "transfer_distributed_10",
+    "clients": 10,
+    "seconds": 15.013689400000032,
+    "requests": 4365,
+    "successes": 4365,
+    "errors": {},
+    "successRps": 290.7346677892504,
+    "p50": 33.445100000011735,
+    "p95": 43.90429999999469,
+    "p99": 50.866800000017975,
+    "telemetry": {
+      "counters": {
+        "attempts": 4365,
+        "committed": 4365
+      },
+      "timings": {
+        "transaction_start": {
+          "count": 4365,
+          "sumMs": 14945.7924000001,
+          "maxMs": 10.063200000004144,
+          "buckets": [
+            0,
+            152,
+            4068,
+            4364,
+            4365,
+            4365,
+            4365,
+            4365,
+            4365,
+            4365,
+            4365,
+            4365,
+            4365
+          ]
+        },
+        "account_lock_query": {
+          "count": 8730,
+          "sumMs": 22326.65429999974,
+          "maxMs": 10.24550000000454,
+          "buckets": [
+            4,
+            2779,
+            8544,
+            8729,
+            8730,
+            8730,
+            8730,
+            8730,
+            8730,
+            8730,
+            8730,
+            8730,
+            8730
+          ]
+        },
+        "transaction_callback": {
+          "count": 4365,
+          "sumMs": 96877.0064999998,
+          "maxMs": 42.75430000000051,
+          "buckets": [
+            0,
+            0,
+            0,
+            2,
+            1326,
+            4365,
+            4365,
+            4365,
+            4365,
+            4365,
+            4365,
+            4365,
+            4365
+          ]
+        },
+        "transaction_attempt": {
+          "count": 4365,
+          "sumMs": 131797.95030000032,
+          "maxMs": 53.265199999994365,
+          "buckets": [
+            0,
+            0,
+            0,
+            0,
+            2,
+            4359,
+            4365,
+            4365,
+            4365,
+            4365,
+            4365,
+            4365,
+            4365
+          ]
+        },
+        "transaction_finish": {
+          "count": 4365,
+          "sumMs": 19975.15140000043,
+          "maxMs": 12.136399999995774,
+          "buckets": [
+            0,
+            31,
+            3031,
+            4358,
+            4365,
+            4365,
+            4365,
+            4365,
+            4365,
+            4365,
+            4365,
+            4365,
+            4365
+          ]
+        }
+      },
+      "bucketUpperBoundsMs": [
+        1,
+        2,
+        5,
+        10,
+        20,
+        50,
+        100,
+        200,
+        500,
+        1000,
+        2000,
+        5000,
+        10000
+      ]
+    },
+    "lockSampling": {
+      "intervalMs": 50,
+      "samples": 268,
+      "maxWaiting": null,
+      "meanWaiting": null,
+      "blockedSampleFraction": 0
+    },
+    "sql": [
+      {
+        "queryId": "6958696115885947755",
+        "normalizedQuery": "INSERT INTO \"public\".\"transfers\" (\"id\",\"source_account_id\",\"destination_account_id\",\"initiated_by_user_id\",\"amount\",\"description\",\"idempotency_key\",\"status\",\"created_at\") VALUES ($1,$2,$3,$4,$5,$6,$7,CAST($8::text AS \"public\".\"TransferStatus\"),$9) RETURNING \"public\".\"transfers\".\"id\", \"public\".\"transfers\".\"source_account_id\", \"public\".\"transfers\".\"destination_account_id\", \"public\".\"transfers\".\"initiated_by_user_id\", \"public\".\"transfers\".\"amount\", \"public\".\"transfers\".\"description\", \"public\".\"transfers\".\"idempotency_key\", \"public\".\"transfers\".\"status\"::text, \"public\".\"transfers\".\"created_at\"",
+        "calls": 4365,
+        "executionMs": 374.6374960000012,
+        "rows": 4365
+      },
+      {
+        "queryId": "6797264611338302017",
+        "normalizedQuery": "SELECT \"public\".\"transfers\".\"id\", \"public\".\"transfers\".\"source_account_id\", \"public\".\"transfers\".\"destination_account_id\", \"public\".\"transfers\".\"initiated_by_user_id\", \"public\".\"transfers\".\"amount\", \"public\".\"transfers\".\"description\", \"public\".\"transfers\".\"idempotency_key\", \"public\".\"transfers\".\"status\"::text, \"public\".\"transfers\".\"created_at\" FROM \"public\".\"transfers\" WHERE ((\"public\".\"transfers\".\"source_account_id\" = $1 AND \"public\".\"transfers\".\"idempotency_key\" = $2) AND $5=$6) LIMIT $3 OFFSET $4",
+        "calls": 4365,
+        "executionMs": 56.159741000003066,
+        "rows": 0
+      },
+      {
+        "queryId": "1723362235184929282",
+        "normalizedQuery": "SELECT \"public\".\"bank_accounts\".\"id\", \"public\".\"bank_accounts\".\"user_id\", \"public\".\"bank_accounts\".\"current_balance\", \"public\".\"bank_accounts\".\"status\"::text, \"public\".\"bank_accounts\".\"account_number\" FROM \"public\".\"bank_accounts\" WHERE (\"public\".\"bank_accounts\".\"account_number\" = $1 AND $4=$5) LIMIT $2 OFFSET $3",
+        "calls": 4365,
+        "executionMs": 79.14921200000026,
+        "rows": 4365
+      },
+      {
+        "queryId": "3880641413338555219",
+        "normalizedQuery": "INSERT INTO \"public\".\"financial_transactions\" (\"id\",\"account_id\",\"transfer_id\",\"transaction_type\",\"reference_type\",\"amount\",\"balance_after\",\"status\",\"description\",\"created_at\") VALUES ($1,$2,$3,CAST($4::text AS \"public\".\"TransactionType\"),CAST($5::text AS \"public\".\"ReferenceType\"),$6,$7,CAST($8::text AS \"public\".\"TransactionStatus\"),$9,$10), ($11,$12,$13,CAST($14::text AS \"public\".\"TransactionType\"),CAST($15::text AS \"public\".\"ReferenceType\"),$16,$17,CAST($18::text AS \"public\".\"TransactionStatus\"),$19,$20)",
+        "calls": 4365,
+        "executionMs": 511.63767400001416,
+        "rows": 8730
+      },
+      {
+        "queryId": "2991475109097125592",
+        "normalizedQuery": "SELECT  \n                id,\n                user_id AS \"userId\",\n                current_balance::text AS \"currentBalance\",\n                status  \n              FROM bank_accounts\n              WHERE id = $1\n              FOR UPDATE",
+        "calls": 8730,
+        "executionMs": 150.43398099567275,
+        "rows": 8730
+      },
+      {
+        "queryId": "8214046582632011480",
+        "normalizedQuery": "UPDATE bank_accounts AS a\n            SET current_balance = b.balance, updated_at = CURRENT_TIMESTAMP\n            FROM (VALUES ($1::text, $2::numeric),($3::text, $4::numeric)) AS b(id, balance)\n            WHERE a.id = b.id",
+        "calls": 4365,
+        "executionMs": 218.76294799999823,
+        "rows": 8730
+      }
+    ],
+    "reconciliation": {
+      "transfers": 4365,
+      "ledgerEntries": 8730,
+      "conserved": true,
+      "ledgerMatchesBalances": true
+    }
+  },
+  {
+    "round": 3,
+    "variant": "baseline",
+    "scenario": "transfer_hot_1",
+    "clients": 1,
+    "seconds": 15.005887400000008,
+    "requests": 1054,
+    "successes": 1054,
+    "errors": {},
+    "successRps": 70.23909828884891,
+    "p50": 13.605299999995623,
+    "p95": 19.67429999995511,
+    "p99": 24.460000000020955,
+    "telemetry": {
+      "counters": {
+        "attempts": 1054,
+        "committed": 1054
+      },
+      "timings": {
+        "transaction_start": {
+          "count": 1054,
+          "sumMs": 1323.9399000000067,
+          "maxMs": 5.3465999999989435,
+          "buckets": [
+            274,
+            1024,
+            1053,
+            1054,
+            1054,
+            1054,
+            1054,
+            1054,
+            1054,
+            1054,
+            1054,
+            1054,
+            1054
+          ]
+        },
+        "account_lock_query": {
+          "count": 2108,
+          "sumMs": 2299.0327000000107,
+          "maxMs": 5.03150000000096,
+          "buckets": [
+            1040,
+            2054,
+            2107,
+            2108,
+            2108,
+            2108,
+            2108,
+            2108,
+            2108,
+            2108,
+            2108,
+            2108,
+            2108
+          ]
+        },
+        "transaction_callback": {
+          "count": 1054,
+          "sumMs": 9834.542400000022,
+          "maxMs": 21.794600000001083,
+          "buckets": [
+            0,
+            0,
+            0,
+            816,
+            1049,
+            1054,
+            1054,
+            1054,
+            1054,
+            1054,
+            1054,
+            1054,
+            1054
+          ]
+        },
+        "transaction_attempt": {
+          "count": 1054,
+          "sumMs": 12905.904399999981,
+          "maxMs": 27.82589999999982,
+          "buckets": [
+            0,
+            0,
+            0,
+            105,
+            1033,
+            1054,
+            1054,
+            1054,
+            1054,
+            1054,
+            1054,
+            1054,
+            1054
+          ]
+        },
+        "transaction_finish": {
+          "count": 1054,
+          "sumMs": 1747.4220999999525,
+          "maxMs": 4.918499999999767,
+          "buckets": [
+            0,
+            899,
+            1054,
+            1054,
+            1054,
+            1054,
+            1054,
+            1054,
+            1054,
+            1054,
+            1054,
+            1054,
+            1054
+          ]
+        }
+      },
+      "bucketUpperBoundsMs": [
+        1,
+        2,
+        5,
+        10,
+        20,
+        50,
+        100,
+        200,
+        500,
+        1000,
+        2000,
+        5000,
+        10000
+      ]
+    },
+    "lockSampling": {
+      "intervalMs": 50,
+      "samples": 269,
+      "maxWaiting": null,
+      "meanWaiting": null,
+      "blockedSampleFraction": 0
+    },
+    "sql": [
+      {
+        "queryId": "6958696115885947755",
+        "normalizedQuery": "INSERT INTO \"public\".\"transfers\" (\"id\",\"source_account_id\",\"destination_account_id\",\"initiated_by_user_id\",\"amount\",\"description\",\"idempotency_key\",\"status\",\"created_at\") VALUES ($1,$2,$3,$4,$5,$6,$7,CAST($8::text AS \"public\".\"TransferStatus\"),$9) RETURNING \"public\".\"transfers\".\"id\", \"public\".\"transfers\".\"source_account_id\", \"public\".\"transfers\".\"destination_account_id\", \"public\".\"transfers\".\"initiated_by_user_id\", \"public\".\"transfers\".\"amount\", \"public\".\"transfers\".\"description\", \"public\".\"transfers\".\"idempotency_key\", \"public\".\"transfers\".\"status\"::text, \"public\".\"transfers\".\"created_at\"",
+        "calls": 1054,
+        "executionMs": 85.616499999996,
+        "rows": 1054
+      },
+      {
+        "queryId": "6797264611338302017",
+        "normalizedQuery": "SELECT \"public\".\"transfers\".\"id\", \"public\".\"transfers\".\"source_account_id\", \"public\".\"transfers\".\"destination_account_id\", \"public\".\"transfers\".\"initiated_by_user_id\", \"public\".\"transfers\".\"amount\", \"public\".\"transfers\".\"description\", \"public\".\"transfers\".\"idempotency_key\", \"public\".\"transfers\".\"status\"::text, \"public\".\"transfers\".\"created_at\" FROM \"public\".\"transfers\" WHERE ((\"public\".\"transfers\".\"source_account_id\" = $1 AND \"public\".\"transfers\".\"idempotency_key\" = $2) AND $5=$6) LIMIT $3 OFFSET $4",
+        "calls": 1054,
+        "executionMs": 14.392230000002314,
+        "rows": 0
+      },
+      {
+        "queryId": "1723362235184929282",
+        "normalizedQuery": "SELECT \"public\".\"bank_accounts\".\"id\", \"public\".\"bank_accounts\".\"user_id\", \"public\".\"bank_accounts\".\"current_balance\", \"public\".\"bank_accounts\".\"status\"::text, \"public\".\"bank_accounts\".\"account_number\" FROM \"public\".\"bank_accounts\" WHERE (\"public\".\"bank_accounts\".\"account_number\" = $1 AND $4=$5) LIMIT $2 OFFSET $3",
+        "calls": 1054,
+        "executionMs": 18.89989800000103,
+        "rows": 1054
+      },
+      {
+        "queryId": "3880641413338555219",
+        "normalizedQuery": "INSERT INTO \"public\".\"financial_transactions\" (\"id\",\"account_id\",\"transfer_id\",\"transaction_type\",\"reference_type\",\"amount\",\"balance_after\",\"status\",\"description\",\"created_at\") VALUES ($1,$2,$3,CAST($4::text AS \"public\".\"TransactionType\"),CAST($5::text AS \"public\".\"ReferenceType\"),$6,$7,CAST($8::text AS \"public\".\"TransactionStatus\"),$9,$10), ($11,$12,$13,CAST($14::text AS \"public\".\"TransactionType\"),CAST($15::text AS \"public\".\"ReferenceType\"),$16,$17,CAST($18::text AS \"public\".\"TransactionStatus\"),$19,$20)",
+        "calls": 1054,
+        "executionMs": 138.52550599998813,
+        "rows": 2108
+      },
+      {
+        "queryId": "2991475109097125592",
+        "normalizedQuery": "SELECT  \n                id,\n                user_id AS \"userId\",\n                current_balance::text AS \"currentBalance\",\n                status  \n              FROM bank_accounts\n              WHERE id = $1\n              FOR UPDATE",
+        "calls": 2108,
+        "executionMs": 36.01719899836462,
+        "rows": 2108
+      },
+      {
+        "queryId": "8214046582632011480",
+        "normalizedQuery": "UPDATE bank_accounts AS a\n            SET current_balance = b.balance, updated_at = CURRENT_TIMESTAMP\n            FROM (VALUES ($1::text, $2::numeric),($3::text, $4::numeric)) AS b(id, balance)\n            WHERE a.id = b.id",
+        "calls": 1054,
+        "executionMs": 56.228402999992795,
+        "rows": 2108
+      }
+    ],
+    "reconciliation": {
+      "transfers": 1054,
+      "ledgerEntries": 2108,
+      "conserved": true,
+      "ledgerMatchesBalances": true
+    }
+  },
+  {
+    "round": 3,
+    "variant": "baseline",
+    "scenario": "transfer_hot_10",
+    "clients": 10,
+    "seconds": 15.094313800000004,
+    "requests": 1631,
+    "successes": 1631,
+    "errors": {},
+    "successRps": 108.05393485326903,
+    "p50": 28.59189999999944,
+    "p95": 142.890699999989,
+    "p99": 1753.6777000000002,
+    "telemetry": {
+      "counters": {
+        "attempts": 1633,
+        "committed": 1631,
+        "rejected": 2,
+        "retries": 2
+      },
+      "timings": {
+        "transaction_start": {
+          "count": 1633,
+          "sumMs": 1655.541899999982,
+          "maxMs": 6.56420000000071,
+          "buckets": [
+            1092,
+            1609,
+            1625,
+            1633,
+            1633,
+            1633,
+            1633,
+            1633,
+            1633,
+            1633,
+            1633,
+            1633,
+            1633
+          ]
+        },
+        "account_lock_query": {
+          "count": 3266,
+          "sumMs": 132044.21530000004,
+          "maxMs": 8924.1688,
+          "buckets": [
+            41,
+            1574,
+            1632,
+            1635,
+            2734,
+            3062,
+            3168,
+            3202,
+            3226,
+            3239,
+            3253,
+            3264,
+            3266
+          ]
+        },
+        "transaction_callback": {
+          "count": 1633,
+          "sumMs": 142863.34479999996,
+          "maxMs": 8927.1554,
+          "buckets": [
+            0,
+            0,
+            0,
+            0,
+            16,
+            1376,
+            1527,
+            1568,
+            1593,
+            1606,
+            1620,
+            1631,
+            1633
+          ]
+        },
+        "transaction_attempt": {
+          "count": 1633,
+          "sumMs": 147401.0243000001,
+          "maxMs": 8928.065600000002,
+          "buckets": [
+            0,
+            0,
+            0,
+            0,
+            1,
+            1331,
+            1523,
+            1568,
+            1593,
+            1606,
+            1620,
+            1631,
+            1633
+          ]
+        },
+        "transaction_finish": {
+          "count": 1633,
+          "sumMs": 2882.137599999911,
+          "maxMs": 5.962499999997817,
+          "buckets": [
+            2,
+            1373,
+            1631,
+            1633,
+            1633,
+            1633,
+            1633,
+            1633,
+            1633,
+            1633,
+            1633,
+            1633,
+            1633
+          ]
+        }
+      },
+      "bucketUpperBoundsMs": [
+        1,
+        2,
+        5,
+        10,
+        20,
+        50,
+        100,
+        200,
+        500,
+        1000,
+        2000,
+        5000,
+        10000
+      ]
+    },
+    "lockSampling": {
+      "intervalMs": 50,
+      "samples": 281,
+      "maxWaiting": null,
+      "meanWaiting": null,
+      "blockedSampleFraction": 0
+    },
+    "sql": [
+      {
+        "queryId": "6958696115885947755",
+        "normalizedQuery": "INSERT INTO \"public\".\"transfers\" (\"id\",\"source_account_id\",\"destination_account_id\",\"initiated_by_user_id\",\"amount\",\"description\",\"idempotency_key\",\"status\",\"created_at\") VALUES ($1,$2,$3,$4,$5,$6,$7,CAST($8::text AS \"public\".\"TransferStatus\"),$9) RETURNING \"public\".\"transfers\".\"id\", \"public\".\"transfers\".\"source_account_id\", \"public\".\"transfers\".\"destination_account_id\", \"public\".\"transfers\".\"initiated_by_user_id\", \"public\".\"transfers\".\"amount\", \"public\".\"transfers\".\"description\", \"public\".\"transfers\".\"idempotency_key\", \"public\".\"transfers\".\"status\"::text, \"public\".\"transfers\".\"created_at\"",
+        "calls": 1631,
+        "executionMs": 160.28487400000404,
+        "rows": 1631
+      },
+      {
+        "queryId": "6797264611338302017",
+        "normalizedQuery": "SELECT \"public\".\"transfers\".\"id\", \"public\".\"transfers\".\"source_account_id\", \"public\".\"transfers\".\"destination_account_id\", \"public\".\"transfers\".\"initiated_by_user_id\", \"public\".\"transfers\".\"amount\", \"public\".\"transfers\".\"description\", \"public\".\"transfers\".\"idempotency_key\", \"public\".\"transfers\".\"status\"::text, \"public\".\"transfers\".\"created_at\" FROM \"public\".\"transfers\" WHERE ((\"public\".\"transfers\".\"source_account_id\" = $1 AND \"public\".\"transfers\".\"idempotency_key\" = $2) AND $5=$6) LIMIT $3 OFFSET $4",
+        "calls": 1631,
+        "executionMs": 24.429127999999878,
+        "rows": 0
+      },
+      {
+        "queryId": "1723362235184929282",
+        "normalizedQuery": "SELECT \"public\".\"bank_accounts\".\"id\", \"public\".\"bank_accounts\".\"user_id\", \"public\".\"bank_accounts\".\"current_balance\", \"public\".\"bank_accounts\".\"status\"::text, \"public\".\"bank_accounts\".\"account_number\" FROM \"public\".\"bank_accounts\" WHERE (\"public\".\"bank_accounts\".\"account_number\" = $1 AND $4=$5) LIMIT $2 OFFSET $3",
+        "calls": 1633,
+        "executionMs": 36.865439999999126,
+        "rows": 1633
+      },
+      {
+        "queryId": "3880641413338555219",
+        "normalizedQuery": "INSERT INTO \"public\".\"financial_transactions\" (\"id\",\"account_id\",\"transfer_id\",\"transaction_type\",\"reference_type\",\"amount\",\"balance_after\",\"status\",\"description\",\"created_at\") VALUES ($1,$2,$3,CAST($4::text AS \"public\".\"TransactionType\"),CAST($5::text AS \"public\".\"ReferenceType\"),$6,$7,CAST($8::text AS \"public\".\"TransactionStatus\"),$9,$10), ($11,$12,$13,CAST($14::text AS \"public\".\"TransactionType\"),CAST($15::text AS \"public\".\"ReferenceType\"),$16,$17,CAST($18::text AS \"public\".\"TransactionStatus\"),$19,$20)",
+        "calls": 1631,
+        "executionMs": 246.17025400000603,
+        "rows": 3262
+      },
+      {
+        "queryId": "2991475109097125592",
+        "normalizedQuery": "SELECT  \n                id,\n                user_id AS \"userId\",\n                current_balance::text AS \"currentBalance\",\n                status  \n              FROM bank_accounts\n              WHERE id = $1\n              FOR UPDATE",
+        "calls": 3264,
+        "executionMs": 127065.87075999798,
+        "rows": 3264
+      },
+      {
+        "queryId": "8214046582632011480",
+        "normalizedQuery": "UPDATE bank_accounts AS a\n            SET current_balance = b.balance, updated_at = CURRENT_TIMESTAMP\n            FROM (VALUES ($1::text, $2::numeric),($3::text, $4::numeric)) AS b(id, balance)\n            WHERE a.id = b.id",
+        "calls": 1631,
+        "executionMs": 120.71329300000116,
+        "rows": 3262
+      }
+    ],
+    "reconciliation": {
+      "transfers": 1631,
+      "ledgerEntries": 3262,
+      "conserved": true,
+      "ledgerMatchesBalances": true
+    }
+  },
+  {
+    "round": 3,
+    "variant": "baseline",
+    "scenario": "transfer_hot_50",
+    "clients": 50,
+    "seconds": 15.442801999999967,
+    "requests": 1665,
+    "successes": 1665,
+    "errors": {},
+    "successRps": 107.81722125298269,
+    "p50": 453.3373999999603,
+    "p95": 544.8956999999937,
+    "p99": 579.1399000000092,
+    "telemetry": {
+      "counters": {
+        "attempts": 1665,
+        "committed": 1665
+      },
+      "timings": {
+        "transaction_start": {
+          "count": 1665,
+          "sumMs": 604847.5488999989,
+          "maxMs": 473.87540000000445,
+          "buckets": [
+            0,
+            0,
+            0,
+            0,
+            10,
+            13,
+            19,
+            31,
+            1665,
+            1665,
+            1665,
+            1665,
+            1665
+          ]
+        },
+        "account_lock_query": {
+          "count": 3330,
+          "sumMs": 137753.01559999975,
+          "maxMs": 114.58879999999772,
+          "buckets": [
+            14,
+            1581,
+            1661,
+            1666,
+            1676,
+            1682,
+            3277,
+            3330,
+            3330,
+            3330,
+            3330,
+            3330,
+            3330
+          ]
+        },
+        "transaction_callback": {
+          "count": 1665,
+          "sumMs": 149484.12410000022,
+          "maxMs": 124.13669999999547,
+          "buckets": [
+            0,
+            0,
+            0,
+            0,
+            1,
+            16,
+            1492,
+            1665,
+            1665,
+            1665,
+            1665,
+            1665,
+            1665
+          ]
+        },
+        "transaction_attempt": {
+          "count": 1665,
+          "sumMs": 757270.3897000002,
+          "maxMs": 584.7420000000056,
+          "buckets": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            3,
+            9,
+            21,
+            1516,
+            1665,
+            1665,
+            1665,
+            1665
+          ]
+        },
+        "transaction_finish": {
+          "count": 1665,
+          "sumMs": 2938.716700000172,
+          "maxMs": 8.702299999997194,
+          "buckets": [
+            0,
+            1392,
+            1662,
+            1665,
+            1665,
+            1665,
+            1665,
+            1665,
+            1665,
+            1665,
+            1665,
+            1665,
+            1665
+          ]
+        }
+      },
+      "bucketUpperBoundsMs": [
+        1,
+        2,
+        5,
+        10,
+        20,
+        50,
+        100,
+        200,
+        500,
+        1000,
+        2000,
+        5000,
+        10000
+      ]
+    },
+    "lockSampling": {
+      "intervalMs": 50,
+      "samples": 287,
+      "maxWaiting": null,
+      "meanWaiting": null,
+      "blockedSampleFraction": 0
+    },
+    "sql": [
+      {
+        "queryId": "6958696115885947755",
+        "normalizedQuery": "INSERT INTO \"public\".\"transfers\" (\"id\",\"source_account_id\",\"destination_account_id\",\"initiated_by_user_id\",\"amount\",\"description\",\"idempotency_key\",\"status\",\"created_at\") VALUES ($1,$2,$3,$4,$5,$6,$7,CAST($8::text AS \"public\".\"TransferStatus\"),$9) RETURNING \"public\".\"transfers\".\"id\", \"public\".\"transfers\".\"source_account_id\", \"public\".\"transfers\".\"destination_account_id\", \"public\".\"transfers\".\"initiated_by_user_id\", \"public\".\"transfers\".\"amount\", \"public\".\"transfers\".\"description\", \"public\".\"transfers\".\"idempotency_key\", \"public\".\"transfers\".\"status\"::text, \"public\".\"transfers\".\"created_at\"",
+        "calls": 1665,
+        "executionMs": 142.13164599999936,
+        "rows": 1665
+      },
+      {
+        "queryId": "6797264611338302017",
+        "normalizedQuery": "SELECT \"public\".\"transfers\".\"id\", \"public\".\"transfers\".\"source_account_id\", \"public\".\"transfers\".\"destination_account_id\", \"public\".\"transfers\".\"initiated_by_user_id\", \"public\".\"transfers\".\"amount\", \"public\".\"transfers\".\"description\", \"public\".\"transfers\".\"idempotency_key\", \"public\".\"transfers\".\"status\"::text, \"public\".\"transfers\".\"created_at\" FROM \"public\".\"transfers\" WHERE ((\"public\".\"transfers\".\"source_account_id\" = $1 AND \"public\".\"transfers\".\"idempotency_key\" = $2) AND $5=$6) LIMIT $3 OFFSET $4",
+        "calls": 1665,
+        "executionMs": 25.274668000000133,
+        "rows": 0
+      },
+      {
+        "queryId": "1723362235184929282",
+        "normalizedQuery": "SELECT \"public\".\"bank_accounts\".\"id\", \"public\".\"bank_accounts\".\"user_id\", \"public\".\"bank_accounts\".\"current_balance\", \"public\".\"bank_accounts\".\"status\"::text, \"public\".\"bank_accounts\".\"account_number\" FROM \"public\".\"bank_accounts\" WHERE (\"public\".\"bank_accounts\".\"account_number\" = $1 AND $4=$5) LIMIT $2 OFFSET $3",
+        "calls": 1665,
+        "executionMs": 25.86511699999926,
+        "rows": 1665
+      },
+      {
+        "queryId": "3880641413338555219",
+        "normalizedQuery": "INSERT INTO \"public\".\"financial_transactions\" (\"id\",\"account_id\",\"transfer_id\",\"transaction_type\",\"reference_type\",\"amount\",\"balance_after\",\"status\",\"description\",\"created_at\") VALUES ($1,$2,$3,CAST($4::text AS \"public\".\"TransactionType\"),CAST($5::text AS \"public\".\"ReferenceType\"),$6,$7,CAST($8::text AS \"public\".\"TransactionStatus\"),$9,$10), ($11,$12,$13,CAST($14::text AS \"public\".\"TransactionType\"),CAST($15::text AS \"public\".\"ReferenceType\"),$16,$17,CAST($18::text AS \"public\".\"TransactionStatus\"),$19,$20)",
+        "calls": 1665,
+        "executionMs": 226.33626500000264,
+        "rows": 3330
+      },
+      {
+        "queryId": "2991475109097125592",
+        "normalizedQuery": "SELECT  \n                id,\n                user_id AS \"userId\",\n                current_balance::text AS \"currentBalance\",\n                status  \n              FROM bank_accounts\n              WHERE id = $1\n              FOR UPDATE",
+        "calls": 3330,
+        "executionMs": 132629.0731739992,
+        "rows": 3330
+      },
+      {
+        "queryId": "8214046582632011480",
+        "normalizedQuery": "UPDATE bank_accounts AS a\n            SET current_balance = b.balance, updated_at = CURRENT_TIMESTAMP\n            FROM (VALUES ($1::text, $2::numeric),($3::text, $4::numeric)) AS b(id, balance)\n            WHERE a.id = b.id",
+        "calls": 1665,
+        "executionMs": 93.95941600000151,
+        "rows": 3330
+      }
+    ],
+    "reconciliation": {
+      "transfers": 1665,
+      "ledgerEntries": 3330,
+      "conserved": true,
+      "ledgerMatchesBalances": true
+    }
+  },
+  {
+    "round": 3,
+    "variant": "baseline",
+    "scenario": "transfer_distributed_10",
+    "clients": 10,
+    "seconds": 15.018022499999963,
+    "requests": 4435,
+    "successes": 4435,
+    "errors": {},
+    "successRps": 295.3118494795177,
+    "p50": 32.52679999999236,
+    "p95": 43.911100000026636,
+    "p99": 47.23710000002757,
+    "telemetry": {
+      "counters": {
+        "attempts": 4435,
+        "committed": 4435
+      },
+      "timings": {
+        "transaction_start": {
+          "count": 4435,
+          "sumMs": 14520.84069999992,
+          "maxMs": 9.342600000003586,
+          "buckets": [
+            0,
+            230,
+            4184,
+            4435,
+            4435,
+            4435,
+            4435,
+            4435,
+            4435,
+            4435,
+            4435,
+            4435,
+            4435
+          ]
+        },
+        "account_lock_query": {
+          "count": 8870,
+          "sumMs": 23949.11000000013,
+          "maxMs": 9.52100000000064,
+          "buckets": [
+            2,
+            1866,
+            8681,
+            8870,
+            8870,
+            8870,
+            8870,
+            8870,
+            8870,
+            8870,
+            8870,
+            8870,
+            8870
+          ]
+        },
+        "transaction_callback": {
+          "count": 4435,
+          "sumMs": 98818.5670999997,
+          "maxMs": 37.18829999999434,
+          "buckets": [
+            0,
+            0,
+            0,
+            0,
+            1288,
+            4435,
+            4435,
+            4435,
+            4435,
+            4435,
+            4435,
+            4435,
+            4435
+          ]
+        },
+        "transaction_attempt": {
+          "count": 4435,
+          "sumMs": 132579.83680000022,
+          "maxMs": 45.51279999999679,
+          "buckets": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            4435,
+            4435,
+            4435,
+            4435,
+            4435,
+            4435,
+            4435,
+            4435
+          ]
+        },
+        "transaction_finish": {
+          "count": 4435,
+          "sumMs": 19240.429000000477,
+          "maxMs": 10.313600000001315,
+          "buckets": [
+            0,
+            11,
+            3440,
+            4432,
+            4435,
+            4435,
+            4435,
+            4435,
+            4435,
+            4435,
+            4435,
+            4435,
+            4435
+          ]
+        }
+      },
+      "bucketUpperBoundsMs": [
+        1,
+        2,
+        5,
+        10,
+        20,
+        50,
+        100,
+        200,
+        500,
+        1000,
+        2000,
+        5000,
+        10000
+      ]
+    },
+    "lockSampling": {
+      "intervalMs": 50,
+      "samples": 272,
+      "maxWaiting": null,
+      "meanWaiting": null,
+      "blockedSampleFraction": 0
+    },
+    "sql": [
+      {
+        "queryId": "6958696115885947755",
+        "normalizedQuery": "INSERT INTO \"public\".\"transfers\" (\"id\",\"source_account_id\",\"destination_account_id\",\"initiated_by_user_id\",\"amount\",\"description\",\"idempotency_key\",\"status\",\"created_at\") VALUES ($1,$2,$3,$4,$5,$6,$7,CAST($8::text AS \"public\".\"TransferStatus\"),$9) RETURNING \"public\".\"transfers\".\"id\", \"public\".\"transfers\".\"source_account_id\", \"public\".\"transfers\".\"destination_account_id\", \"public\".\"transfers\".\"initiated_by_user_id\", \"public\".\"transfers\".\"amount\", \"public\".\"transfers\".\"description\", \"public\".\"transfers\".\"idempotency_key\", \"public\".\"transfers\".\"status\"::text, \"public\".\"transfers\".\"created_at\"",
+        "calls": 4435,
+        "executionMs": 396.48708800000986,
+        "rows": 4435
+      },
+      {
+        "queryId": "6797264611338302017",
+        "normalizedQuery": "SELECT \"public\".\"transfers\".\"id\", \"public\".\"transfers\".\"source_account_id\", \"public\".\"transfers\".\"destination_account_id\", \"public\".\"transfers\".\"initiated_by_user_id\", \"public\".\"transfers\".\"amount\", \"public\".\"transfers\".\"description\", \"public\".\"transfers\".\"idempotency_key\", \"public\".\"transfers\".\"status\"::text, \"public\".\"transfers\".\"created_at\" FROM \"public\".\"transfers\" WHERE ((\"public\".\"transfers\".\"source_account_id\" = $1 AND \"public\".\"transfers\".\"idempotency_key\" = $2) AND $5=$6) LIMIT $3 OFFSET $4",
+        "calls": 4435,
+        "executionMs": 60.16894200000115,
+        "rows": 0
+      },
+      {
+        "queryId": "1723362235184929282",
+        "normalizedQuery": "SELECT \"public\".\"bank_accounts\".\"id\", \"public\".\"bank_accounts\".\"user_id\", \"public\".\"bank_accounts\".\"current_balance\", \"public\".\"bank_accounts\".\"status\"::text, \"public\".\"bank_accounts\".\"account_number\" FROM \"public\".\"bank_accounts\" WHERE (\"public\".\"bank_accounts\".\"account_number\" = $1 AND $4=$5) LIMIT $2 OFFSET $3",
+        "calls": 4435,
+        "executionMs": 88.91955600000267,
+        "rows": 4435
+      },
+      {
+        "queryId": "3880641413338555219",
+        "normalizedQuery": "INSERT INTO \"public\".\"financial_transactions\" (\"id\",\"account_id\",\"transfer_id\",\"transaction_type\",\"reference_type\",\"amount\",\"balance_after\",\"status\",\"description\",\"created_at\") VALUES ($1,$2,$3,CAST($4::text AS \"public\".\"TransactionType\"),CAST($5::text AS \"public\".\"ReferenceType\"),$6,$7,CAST($8::text AS \"public\".\"TransactionStatus\"),$9,$10), ($11,$12,$13,CAST($14::text AS \"public\".\"TransactionType\"),CAST($15::text AS \"public\".\"ReferenceType\"),$16,$17,CAST($18::text AS \"public\".\"TransactionStatus\"),$19,$20)",
+        "calls": 4435,
+        "executionMs": 561.5525410000118,
+        "rows": 8870
+      },
+      {
+        "queryId": "2991475109097125592",
+        "normalizedQuery": "SELECT  \n                id,\n                user_id AS \"userId\",\n                current_balance::text AS \"currentBalance\",\n                status  \n              FROM bank_accounts\n              WHERE id = $1\n              FOR UPDATE",
+        "calls": 8870,
+        "executionMs": 163.3305349983275,
+        "rows": 8870
+      },
+      {
+        "queryId": "8214046582632011480",
+        "normalizedQuery": "UPDATE bank_accounts AS a\n            SET current_balance = b.balance, updated_at = CURRENT_TIMESTAMP\n            FROM (VALUES ($1::text, $2::numeric),($3::text, $4::numeric)) AS b(id, balance)\n            WHERE a.id = b.id",
+        "calls": 4435,
+        "executionMs": 233.94843100000344,
+        "rows": 8870
+      }
+    ],
+    "reconciliation": {
+      "transfers": 4435,
+      "ledgerEntries": 8870,
+      "conserved": true,
+      "ledgerMatchesBalances": true
+    }
+  },
+  {
+    "round": 3,
+    "variant": "improved",
+    "scenario": "transfer_hot_1",
+    "clients": 1,
+    "seconds": 15.005771300000022,
+    "requests": 1188,
+    "successes": 1188,
+    "errors": {},
+    "successRps": 79.16953925587272,
+    "p50": 12.381600000022445,
+    "p95": 15.018199999991339,
+    "p99": 20.34320000000298,
+    "telemetry": {
+      "counters": {
+        "attempts": 1188,
+        "committed": 1188
+      },
+      "timings": {
+        "transaction_start": {
+          "count": 1188,
+          "sumMs": 1389.077500000023,
+          "maxMs": 6.112499999999272,
+          "buckets": [
+            420,
+            1173,
+            1187,
+            1188,
+            1188,
+            1188,
+            1188,
+            1188,
+            1188,
+            1188,
+            1188,
+            1188,
+            1188
+          ]
+        },
+        "account_lock_query": {
+          "count": 1188,
+          "sumMs": 1346.7062000000142,
+          "maxMs": 6.186999999999898,
+          "buckets": [
+            482,
+            1161,
+            1187,
+            1188,
+            1188,
+            1188,
+            1188,
+            1188,
+            1188,
+            1188,
+            1188,
+            1188,
+            1188
+          ]
+        },
+        "transaction_callback": {
+          "count": 1188,
+          "sumMs": 9475.12429999997,
+          "maxMs": 17.700799999999617,
+          "buckets": [
+            0,
+            0,
+            0,
+            1133,
+            1188,
+            1188,
+            1188,
+            1188,
+            1188,
+            1188,
+            1188,
+            1188,
+            1188
+          ]
+        },
+        "transaction_attempt": {
+          "count": 1188,
+          "sumMs": 12786.628400000056,
+          "maxMs": 25.559900000000198,
+          "buckets": [
+            0,
+            0,
+            0,
+            370,
+            1182,
+            1188,
+            1188,
+            1188,
+            1188,
+            1188,
+            1188,
+            1188,
+            1188
+          ]
+        },
+        "transaction_finish": {
+          "count": 1188,
+          "sumMs": 1922.4266000000634,
+          "maxMs": 5.832500000000437,
+          "buckets": [
+            0,
+            1074,
+            1185,
+            1188,
+            1188,
+            1188,
+            1188,
+            1188,
+            1188,
+            1188,
+            1188,
+            1188,
+            1188
+          ]
+        }
+      },
+      "bucketUpperBoundsMs": [
+        1,
+        2,
+        5,
+        10,
+        20,
+        50,
+        100,
+        200,
+        500,
+        1000,
+        2000,
+        5000,
+        10000
+      ]
+    },
+    "lockSampling": {
+      "intervalMs": 50,
+      "samples": 273,
+      "maxWaiting": null,
+      "meanWaiting": null,
+      "blockedSampleFraction": 0
+    },
+    "sql": [
+      {
+        "queryId": "6958696115885947755",
+        "normalizedQuery": "INSERT INTO \"public\".\"transfers\" (\"id\",\"source_account_id\",\"destination_account_id\",\"initiated_by_user_id\",\"amount\",\"description\",\"idempotency_key\",\"status\",\"created_at\") VALUES ($1,$2,$3,$4,$5,$6,$7,CAST($8::text AS \"public\".\"TransferStatus\"),$9) RETURNING \"public\".\"transfers\".\"id\", \"public\".\"transfers\".\"source_account_id\", \"public\".\"transfers\".\"destination_account_id\", \"public\".\"transfers\".\"initiated_by_user_id\", \"public\".\"transfers\".\"amount\", \"public\".\"transfers\".\"description\", \"public\".\"transfers\".\"idempotency_key\", \"public\".\"transfers\".\"status\"::text, \"public\".\"transfers\".\"created_at\"",
+        "calls": 1188,
+        "executionMs": 98.59540100001232,
+        "rows": 1188
+      },
+      {
+        "queryId": "6797264611338302017",
+        "normalizedQuery": "SELECT \"public\".\"transfers\".\"id\", \"public\".\"transfers\".\"source_account_id\", \"public\".\"transfers\".\"destination_account_id\", \"public\".\"transfers\".\"initiated_by_user_id\", \"public\".\"transfers\".\"amount\", \"public\".\"transfers\".\"description\", \"public\".\"transfers\".\"idempotency_key\", \"public\".\"transfers\".\"status\"::text, \"public\".\"transfers\".\"created_at\" FROM \"public\".\"transfers\" WHERE ((\"public\".\"transfers\".\"source_account_id\" = $1 AND \"public\".\"transfers\".\"idempotency_key\" = $2) AND $5=$6) LIMIT $3 OFFSET $4",
+        "calls": 1188,
+        "executionMs": 16.617027999998868,
+        "rows": 0
+      },
+      {
+        "queryId": "1723362235184929282",
+        "normalizedQuery": "SELECT \"public\".\"bank_accounts\".\"id\", \"public\".\"bank_accounts\".\"user_id\", \"public\".\"bank_accounts\".\"current_balance\", \"public\".\"bank_accounts\".\"status\"::text, \"public\".\"bank_accounts\".\"account_number\" FROM \"public\".\"bank_accounts\" WHERE (\"public\".\"bank_accounts\".\"account_number\" = $1 AND $4=$5) LIMIT $2 OFFSET $3",
+        "calls": 1188,
+        "executionMs": 20.949812999999835,
+        "rows": 1188
+      },
+      {
+        "queryId": "3880641413338555219",
+        "normalizedQuery": "INSERT INTO \"public\".\"financial_transactions\" (\"id\",\"account_id\",\"transfer_id\",\"transaction_type\",\"reference_type\",\"amount\",\"balance_after\",\"status\",\"description\",\"created_at\") VALUES ($1,$2,$3,CAST($4::text AS \"public\".\"TransactionType\"),CAST($5::text AS \"public\".\"ReferenceType\"),$6,$7,CAST($8::text AS \"public\".\"TransactionStatus\"),$9,$10), ($11,$12,$13,CAST($14::text AS \"public\".\"TransactionType\"),CAST($15::text AS \"public\".\"ReferenceType\"),$16,$17,CAST($18::text AS \"public\".\"TransactionStatus\"),$19,$20)",
+        "calls": 1188,
+        "executionMs": 164.48429899999428,
+        "rows": 2376
+      },
+      {
+        "queryId": "-7711971380209563197",
+        "normalizedQuery": "SELECT id, user_id AS \"userId\", current_balance::text AS \"currentBalance\", status\n              FROM bank_accounts\n              WHERE id IN ($1,$2)\n              ORDER BY id ASC\n              FOR UPDATE",
+        "calls": 1188,
+        "executionMs": 37.915901999454945,
+        "rows": 2376
+      },
+      {
+        "queryId": "8214046582632011480",
+        "normalizedQuery": "UPDATE bank_accounts AS a\n            SET current_balance = b.balance, updated_at = CURRENT_TIMESTAMP\n            FROM (VALUES ($1::text, $2::numeric),($3::text, $4::numeric)) AS b(id, balance)\n            WHERE a.id = b.id",
+        "calls": 1188,
+        "executionMs": 66.21684700000651,
+        "rows": 2376
+      }
+    ],
+    "reconciliation": {
+      "transfers": 1188,
+      "ledgerEntries": 2376,
+      "conserved": true,
+      "ledgerMatchesBalances": true
+    }
+  },
+  {
+    "round": 3,
+    "variant": "improved",
+    "scenario": "transfer_hot_10",
+    "clients": 10,
+    "seconds": 15.077727400000033,
+    "requests": 1915,
+    "successes": 1915,
+    "errors": {},
+    "successRps": 127.00853047654887,
+    "p50": 24.008800000010524,
+    "p95": 157.7207000000053,
+    "p99": 1225.1968000000343,
+    "telemetry": {
+      "counters": {
+        "attempts": 1918,
+        "committed": 1915,
+        "rejected": 3,
+        "retries": 3
+      },
+      "timings": {
+        "transaction_start": {
+          "count": 1918,
+          "sumMs": 1881.8632000000762,
+          "maxMs": 6.181599999999889,
+          "buckets": [
+            1382,
+            1893,
+            1911,
+            1918,
+            1918,
+            1918,
+            1918,
+            1918,
+            1918,
+            1918,
+            1918,
+            1918,
+            1918
+          ]
+        },
+        "account_lock_query": {
+          "count": 1918,
+          "sumMs": 128450.76270000017,
+          "maxMs": 6922.5298,
+          "buckets": [
+            0,
+            0,
+            1,
+            24,
+            1417,
+            1688,
+            1798,
+            1840,
+            1874,
+            1895,
+            1904,
+            1915,
+            1918
+          ]
+        },
+        "transaction_callback": {
+          "count": 1918,
+          "sumMs": 141715.99060000008,
+          "maxMs": 6926.166099999999,
+          "buckets": [
+            0,
+            0,
+            0,
+            0,
+            1075,
+            1649,
+            1795,
+            1839,
+            1874,
+            1895,
+            1904,
+            1915,
+            1918
+          ]
+        },
+        "transaction_attempt": {
+          "count": 1918,
+          "sumMs": 146827.04329999982,
+          "maxMs": 6927.407000000003,
+          "buckets": [
+            0,
+            0,
+            0,
+            0,
+            139,
+            1638,
+            1794,
+            1839,
+            1874,
+            1895,
+            1904,
+            1915,
+            1918
+          ]
+        },
+        "transaction_finish": {
+          "count": 1918,
+          "sumMs": 3229.189500000044,
+          "maxMs": 6.762899999997899,
+          "buckets": [
+            3,
+            1701,
+            1916,
+            1918,
+            1918,
+            1918,
+            1918,
+            1918,
+            1918,
+            1918,
+            1918,
+            1918,
+            1918
+          ]
+        }
+      },
+      "bucketUpperBoundsMs": [
+        1,
+        2,
+        5,
+        10,
+        20,
+        50,
+        100,
+        200,
+        500,
+        1000,
+        2000,
+        5000,
+        10000
+      ]
+    },
+    "lockSampling": {
+      "intervalMs": 50,
+      "samples": 281,
+      "maxWaiting": null,
+      "meanWaiting": null,
+      "blockedSampleFraction": 0
+    },
+    "sql": [
+      {
+        "queryId": "6958696115885947755",
+        "normalizedQuery": "INSERT INTO \"public\".\"transfers\" (\"id\",\"source_account_id\",\"destination_account_id\",\"initiated_by_user_id\",\"amount\",\"description\",\"idempotency_key\",\"status\",\"created_at\") VALUES ($1,$2,$3,$4,$5,$6,$7,CAST($8::text AS \"public\".\"TransferStatus\"),$9) RETURNING \"public\".\"transfers\".\"id\", \"public\".\"transfers\".\"source_account_id\", \"public\".\"transfers\".\"destination_account_id\", \"public\".\"transfers\".\"initiated_by_user_id\", \"public\".\"transfers\".\"amount\", \"public\".\"transfers\".\"description\", \"public\".\"transfers\".\"idempotency_key\", \"public\".\"transfers\".\"status\"::text, \"public\".\"transfers\".\"created_at\"",
+        "calls": 1915,
+        "executionMs": 189.00215600001138,
+        "rows": 1915
+      },
+      {
+        "queryId": "6797264611338302017",
+        "normalizedQuery": "SELECT \"public\".\"transfers\".\"id\", \"public\".\"transfers\".\"source_account_id\", \"public\".\"transfers\".\"destination_account_id\", \"public\".\"transfers\".\"initiated_by_user_id\", \"public\".\"transfers\".\"amount\", \"public\".\"transfers\".\"description\", \"public\".\"transfers\".\"idempotency_key\", \"public\".\"transfers\".\"status\"::text, \"public\".\"transfers\".\"created_at\" FROM \"public\".\"transfers\" WHERE ((\"public\".\"transfers\".\"source_account_id\" = $1 AND \"public\".\"transfers\".\"idempotency_key\" = $2) AND $5=$6) LIMIT $3 OFFSET $4",
+        "calls": 1915,
+        "executionMs": 25.81854900000019,
+        "rows": 0
+      },
+      {
+        "queryId": "1723362235184929282",
+        "normalizedQuery": "SELECT \"public\".\"bank_accounts\".\"id\", \"public\".\"bank_accounts\".\"user_id\", \"public\".\"bank_accounts\".\"current_balance\", \"public\".\"bank_accounts\".\"status\"::text, \"public\".\"bank_accounts\".\"account_number\" FROM \"public\".\"bank_accounts\" WHERE (\"public\".\"bank_accounts\".\"account_number\" = $1 AND $4=$5) LIMIT $2 OFFSET $3",
+        "calls": 1918,
+        "executionMs": 47.338950999999724,
+        "rows": 1918
+      },
+      {
+        "queryId": "3880641413338555219",
+        "normalizedQuery": "INSERT INTO \"public\".\"financial_transactions\" (\"id\",\"account_id\",\"transfer_id\",\"transaction_type\",\"reference_type\",\"amount\",\"balance_after\",\"status\",\"description\",\"created_at\") VALUES ($1,$2,$3,CAST($4::text AS \"public\".\"TransactionType\"),CAST($5::text AS \"public\".\"ReferenceType\"),$6,$7,CAST($8::text AS \"public\".\"TransactionStatus\"),$9,$10), ($11,$12,$13,CAST($14::text AS \"public\".\"TransactionType\"),CAST($15::text AS \"public\".\"ReferenceType\"),$16,$17,CAST($18::text AS \"public\".\"TransactionStatus\"),$19,$20)",
+        "calls": 1915,
+        "executionMs": 264.8912429999955,
+        "rows": 3830
+      },
+      {
+        "queryId": "-7711971380209563197",
+        "normalizedQuery": "SELECT id, user_id AS \"userId\", current_balance::text AS \"currentBalance\", status\n              FROM bank_accounts\n              WHERE id IN ($1,$2)\n              ORDER BY id ASC\n              FOR UPDATE",
+        "calls": 1918,
+        "executionMs": 125626.95604399964,
+        "rows": 3836
+      },
+      {
+        "queryId": "8214046582632011480",
+        "normalizedQuery": "UPDATE bank_accounts AS a\n            SET current_balance = b.balance, updated_at = CURRENT_TIMESTAMP\n            FROM (VALUES ($1::text, $2::numeric),($3::text, $4::numeric)) AS b(id, balance)\n            WHERE a.id = b.id",
+        "calls": 1915,
+        "executionMs": 150.7682159999972,
+        "rows": 3830
+      }
+    ],
+    "reconciliation": {
+      "transfers": 1915,
+      "ledgerEntries": 3830,
+      "conserved": true,
+      "ledgerMatchesBalances": true
+    }
+  },
+  {
+    "round": 3,
+    "variant": "improved",
+    "scenario": "transfer_hot_50",
+    "clients": 50,
+    "seconds": 15.40398180000001,
+    "requests": 1984,
+    "successes": 1984,
+    "errors": {},
+    "successRps": 128.79786705538686,
+    "p50": 333.3028999999515,
+    "p95": 722.3280999999843,
+    "p99": 986.6054000000004,
+    "telemetry": {
+      "counters": {
+        "attempts": 1984,
+        "committed": 1984
+      },
+      "timings": {
+        "transaction_start": {
+          "count": 1984,
+          "sumMs": 603799.8339999993,
+          "maxMs": 538.9038999999975,
+          "buckets": [
+            0,
+            0,
+            0,
+            0,
+            10,
+            15,
+            21,
+            36,
+            1944,
+            1984,
+            1984,
+            1984,
+            1984
+          ]
+        },
+        "account_lock_query": {
+          "count": 1984,
+          "sumMs": 134233.15499999977,
+          "maxMs": 1001.1635999999999,
+          "buckets": [
+            0,
+            1,
+            1,
+            2,
+            1292,
+            1593,
+            1700,
+            1763,
+            1921,
+            1983,
+            1984,
+            1984,
+            1984
+          ]
+        },
+        "transaction_callback": {
+          "count": 1984,
+          "sumMs": 148163.70109999995,
+          "maxMs": 1008.8801999999996,
+          "buckets": [
+            0,
+            0,
+            0,
+            1,
+            738,
+            1565,
+            1693,
+            1761,
+            1916,
+            1983,
+            1984,
+            1984,
+            1984
+          ]
+        },
+        "transaction_attempt": {
+          "count": 1984,
+          "sumMs": 755580.2706000005,
+          "maxMs": 1302.5228999999963,
+          "buckets": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            5,
+            11,
+            26,
+            1728,
+            1966,
+            1984,
+            1984,
+            1984
+          ]
+        },
+        "transaction_finish": {
+          "count": 1984,
+          "sumMs": 3616.73550000001,
+          "maxMs": 175.9484999999986,
+          "buckets": [
+            0,
+            1767,
+            1976,
+            1979,
+            1979,
+            1983,
+            1983,
+            1984,
+            1984,
+            1984,
+            1984,
+            1984,
+            1984
+          ]
+        }
+      },
+      "bucketUpperBoundsMs": [
+        1,
+        2,
+        5,
+        10,
+        20,
+        50,
+        100,
+        200,
+        500,
+        1000,
+        2000,
+        5000,
+        10000
+      ]
+    },
+    "lockSampling": {
+      "intervalMs": 50,
+      "samples": 287,
+      "maxWaiting": null,
+      "meanWaiting": null,
+      "blockedSampleFraction": 0
+    },
+    "sql": [
+      {
+        "queryId": "6958696115885947755",
+        "normalizedQuery": "INSERT INTO \"public\".\"transfers\" (\"id\",\"source_account_id\",\"destination_account_id\",\"initiated_by_user_id\",\"amount\",\"description\",\"idempotency_key\",\"status\",\"created_at\") VALUES ($1,$2,$3,$4,$5,$6,$7,CAST($8::text AS \"public\".\"TransferStatus\"),$9) RETURNING \"public\".\"transfers\".\"id\", \"public\".\"transfers\".\"source_account_id\", \"public\".\"transfers\".\"destination_account_id\", \"public\".\"transfers\".\"initiated_by_user_id\", \"public\".\"transfers\".\"amount\", \"public\".\"transfers\".\"description\", \"public\".\"transfers\".\"idempotency_key\", \"public\".\"transfers\".\"status\"::text, \"public\".\"transfers\".\"created_at\"",
+        "calls": 1984,
+        "executionMs": 143.80018100000052,
+        "rows": 1984
+      },
+      {
+        "queryId": "6797264611338302017",
+        "normalizedQuery": "SELECT \"public\".\"transfers\".\"id\", \"public\".\"transfers\".\"source_account_id\", \"public\".\"transfers\".\"destination_account_id\", \"public\".\"transfers\".\"initiated_by_user_id\", \"public\".\"transfers\".\"amount\", \"public\".\"transfers\".\"description\", \"public\".\"transfers\".\"idempotency_key\", \"public\".\"transfers\".\"status\"::text, \"public\".\"transfers\".\"created_at\" FROM \"public\".\"transfers\" WHERE ((\"public\".\"transfers\".\"source_account_id\" = $1 AND \"public\".\"transfers\".\"idempotency_key\" = $2) AND $5=$6) LIMIT $3 OFFSET $4",
+        "calls": 1984,
+        "executionMs": 24.61596400000144,
+        "rows": 0
+      },
+      {
+        "queryId": "1723362235184929282",
+        "normalizedQuery": "SELECT \"public\".\"bank_accounts\".\"id\", \"public\".\"bank_accounts\".\"user_id\", \"public\".\"bank_accounts\".\"current_balance\", \"public\".\"bank_accounts\".\"status\"::text, \"public\".\"bank_accounts\".\"account_number\" FROM \"public\".\"bank_accounts\" WHERE (\"public\".\"bank_accounts\".\"account_number\" = $1 AND $4=$5) LIMIT $2 OFFSET $3",
+        "calls": 1984,
+        "executionMs": 29.629437999995844,
+        "rows": 1984
+      },
+      {
+        "queryId": "3880641413338555219",
+        "normalizedQuery": "INSERT INTO \"public\".\"financial_transactions\" (\"id\",\"account_id\",\"transfer_id\",\"transaction_type\",\"reference_type\",\"amount\",\"balance_after\",\"status\",\"description\",\"created_at\") VALUES ($1,$2,$3,CAST($4::text AS \"public\".\"TransactionType\"),CAST($5::text AS \"public\".\"ReferenceType\"),$6,$7,CAST($8::text AS \"public\".\"TransactionStatus\"),$9,$10), ($11,$12,$13,CAST($14::text AS \"public\".\"TransactionType\"),CAST($15::text AS \"public\".\"ReferenceType\"),$16,$17,CAST($18::text AS \"public\".\"TransactionStatus\"),$19,$20)",
+        "calls": 1984,
+        "executionMs": 225.83439199999611,
+        "rows": 3968
+      },
+      {
+        "queryId": "-7711971380209563197",
+        "normalizedQuery": "SELECT id, user_id AS \"userId\", current_balance::text AS \"currentBalance\", status\n              FROM bank_accounts\n              WHERE id IN ($1,$2)\n              ORDER BY id ASC\n              FOR UPDATE",
+        "calls": 1984,
+        "executionMs": 131252.7472329985,
+        "rows": 3968
+      },
+      {
+        "queryId": "8214046582632011480",
+        "normalizedQuery": "UPDATE bank_accounts AS a\n            SET current_balance = b.balance, updated_at = CURRENT_TIMESTAMP\n            FROM (VALUES ($1::text, $2::numeric),($3::text, $4::numeric)) AS b(id, balance)\n            WHERE a.id = b.id",
+        "calls": 1984,
+        "executionMs": 99.86370999999826,
+        "rows": 3968
+      }
+    ],
+    "reconciliation": {
+      "transfers": 1984,
+      "ledgerEntries": 3968,
+      "conserved": true,
+      "ledgerMatchesBalances": true
+    }
+  },
+  {
+    "round": 3,
+    "variant": "improved",
+    "scenario": "transfer_distributed_10",
+    "clients": 10,
+    "seconds": 15.015841799999995,
+    "requests": 4647,
+    "successes": 4647,
+    "errors": {},
+    "successRps": 309.4731592070983,
+    "p50": 31.340099999972153,
+    "p95": 40.36199999996461,
+    "p99": 47.68290000001434,
+    "telemetry": {
+      "counters": {
+        "attempts": 4647,
+        "committed": 4647
+      },
+      "timings": {
+        "transaction_start": {
+          "count": 4647,
+          "sumMs": 15582.780799999906,
+          "maxMs": 12.025900000000547,
+          "buckets": [
+            0,
+            136,
+            4398,
+            4643,
+            4647,
+            4647,
+            4647,
+            4647,
+            4647,
+            4647,
+            4647,
+            4647,
+            4647
+          ]
+        },
+        "account_lock_query": {
+          "count": 4647,
+          "sumMs": 13529.62259999985,
+          "maxMs": 10.577799999999115,
+          "buckets": [
+            0,
+            691,
+            4515,
+            4646,
+            4647,
+            4647,
+            4647,
+            4647,
+            4647,
+            4647,
+            4647,
+            4647,
+            4647
+          ]
+        },
+        "transaction_callback": {
+          "count": 4647,
+          "sumMs": 94516.80930000021,
+          "maxMs": 48.03300000001036,
+          "buckets": [
+            0,
+            0,
+            0,
+            0,
+            2620,
+            4647,
+            4647,
+            4647,
+            4647,
+            4647,
+            4647,
+            4647,
+            4647
+          ]
+        },
+        "transaction_attempt": {
+          "count": 4647,
+          "sumMs": 131092.6276,
+          "maxMs": 60.90600000000268,
+          "buckets": [
+            0,
+            0,
+            0,
+            0,
+            4,
+            4629,
+            4647,
+            4647,
+            4647,
+            4647,
+            4647,
+            4647,
+            4647
+          ]
+        },
+        "transaction_finish": {
+          "count": 4647,
+          "sumMs": 20993.037499999904,
+          "maxMs": 12.52679999999964,
+          "buckets": [
+            0,
+            10,
+            3387,
+            4630,
+            4647,
+            4647,
+            4647,
+            4647,
+            4647,
+            4647,
+            4647,
+            4647,
+            4647
+          ]
+        }
+      },
+      "bucketUpperBoundsMs": [
+        1,
+        2,
+        5,
+        10,
+        20,
+        50,
+        100,
+        200,
+        500,
+        1000,
+        2000,
+        5000,
+        10000
+      ]
+    },
+    "lockSampling": {
+      "intervalMs": 50,
+      "samples": 268,
+      "maxWaiting": null,
+      "meanWaiting": null,
+      "blockedSampleFraction": 0
+    },
+    "sql": [
+      {
+        "queryId": "6958696115885947755",
+        "normalizedQuery": "INSERT INTO \"public\".\"transfers\" (\"id\",\"source_account_id\",\"destination_account_id\",\"initiated_by_user_id\",\"amount\",\"description\",\"idempotency_key\",\"status\",\"created_at\") VALUES ($1,$2,$3,$4,$5,$6,$7,CAST($8::text AS \"public\".\"TransferStatus\"),$9) RETURNING \"public\".\"transfers\".\"id\", \"public\".\"transfers\".\"source_account_id\", \"public\".\"transfers\".\"destination_account_id\", \"public\".\"transfers\".\"initiated_by_user_id\", \"public\".\"transfers\".\"amount\", \"public\".\"transfers\".\"description\", \"public\".\"transfers\".\"idempotency_key\", \"public\".\"transfers\".\"status\"::text, \"public\".\"transfers\".\"created_at\"",
+        "calls": 4647,
+        "executionMs": 385.4271779999963,
+        "rows": 4647
+      },
+      {
+        "queryId": "6797264611338302017",
+        "normalizedQuery": "SELECT \"public\".\"transfers\".\"id\", \"public\".\"transfers\".\"source_account_id\", \"public\".\"transfers\".\"destination_account_id\", \"public\".\"transfers\".\"initiated_by_user_id\", \"public\".\"transfers\".\"amount\", \"public\".\"transfers\".\"description\", \"public\".\"transfers\".\"idempotency_key\", \"public\".\"transfers\".\"status\"::text, \"public\".\"transfers\".\"created_at\" FROM \"public\".\"transfers\" WHERE ((\"public\".\"transfers\".\"source_account_id\" = $1 AND \"public\".\"transfers\".\"idempotency_key\" = $2) AND $5=$6) LIMIT $3 OFFSET $4",
+        "calls": 4647,
+        "executionMs": 57.81454100000053,
+        "rows": 0
+      },
+      {
+        "queryId": "1723362235184929282",
+        "normalizedQuery": "SELECT \"public\".\"bank_accounts\".\"id\", \"public\".\"bank_accounts\".\"user_id\", \"public\".\"bank_accounts\".\"current_balance\", \"public\".\"bank_accounts\".\"status\"::text, \"public\".\"bank_accounts\".\"account_number\" FROM \"public\".\"bank_accounts\" WHERE (\"public\".\"bank_accounts\".\"account_number\" = $1 AND $4=$5) LIMIT $2 OFFSET $3",
+        "calls": 4647,
+        "executionMs": 85.18632400000342,
+        "rows": 4647
+      },
+      {
+        "queryId": "3880641413338555219",
+        "normalizedQuery": "INSERT INTO \"public\".\"financial_transactions\" (\"id\",\"account_id\",\"transfer_id\",\"transaction_type\",\"reference_type\",\"amount\",\"balance_after\",\"status\",\"description\",\"created_at\") VALUES ($1,$2,$3,CAST($4::text AS \"public\".\"TransactionType\"),CAST($5::text AS \"public\".\"ReferenceType\"),$6,$7,CAST($8::text AS \"public\".\"TransactionStatus\"),$9,$10), ($11,$12,$13,CAST($14::text AS \"public\".\"TransactionType\"),CAST($15::text AS \"public\".\"ReferenceType\"),$16,$17,CAST($18::text AS \"public\".\"TransactionStatus\"),$19,$20)",
+        "calls": 4647,
+        "executionMs": 547.3848780000035,
+        "rows": 9294
+      },
+      {
+        "queryId": "-7711971380209563197",
+        "normalizedQuery": "SELECT id, user_id AS \"userId\", current_balance::text AS \"currentBalance\", status\n              FROM bank_accounts\n              WHERE id IN ($1,$2)\n              ORDER BY id ASC\n              FOR UPDATE",
+        "calls": 4647,
+        "executionMs": 116.84662299684715,
+        "rows": 9294
+      },
+      {
+        "queryId": "8214046582632011480",
+        "normalizedQuery": "UPDATE bank_accounts AS a\n            SET current_balance = b.balance, updated_at = CURRENT_TIMESTAMP\n            FROM (VALUES ($1::text, $2::numeric),($3::text, $4::numeric)) AS b(id, balance)\n            WHERE a.id = b.id",
+        "calls": 4647,
+        "executionMs": 220.76578500000278,
+        "rows": 9294
+      }
+    ],
+    "reconciliation": {
+      "transfers": 4647,
+      "ledgerEntries": 9294,
+      "conserved": true,
+      "ledgerMatchesBalances": true
+    }
+  }
+]
