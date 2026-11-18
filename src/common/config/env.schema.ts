@@ -51,6 +51,30 @@ class EnvironmentVariables {
   @Min(4)
   @Max(15)
   BCRYPT_ROUNDS: number = 12;
+
+  @IsIn(['off', 'global', 'account'])
+  TRANSFER_ADMISSION = 'off';
+
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  @Max(100)
+  TRANSFER_ACTIVE_LIMIT = 8;
+
+  @Type(() => Number)
+  @IsInt()
+  @Min(0)
+  @Max(1024)
+  TRANSFER_QUEUE_LIMIT = 128;
+
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  @Max(15000)
+  TRANSFER_QUEUE_WAIT_MS = 3000;
+
+  @IsIn(['off', 'on'])
+  TRANSFER_COMPACT_WRITE = 'on';
 }
 
 export function validateEnv(

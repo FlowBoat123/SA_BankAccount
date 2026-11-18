@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
 
 export type MovementTiming = 'transaction_start' | 'transaction_attempt' |
-  'transaction_callback' | 'transaction_finish' | 'account_lock_query';
-export type MovementCounter = 'attempts' | 'committed' | 'rejected' | 'retries' | 'retry_exhausted';
+  'transaction_callback' | 'transaction_finish' | 'account_lock_query' | 'transfer_write' | 'transfer_queue_wait';
+export type MovementCounter = 'attempts' | 'committed' | 'rejected' | 'retries' | 'retry_exhausted' |
+  'queue_admitted' | 'queue_full' | 'queue_timeout' | 'queue_cancelled';
 const BUCKETS_MS = [1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000];
 
 /** Process-local, bounded aggregates. No account IDs, keys, amounts or payloads. */

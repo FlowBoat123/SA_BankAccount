@@ -1,0 +1,74 @@
+name: Banking API CI
+
+on:
+  push:
+    branches: [main, 'codex/**']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      DATABASE_URL: postgresql://ci:ci-only@127.0.0.1:5432/bank_ci_test
+      OUTPUT: ci-results
+      SKIP_HISTORICAL_COMPARISON: '1'
+    services:
+      postgres:
+        image: postgres:15.19
+        env:
+          POSTGRES_USER: ci
+          POSTGRES_PASSWORD: ci-only
+          POSTGRES_DB: bank_ci_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U ci -d bank_ci_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24.22.3
+          cache: npm
+      - run: npm ci
+      - name: Generate client and apply migrations
+        run: |
+          npx prisma generate
+          npx prisma migrate deploy
+          npx prisma migrate diff --from-config-datasource --to-schema prisma/schema.prisma --exit-code
+      - name: Build, PostgreSQL tests and Swagger
+        run: node scripts/phase2/verify.cjs
+      - name: Check runtime dependencies
+        run: npm audit --omit=dev --audit-level=high --json > ci-results/runtime-audit.json
+      - name: Build and smoke test Docker image
+        env:
+          SMOKE_CONTAINER: bank-ci-api
+          SMOKE_IMAGE: bank-ci:local
+          SMOKE_BASE_URL: http://127.0.0.1:3000/api/v1
+        run: |
+          docker build -t "$SMOKE_IMAGE" .
+          trap 'docker logs "$SMOKE_CONTAINER" > ci-results/docker.log 2>&1 || true; docker stop "$SMOKE_CONTAINER" >/dev/null 2>&1 || true' EXIT
+          docker run -d --name "$SMOKE_CONTAINER" --network host \
+            -e DATABASE_URL -e JWT_ACCESS_SECRET=ci-only-local-signing-key \
+            -e TRANSFER_ADMISSION=account -e TRANSFER_COMPACT_WRITE=on "$SMOKE_IMAGE"
+          for attempt in {1..45}; do
+            if [[ "$(docker inspect --format '{{.State.Health.Status}}' "$SMOKE_CONTAINER")" == healthy ]]; then
+              node scripts/phase2/docker-smoke.cjs
+              exit
+            fi
+            sleep 2
+          done
+          exit 1
+      - uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: banking-ci-results
+          path: ci-results/
+          if-no-files-found: ignore

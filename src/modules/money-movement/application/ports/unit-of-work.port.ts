@@ -62,6 +62,11 @@ export interface TransferRecord {
   createdAt: Date;
 }
 
+export interface PostTransferInput extends CreateTransferInput {
+  sourceBalance: string;
+  destinationBalance: string;
+}
+
 export interface TransferExecutionResult {
   transfer: TransferRecord;
   isReplay: boolean;
@@ -90,6 +95,8 @@ export interface MoneyMovementTransactionContext {
   };
 
   transfers: {
+    /** Posts balances, transfer and both ledger entries while holding both account locks. */
+    post?: (input: PostTransferInput) => Promise<TransferRecord>;
     findBySourceAndIdempotencyKey(
       sourceAccountId: string,
       idempotencyKey: string,

@@ -17,6 +17,7 @@ labels = {
     'transfer_hot_1': 'Transfer\nsame pair, 1 client',
     'transfer_hot_10': 'Transfer\nsame pair, 10 clients',
     'transfer_hot_50': 'Transfer\nsame pair, 50 clients',
+    'transfer_hot_100': 'Transfer\nsame pair, 100 clients',
     'transfer_distributed_10': 'Transfer\n10 separate pairs',
     'history_10000_deep': 'History\n10,000 rows',
     'history_300000_deep': 'History\n300,000 rows',

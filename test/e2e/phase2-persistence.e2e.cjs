@@ -87,6 +87,41 @@ test('batch ledger constraint failure rolls back balances and transfer',async()=
   await assert.rejects(new TransferMoneyUseCase(broken).execute(command()));
   assert.deepEqual(await balances(),old);assert.equal(await prisma.transfer.count({where:{initiatedByUserId:userId}}),0);
 });
+
+test('compact posting preserves VND precision, replay shape and both ledger entries', async () => {
+  const compact = new TransferMoneyUseCase(new PrismaUnitOfWork(prisma, undefined, { get: () => 'on' }));
+  const amount = '9007199254740993';
+  await db.query('UPDATE bank_accounts SET current_balance=$2::numeric WHERE id=$1', [ids[0], amount]);
+  const cmd = command({ amount: `0${amount}`, description: 'compact posting' });
+  const pairs = await Promise.all([compact.execute(cmd), compact.execute(cmd)]);
+  assert.equal(pairs.filter(result => !result.isReplay).length, 1);
+  assert.deepEqual(pairs[0].transfer, pairs[1].transfer);
+  assert.equal(pairs[0].transfer.amount, amount);
+  const entries = await prisma.financialTransaction.findMany({ where: { transferId: pairs[0].transfer.id } });
+  assert.equal(entries.length, 2);
+  const debit = entries.find(entry => entry.transactionType === 'DEBIT');
+  const credit = entries.find(entry => entry.transactionType === 'CREDIT');
+  assert.equal(debit.referenceType, 'TRANSFER_OUT');
+  assert.equal(debit.balanceAfter.toString(), '0');
+  assert.equal(credit.referenceType, 'TRANSFER_IN');
+  assert.equal(credit.balanceAfter.toString(), (BigInt(amount) + 100n).toString());
+  assert.ok(entries.every(entry => entry.amount.toString() === amount && entry.description === cmd.description));
+});
+
+test('compact posting rolls back account updates on a database constraint failure', async () => {
+  const compact = new PrismaUnitOfWork(prisma, undefined, { get: () => 'on' });
+  const old = await balances();
+  await assert.rejects(compact.execute(async ctx => {
+    await ctx.accounts.lockManyForUpdate(ids.slice(0, 2));
+    await ctx.transfers.post({
+      sourceAccountId: ids[0], destinationAccountId: ids[1], initiatedByUserId: stranger,
+      amount: '10', idempotencyKey: randomUUID(), sourceBalance: '90', destinationBalance: '110',
+    });
+  }), error => error.code === 'P2010' && error.meta?.code === '23503');
+  assert.deepEqual(await balances(), old);
+  assert.equal(await prisma.transfer.count({ where: { sourceAccountId: ids[0] } }), 0);
+  assert.equal(await prisma.financialTransaction.count({ where: { accountId: { in: ids } } }), 0);
+});
 test('expired transaction is rolled back before one retry; balances and entries change once',async()=>{
   let attempts=0;
   const delayed={execute:work=>uow.execute(ctx=>{

@@ -10,7 +10,7 @@
   "scripts": {
     "phase2:baseline": "node scripts/phase2/prepare-baseline.cjs",
     "phase2:benchmark": "node scripts/phase2/benchmark.cjs",
-    "phase2:test": "npm run build && node --test --test-concurrency=1 test/e2e/phase2-retry-policy.e2e.cjs test/e2e/phase2-telemetry.e2e.cjs test/e2e/phase2-persistence.e2e.cjs test/e2e/banking-http.e2e.cjs",
+    "phase2:test": "npm run build && node --test --test-concurrency=1 test/e2e/phase2-retry-policy.e2e.cjs test/e2e/phase2-telemetry.e2e.cjs test/e2e/phase2-persistence.e2e.cjs test/e2e/transfer-admission.e2e.cjs test/e2e/banking-http.e2e.cjs",
     "phase2:report": "node scripts/phase2/report.cjs",
     "phase2:followup-baseline": "node scripts/phase2/prepare-followup-baseline.cjs",
     "phase2:followup-benchmark": "node scripts/phase2/benchmark-followup.cjs",

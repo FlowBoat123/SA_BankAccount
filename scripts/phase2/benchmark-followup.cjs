@@ -13,6 +13,18 @@ const output=path.resolve(root,process.env.OUTPUT||'docs/performance/phase2-foll
 const rounds=Number(process.env.ROUNDS||3),duration=Number(process.env.DURATION||20);
 assert.ok(Number.isInteger(rounds)&&rounds>0&&Number.isFinite(duration)&&duration>0,'Positive rounds/duration required');
 const baseline=path.resolve(root,process.env.BASELINE_DIST||'.phase2/followup-baseline-dist');
+const profiles = {
+  baseline: { TRANSFER_ADMISSION: 'off', TRANSFER_COMPACT_WRITE: 'off' },
+  global: { TRANSFER_ADMISSION: 'global', TRANSFER_COMPACT_WRITE: 'off' },
+  account: { TRANSFER_ADMISSION: 'account', TRANSFER_COMPACT_WRITE: 'off' },
+  compact: { TRANSFER_ADMISSION: 'off', TRANSFER_COMPACT_WRITE: 'on' },
+  combined: { TRANSFER_ADMISSION: 'account', TRANSFER_COMPACT_WRITE: 'on' },
+};
+const selectedProfiles = process.env.TRANSFER_PROFILES?.split(',');
+if (selectedProfiles) {
+  assert.ok(selectedProfiles.every(name => Object.hasOwn(profiles, name)), 'Unknown transfer profile');
+  assert.equal(new Set(selectedProfiles).size, selectedProfiles.length, 'Duplicate transfer profile');
+}
 const db=new Client({connectionString:url}),sampler=new Client({connectionString:url});
 const runId=randomUUID(),user=randomUUID(),ids=Array.from({length:20},()=>randomUUID());
 const numbers=ids.map((_,i)=>`F${runId.slice(0,8)}${i}`),initial=1000000000n;
@@ -26,10 +38,10 @@ function ipc(command){
     child.on('message',onMessage);child.send({id,command});
   });
 }
-async function start(dist){
+async function start(dist, profile={}){
   const connection=new URL(url);connection.searchParams.set('application_name','phase2-followup-api');log='';
   child=spawn(process.execPath,['scripts/phase2/diagnostic-server.cjs',dist],{cwd:root,
-    env:{...process.env,DATABASE_URL:connection.toString(),PORT:'3318',NODE_ENV:'production',JWT_ACCESS_SECRET:secret,JWT_ACCESS_TTL:'2h',BCRYPT_ROUNDS:'12'},
+    env:{...process.env,DATABASE_URL:connection.toString(),PORT:'3318',NODE_ENV:'production',JWT_ACCESS_SECRET:secret,JWT_ACCESS_TTL:'2h',BCRYPT_ROUNDS:'12',...profile},
     stdio:['ignore','pipe','pipe','ipc'],windowsHide:true});
   for(const stream of [child.stdout,child.stderr])stream.on('data',c=>{log=(log+c).slice(-100000);});
   await new Promise((resolve,reject)=>{
@@ -64,7 +76,7 @@ async function reconcile(successes){
   assert.equal(mismatch,0);return{transfers,ledgerEntries:entries,conserved:true,ledgerMatchesBalances:true};
 }
 async function load(scenario,seconds){
-  let success=0;const errors={},latencies=[];const began=performance.now(),deadline=began+seconds*1000;
+  let success=0;const errors={},latencies=[],successfulLatencies=[];const began=performance.now(),deadline=began+seconds*1000;
   await Promise.all(Array.from({length:scenario.clients},async(_,client)=>{
     while(performance.now()<deadline){
       const pair=scenario.distributed?client:0,start=performance.now();
@@ -72,15 +84,20 @@ async function load(scenario,seconds){
         const response=await fetch('http://127.0.0.1:3318/api/v1/transfers',{method:'POST',signal:AbortSignal.timeout(15000),
           headers:{Authorization:`Bearer ${token}`,'Content-Type':'application/json','Idempotency-Key':randomUUID()},
           body:JSON.stringify({sourceAccountId:ids[pair*2],destinationAccountNumber:numbers[pair*2+1],amount:'1'})});
-        const body=await response.json();assert.equal(response.status,201,`${response.status}:${body.error?.code}`);
+        const body=await response.json();
+        if(response.status!==201)throw Error(`${response.status}:${body.error?.code}`);
         assert.equal(body.data.sourceAccountId,ids[pair*2]);assert.equal(body.data.destinationAccountId,ids[pair*2+1]);assert.equal(body.data.amount,'1');success++;
+        successfulLatencies.push(performance.now()-start);
       }catch(error){const key=error.message.slice(0,160);errors[key]=(errors[key]||0)+1;}
       latencies.push(performance.now()-start);
     }
   }));
   const elapsed=(performance.now()-began)/1000;latencies.sort((a,b)=>a-b);
   const p=q=>latencies[Math.min(latencies.length-1,Math.ceil(q*latencies.length)-1)];
-  return{seconds:elapsed,requests:latencies.length,successes:success,errors,successRps:success/elapsed,p50:p(.5),p95:p(.95),p99:p(.99)};
+  successfulLatencies.sort((a,b)=>a-b);
+  const successPercentile=q=>successfulLatencies[Math.ceil(q*successfulLatencies.length)-1]??null;
+  return{seconds:elapsed,requests:latencies.length,successes:success,errors,successRps:success/elapsed,
+    p50:p(.5),p95:p(.95),p99:p(.99),successP95:successPercentile(.95),successP99:successPercentile(.99)};
 }
 async function sqlStats(){
   return(await db.query(`SELECT queryid::text,query,calls::text,total_exec_time,rows::text
@@ -115,21 +132,27 @@ async function main(){
     await db.query("INSERT INTO users(user_id,email,full_name,password_hash,updated_at) VALUES($1,$2,'Followup benchmark','unused',now())",[user,`followup-${user}@example.test`]);
     for(let i=0;i<ids.length;i++)await db.query("INSERT INTO bank_accounts(id,user_id,account_number,account_name,account_type,current_balance,updated_at) VALUES($1,$2,$3,'Followup','PAYMENT',$4::numeric,now())",[ids[i],user,numbers[i],initial.toString()]);
     const hash=file=>createHash('sha256').update(fs.readFileSync(file)).digest('hex');
-    assert.equal(hash(path.join(baseline,'modules/money-movement/infrastructure/persistence/prisma-unit-of-work.js')),
+    if (!selectedProfiles) assert.equal(hash(path.join(baseline,'modules/money-movement/infrastructure/persistence/prisma-unit-of-work.js')),
       hash(path.join(root,'dist/modules/money-movement/infrastructure/persistence/prisma-unit-of-work.js')),
       'Run prepare-followup-baseline after the latest build; UoW must be byte-identical');
     fs.writeFileSync(path.join(output,'environment.json'),JSON.stringify({runId,timestamp:new Date().toISOString(),platform:os.platform(),release:os.release(),cpu:os.cpus()[0].model,
       logicalCpus:os.cpus().length,ramBytes:os.totalmem(),node:process.version,postgres:(await db.query('SELECT version()')).rows[0].version,
       rounds,duration,baselineCommit:'8ad478154e3772eb60e08cc8a741b087843dd35f',
       improvedCommit:execFileSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8'}).trim(),
-      baselineTransferJsSha256:hash(path.join(baseline,'modules/money-movement/application/use-cases/transfer-money.use-case.js')),
+      baselineTransferJsSha256:selectedProfiles ? undefined : hash(path.join(baseline,'modules/money-movement/application/use-cases/transfer-money.use-case.js')),
       improvedTransferJsSha256:hash(path.join(root,'dist/modules/money-movement/application/use-cases/transfer-money.use-case.js')),
-      uowIdentical:hash(path.join(baseline,'modules/money-movement/infrastructure/persistence/prisma-unit-of-work.js'))===hash(path.join(root,'dist/modules/money-movement/infrastructure/persistence/prisma-unit-of-work.js')),
-      protocol:'Same schema, telemetry, UoW and runtime; only compiled transfer use case differs. Closed-loop HTTP, zero think time, 2-second warmup. Alternating version order. SQL deltas exclude warmup/reset/reconciliation. 50ms lock sampling is approximate. All services share the host.',
+      uowIdentical:selectedProfiles || hash(path.join(baseline,'modules/money-movement/infrastructure/persistence/prisma-unit-of-work.js'))===hash(path.join(root,'dist/modules/money-movement/infrastructure/persistence/prisma-unit-of-work.js')) ? true : false,
+      profiles: selectedProfiles?.map(name=>({name,...profiles[name]})),
+      lockfileSha256:hash(path.join(root,'package-lock.json')),
+      queue:{activeLimit:process.env.TRANSFER_ACTIVE_LIMIT??'8',limit:process.env.TRANSFER_QUEUE_LIMIT??'128',waitMs:process.env.TRANSFER_QUEUE_WAIT_MS??'3000'},
+      protocol: (selectedProfiles ? 'Same compiled app/schema and frozen lockfile for all profiles; environment switches enable one or more candidates. ' : 'Same schema, telemetry, UoW and runtime; only the compiled transfer use case differs. ') +
+        'Closed-loop HTTP, zero think time, 2-second warmup. Alternating version order. SQL deltas exclude warmup/reset/reconciliation. 50ms lock sampling is approximate. All services share the host.',
       sourceDiff:execFileSync('git',['diff','--stat'],{cwd:root,encoding:'utf8'})},null,2));
-    const scenarios=[...[1,10,50].map(clients=>({name:`transfer_hot_${clients}`,clients})),{name:'transfer_distributed_10',clients:10,distributed:true}];
-    for(let round=1;round<=rounds;round++)for(const variant of round%2?['baseline','improved']:['improved','baseline']){
-      await start(variant==='baseline'?baseline:path.join(root,'dist'));
+    const scenarios=[...[1,10,50,...(selectedProfiles?[100]:[])].map(clients=>({name:`transfer_hot_${clients}`,clients})),{name:'transfer_distributed_10',clients:10,distributed:true}];
+    const variants=selectedProfiles??['baseline','improved'];
+    for(let round=1;round<=rounds;round++)for(const variant of round%2?variants:[...variants].reverse()){
+      await start(!selectedProfiles&&variant==='baseline'?baseline:path.join(root,'dist'),
+        selectedProfiles ? profiles[variant] : profiles.baseline);
       for(const scenario of scenarios){
         if(process.env.SCENARIOS&&!process.env.SCENARIOS.split(',').includes(scenario.name))continue;
         await reset();await load(scenario,2);await reset();await ipc('reset');

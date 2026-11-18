@@ -12,5 +12,6 @@ coverage
 .agents
 .phase2
 docs
+ci-results
 test
 *.log

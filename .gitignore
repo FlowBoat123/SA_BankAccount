@@ -6,3 +6,4 @@ coverage/
 dist/
 .kilo/
 .phase2/
+ci-results/

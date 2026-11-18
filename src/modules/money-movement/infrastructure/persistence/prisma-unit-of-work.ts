@@ -2,6 +2,8 @@ import { Injectable, Optional } from "@nestjs/common";
 import { performance } from 'node:perf_hooks';
 import { MoneyMovementTelemetry } from '@src/common/observability/money-movement-telemetry';
 import { Prisma } from "@prisma/client";
+import { ConfigService } from '@nestjs/config';
+import { postTransfer } from './post-transfer';
 import { PrismaService } from "@src/infrastructure/prisma";
 import { TransactionBusyError } from '../../domain/errors';
 import {
@@ -29,6 +31,7 @@ export class PrismaUnitOfWork implements UnitOfWorkPort {
   constructor(
     private readonly prisma: PrismaService,
     @Optional() private readonly telemetry: MoneyMovementTelemetry = new MoneyMovementTelemetry(),
+    @Optional() private readonly config?: ConfigService,
   ) {}
 
   async execute<T>(
@@ -85,6 +88,7 @@ export class PrismaUnitOfWork implements UnitOfWorkPort {
   }
 
   private buildContext(tx: PrismaTx): MoneyMovementTransactionContext {
+    const compactWrite = this.config?.get('TRANSFER_COMPACT_WRITE') === 'on';
     return {
       accounts: {
         lockManyForUpdate: async (accountIds): Promise<AccountSnapshot[]> => {
@@ -163,12 +167,12 @@ export class PrismaUnitOfWork implements UnitOfWorkPort {
           // two network round trips without weakening transaction isolation.
           const values = balances.map(({ accountId, balance }) =>
             Prisma.sql`(${accountId}::text, ${balance}::numeric)`);
-          const updated = await tx.$executeRaw(Prisma.sql`
+          const updated = await this.measureWrite(() => tx.$executeRaw(Prisma.sql`
             UPDATE bank_accounts AS a
             SET current_balance = b.balance, updated_at = CURRENT_TIMESTAMP
             FROM (VALUES ${Prisma.join(values)}) AS b(id, balance)
             WHERE a.id = b.id
-          `);
+          `));
           if (updated !== balances.length) throw new Error('Account update count mismatch');
         },
       },
@@ -182,7 +186,7 @@ export class PrismaUnitOfWork implements UnitOfWorkPort {
         },
         createMany: async (inputs): Promise<void> => {
           // Do not skip duplicates: any constraint failure must roll back money.
-          await tx.financialTransaction.createMany({ data: inputs });
+          await this.measureWrite(() => tx.financialTransaction.createMany({ data: inputs }));
         },
         create: async (
           input: CreateTransactionEntryInput,
@@ -204,6 +208,7 @@ export class PrismaUnitOfWork implements UnitOfWorkPort {
       },
 
       transfers: {
+        post: compactWrite ? input => this.measureWrite(() => postTransfer(tx, input)) : undefined,
         findBySourceAndIdempotencyKey: async (
           sourceAccountId: string,
           idempotencyKey: string,
@@ -220,7 +225,7 @@ export class PrismaUnitOfWork implements UnitOfWorkPort {
         },
 
         create: async (input: CreateTransferInput): Promise<TransferRecord> => {
-          const record = await tx.transfer.create({
+          const record = await this.measureWrite(() => tx.transfer.create({
             data: {
               sourceAccountId: input.sourceAccountId,
               destinationAccountId: input.destinationAccountId,
@@ -229,11 +234,20 @@ export class PrismaUnitOfWork implements UnitOfWorkPort {
               description: input.description ?? null,
               idempotencyKey: input.idempotencyKey,
             },
-          });
+          }));
           return { ...record, amount: record.amount.toString() };
         },
       },
     };
+  }
+
+  private async measureWrite<T>(work: () => Promise<T>): Promise<T> {
+    const started = performance.now();
+    try {
+      return await work();
+    } finally {
+      this.telemetry.observe('transfer_write', performance.now() - started);
+    }
   }
 
   private toTransactionRecord(record: {

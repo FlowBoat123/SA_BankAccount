@@ -12,6 +12,7 @@ import { UNIT_OF_WORK, UnitOfWorkPort } from "./application/ports/unit-of-work.p
 import { TRANSACTION_QUERY, TransactionQueryPort } from "./application/ports/transaction-query.port";
 import { PrismaUnitOfWork } from "./infrastructure/persistence/prisma-unit-of-work";
 import { PrismaTransactionQuery } from "./infrastructure/persistence/prisma-transaction-query";
+import { TransferAdmission } from './infrastructure/transfer-admission';
 
 @Module({
   imports: [PrismaModule],
@@ -20,6 +21,7 @@ import { PrismaTransactionQuery } from "./infrastructure/persistence/prisma-tran
     TransfersController,
   ],
   providers: [
+    TransferAdmission,
     {
       provide: GetTransactionFeedUseCase,
       useFactory: (query: TransactionFeedQueryPort) => new GetTransactionFeedUseCase(query),

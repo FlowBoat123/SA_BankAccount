@@ -8,9 +8,9 @@ const checks=[
   ['Resolve aliases',['node_modules/tsc-alias/dist/bin/index.js']],
   ['Unit',['node_modules/jest/bin/jest.js','--runInBand','--json',`--outputFile=${results}/unit.json`]],
   ['Integration (real PostgreSQL)',['node_modules/jest/bin/jest.js','--config','jest.integration.config.js','--runInBand','--json',`--outputFile=${results}/integration.json`]],
-  ['HTTP and persistence',['--test','--test-concurrency=1','test/e2e/phase2-retry-policy.e2e.cjs','test/e2e/phase2-telemetry.e2e.cjs','test/e2e/phase2-persistence.e2e.cjs','test/e2e/banking-http.e2e.cjs']],
+  ['HTTP and persistence',['--test','--test-concurrency=1','test/e2e/phase2-retry-policy.e2e.cjs','test/e2e/phase2-telemetry.e2e.cjs','test/e2e/phase2-persistence.e2e.cjs','test/e2e/transfer-admission.e2e.cjs','test/e2e/banking-http.e2e.cjs']],
   ['Swagger',['test/swagger.contract.cjs']],
-  ['Before/after reliability',['scripts/phase2/check-idempotency.cjs']],
+  ...(process.env.SKIP_HISTORICAL_COMPARISON === '1' ? [] : [['Before/after reliability',['scripts/phase2/check-idempotency.cjs']]]),
 ];
 const log=[];
 for(const [label,args]of checks){

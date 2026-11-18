@@ -88,19 +88,29 @@ export class TransferMoneyUseCase {
       }
       const newDestBalance = newDestBalanceMoney.toDecimalString();
 
-      await ctx.accounts.updateBalances([
-        { accountId: sourceAccount.id, balance: newSourceBalance },
-        { accountId: destAccount.id, balance: newDestBalance },
-      ]);
-
-      const transferRecord = await ctx.transfers.create({
+      const transferInput = {
         sourceAccountId: sourceAccount.id,
         destinationAccountId: destAccount.id,
         initiatedByUserId: command.initiatedByUserId,
         amount: command.amount,
         idempotencyKey: command.idempotencyKey,
         description: command.description ?? null,
-      });
+      };
+      if (ctx.transfers.post) {
+        const transfer = await ctx.transfers.post({
+          ...transferInput,
+          sourceBalance: newSourceBalance,
+          destinationBalance: newDestBalance,
+        });
+        return { transfer, isReplay: false };
+      }
+
+      await ctx.accounts.updateBalances([
+        { accountId: sourceAccount.id, balance: newSourceBalance },
+        { accountId: destAccount.id, balance: newDestBalance },
+      ]);
+
+      const transferRecord = await ctx.transfers.create(transferInput);
 
       await ctx.transactions.createMany([{
         accountId: sourceAccount.id,

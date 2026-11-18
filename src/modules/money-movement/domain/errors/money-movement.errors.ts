@@ -56,3 +56,12 @@ export class TransactionBusyError extends AppError {
     super('Transaction could not complete after a bounded retry; retry later');
   }
 }
+
+export class TransferOverloadedError extends AppError {
+  readonly errorCode = 'TRANSFER_OVERLOADED';
+  readonly httpStatus = 503;
+
+  constructor() {
+    super('Transfer queue is busy. Retry with the same idempotency key.');
+  }
+}

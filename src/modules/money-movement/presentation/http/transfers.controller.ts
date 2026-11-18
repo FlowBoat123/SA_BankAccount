@@ -15,6 +15,7 @@ import { CurrentUser } from '../../../../common/security/decorators';
 import { AccessTokenPayload } from '../../../../common/security/ports';
 import { TransferMoneyDto } from './dto/transfer-money.dto';
 import { TransferMoneyUseCase } from '../../application/use-cases/transfer-money.use-case';
+import { TransferAdmission } from '../../infrastructure/transfer-admission';
 
 @ApiTags('Money Movement')
 @ApiBearerAuth('access-token')
@@ -25,6 +26,7 @@ import { TransferMoneyUseCase } from '../../application/use-cases/transfer-money
 export class TransfersController {
   constructor(
     private readonly transferMoneyUseCase: TransferMoneyUseCase,
+    private readonly admission: TransferAdmission,
   ) {}
 
   @ApiOperation({ summary: 'Transfer money between two accounts (UC-08)' })
@@ -39,7 +41,7 @@ export class TransfersController {
   @ApiResponse(errorResponse(400, 'VALIDATION_ERROR, SAME_ACCOUNT_TRANSFER hoặc HTTP_ERROR khi thiếu Idempotency-Key'))
   @ApiResponse(errorResponse(404, 'ACCOUNT_NOT_FOUND: Source or destination account not found'))
   @ApiResponse(errorResponse(409, 'INSUFFICIENT_FUNDS, ACCOUNT_NOT_ACTIVE hoặc IDEMPOTENCY_KEY_REUSED khi cùng khóa nhưng khác payload'))
-  @ApiResponse(errorResponse(503, 'TRANSACTION_BUSY: transaction đã rollback nhưng vẫn bận sau một lần thử lại'))
+  @ApiResponse(errorResponse(503, 'TRANSFER_OVERLOADED hoặc TRANSACTION_BUSY. Thử lại với cùng Idempotency-Key.'))
   @Post()
   async transfer(
     @Body() dto: TransferMoneyDto,
@@ -51,14 +53,21 @@ export class TransfersController {
       throw new BadRequestException('Idempotency-Key header must be between 16 and 128 characters');
     }
 
-    const result = await this.transferMoneyUseCase.execute({
-      sourceAccountId: dto.sourceAccountId,
-      destinationAccountNumber: dto.destinationAccountNumber,
-      amount: dto.amount,
-      description: dto.description,
+    const disconnected = new AbortController();
+    const onClose = () => disconnected.abort(new Error('Client disconnected before admission'));
+    res.once('close', onClose);
+    const command = {
+      ...dto,
       initiatedByUserId: user.sub,
       idempotencyKey: idempotencyKey.trim(),
-    });
+    };
+    let result;
+    try {
+      result = await this.admission.run(dto.sourceAccountId, dto.destinationAccountNumber,
+        () => this.transferMoneyUseCase.execute(command), disconnected.signal);
+    } finally {
+      res.off('close', onClose);
+    }
 
     if (result.isReplay) {
       res.status(HttpStatus.OK);
