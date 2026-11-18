@@ -1,0 +1,35 @@
+{
+  "runId": "c14297ff-ad67-48cc-9ff6-ddf4e958599e",
+  "timestamp": "2026-11-18T03:08:26.102Z",
+  "platform": "linux",
+  "release": "6.18.55+",
+  "cpu": "Intel(R) Xeon(R) CPU @ 2.20GHz",
+  "logicalCpus": 4,
+  "ramBytes": 33658159104,
+  "node": "v24.22.3",
+  "postgres": "PostgreSQL 16.15 (Ubuntu 16.15-0ubuntu0.24.04.1) on x86_64-pc-linux-gnu, compiled by gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0, 64-bit",
+  "location": "Kaggle CPU",
+  "baselineCommit": "c347c921d77ba533cfacd8e180feccef720be013",
+  "improvedCommit": "bf78c1e17f4b89e661ea5c28dfa99f60afab47f4",
+  "improvedDiff": "",
+  "rounds": 3,
+  "seconds": 60,
+  "historySizes": [
+    10000,
+    300000
+  ],
+  "clientTimeoutMs": 45000,
+  "hotClients": [
+    10,
+    50,
+    100
+  ],
+  "scenarioFilter": [
+    "transfer_hot_10",
+    "transfer_hot_50",
+    "transfer_hot_100",
+    "transfer_distributed_10",
+    "history_300000_deep"
+  ],
+  "protocol": "Closed-loop HTTP, zero think time, 2s warm-up, no login traffic; API CPU endpoints sampled outside timing; DB/generator/API share host. Feed omits exact total, legacy includes it."
+}

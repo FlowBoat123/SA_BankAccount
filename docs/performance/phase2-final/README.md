@@ -1,6 +1,6 @@
 # Bản nộp Pha 2
 
-[Sơ đồ trước–sau](ARCHITECTURE.md) · [Notebook đo trên Kaggle CPU](kaggle-final.ipynb) · [GitHub Actions](https://github.com/FlowBoat123/SA_BankAccount/actions)
+[Báo cáo chính thức trên Kaggle CPU](REPORT.md) · [Sơ đồ trước–sau](ARCHITECTURE.md) · [Notebook để chạy lại](kaggle-final.ipynb) · [ZIP dữ liệu gốc](kaggle-output-original.zip) · [GitHub Actions](https://github.com/FlowBoat123/SA_BankAccount/actions/runs/44227386720)
 
 Mục tiêu là đọc lịch sử nhanh hơn và rút ngắn phần ghi khi nhiều yêu cầu chuyển khoản tranh chấp cùng tài khoản. Bản nộp bổ sung API lịch sử dùng cursor, ghi chuyển khoản gộp, xử lý gửi lại bằng mã yêu cầu cho cả chuyển khoản và nạp/rút, đo thời gian từng công đoạn và CI. Các quyết định thiết kế và thử nghiệm sàng lọc được ghi trong [báo cáo tại máy](../phase2-contention/REPORT.md).
 

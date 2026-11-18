@@ -1,0 +1,134 @@
+PASS: Build (9895 ms)
+
+
+
+PASS: Resolve aliases (207 ms)
+
+
+
+PASS: Unit (10495 ms)
+
+PASS test/unit/money-movement/transfer-money.use-case.spec.ts
+PASS test/unit/modules/identity/application/login.use-case.spec.ts
+PASS test/unit/common/domain/value-objects/money.value-object.spec.ts
+PASS test/unit/common/config/env.schema.spec.ts
+PASS test/unit/common/http/filters/global-exception.filter.spec.ts
+PASS test/unit/common/http/pipes/validation-pipe.factory.spec.ts
+PASS test/unit/common/security/guards/access-token.guard.spec.ts
+PASS test/unit/common/http/interceptors/response-envelope.interceptor.spec.ts
+PASS test/unit/modules/identity/application/register-user.use-case.spec.ts
+PASS test/unit/modules/identity/infrastructure/persistence/prisma-user.repository.spec.ts
+PASS test/unit/money-movement/get-transaction-history.use-case.spec.ts
+PASS test/unit/money-movement/withdraw-money.use-case.spec.ts
+PASS test/unit/accounts/close-account.spec.ts
+PASS test/unit/money-movement/deposit-money.use-case.spec.ts
+PASS test/unit/common/observability/logger.service.spec.ts
+PASS test/unit/resolve-recipient.spec.ts
+PASS test/unit/common/http/interceptors/http-logging.interceptor.spec.ts
+PASS test/unit/modules/identity/presentation/auth.controller.spec.ts
+PASS test/unit/accounts/open-account.spec.ts
+PASS test/unit/common/http/middleware/request-id.middleware.spec.ts
+PASS test/unit/modules/identity/infrastructure/security/jwt-token.service.spec.ts
+PASS test/unit/accounts/get-account.spec.ts
+PASS test/unit/accounts/list-accounts.spec.ts
+PASS test/unit/modules/identity/infrastructure/security/bcrypt-password-hasher.spec.ts
+PASS test/unit/modules/identity/domain/entities/user.entity.spec.ts
+
+Test Suites: 25 passed, 25 total
+Tests:       172 passed, 172 total
+Snapshots:   0 total
+Time:        9.921 s
+Ran all test suites.
+Test results written to: ../../kaggle/working/sa-bankaccount-final-results/results/unit.json
+
+
+PASS: Integration (real PostgreSQL) (8558 ms)
+
+PASS test/integration/money-movement/money-movement.spec.ts
+PASS test/integration/banking-flow.spec.ts
+PASS test/integration/accounts/prisma-account.repository.spec.ts
+PASS test/integration/identity/identity.spec.ts
+PASS test/integration/database/check-constraints.spec.ts
+
+Test Suites: 5 passed, 5 total
+Tests:       46 passed, 46 total
+Snapshots:   0 total
+Time:        8.09 s
+Ran all test suites.
+Test results written to: ../../kaggle/working/sa-bankaccount-final-results/results/integration.json
+
+
+PASS: HTTP and persistence (19770 ms)
+✔ cash HTTP idempotency: concurrent replay, conflicts, validation, ownership and history privacy (3497.624014ms)
+✔ cash HTTP withdrawal replay survives close and a response the caller did not retain (67.226418ms)
+✔ real socket loss AFTER cash commit: a new request replays without posting money twice (64.819927ms)
+✔ full lifecycle over HTTP: money, history, close, and replay after close (187.254581ms)
+✔ guard rejects missing, invalid and expired bearer tokens (21.004679ms)
+✔ identity rejects duplicate email, wrong password and malformed DTOs (17.030331ms)
+✔ DTO validation rejects invalid UUIDs, pagination, body types and extra fields (47.841744ms)
+✔ ownership protects reads, history, writes, close and transfers with 404 (63.47012ms)
+✔ transfer header validation, insufficient funds and closed destination do not move money (72.685871ms)
+✔ phase2 HTTP: same key and changed payload returns 409 without another debit (70.266385ms)
+✔ phase2 HTTP: feed pagination, ownership, cursor validation and legacy history (122.862629ms)
+✔ 20 simultaneous retries: one transfer, two ledger entries, same response ID (444.044349ms)
+✔ same key with changed amount, destination, or description returns conflict without writes (49.987398ms)
+✔ concurrent same-key different payload: one creation and one conflict (32.683948ms)
+✔ 40 crossed transfers complete and conserve balances (542.144676ms)
+✔ 20 concurrent withdrawals of 10 from 100: exactly ten accepted (150.063053ms)
+✔ failure AFTER both balances and ledger insert rolls the entire transaction back (22.766914ms)
+✔ batch ledger constraint failure rolls back balances and transfer (23.240217ms)
+✔ compact posting preserves VND precision, replay shape and both ledger entries (27.513847ms)
+✔ compact posting rolls back account updates on a database constraint failure (24.734425ms)
+✔ expired transaction is rolled back before one retry; balances and entries change once (5199.734357ms)
+✔ cursor visits every row once: tied timestamps and microseconds, final page and empty history (42.940251ms)
+✔ cursor enforces ownership, account/filter scope and valid date interval (34.896593ms)
+✔ new latest entry between pages does not shift or duplicate the next page (24.555511ms)
+✔ 20 simultaneous deposit requests with one key commit exactly once (165.261082ms)
+✔ 20 simultaneous withdrawal requests with one key commit exactly once (118.518371ms)
+✔ cash same key with changed amount, description or type conflicts; concurrent conflict also commits once (39.638597ms)
+✔ cash keys are account-scoped and ownership is checked before replay (29.960814ms)
+✔ cash replay after later writes and close returns original snapshot, not current balance (43.775234ms)
+✔ rollback after cash ledger insert leaves no balance change or reserved key (25.370207ms)
+✔ insufficient-funds failure does not reserve a cash key; legacy calls remain separate (45.99838ms)
+✔ database unique constraint protects cash keys even if application locking is bypassed (27.028772ms)
+✔ cash key normalization, boundary validation and no-op rejection (54.513956ms)
+✔ cash timeout AFTER ledger insertion rolls back key and balance before bounded retry (5212.147272ms)
+✔ three-account cyclic transfers with concurrent cash writes conserve money without deadlock (1032.051247ms)
+✔ telemetry observes a real blocked lock and one transfer uses one locking query (117.393454ms)
+✔ bounded retry retries an aborted transaction once (37.010425ms)
+✔ retry exhaustion returns explicit 503 after exactly two attempts (32.661047ms)
+✔ never retries constraints, ambiguous commit, transport, or domain errors (1.307843ms)
+✔ telemetry retains bounded aggregates; snapshots and reset do not mutate prior snapshots (9.196674ms)
+✔ telemetry distinguishes committed, rejected, retried and exhausted attempts (45.185136ms)
+✔ account mode preserves order on shared source or recipient and admits independent work (3.442941ms)
+✔ global mode caps active work and rejects full or expired queue without invoking callbacks (21.313168ms)
+✔ disconnect removes a queued request and a failed active request releases its slot (1.537492ms)
+ℹ tests 44
+ℹ suites 0
+ℹ pass 44
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 19702.674013
+
+
+
+PASS: Swagger (1184 ms)
+Swagger contract passed: 10 operations, schemas, auth, pagination, UI/JSON routes and production gating.
+
+
+
+PASS: Before/after reliability (790 ms)
+{
+  baseline: {
+    changedRequestAmount: '11',
+    returnedAmount: '10',
+    isReplay: true,
+    problem: 'Changed payload silently treated as original request'
+  },
+  improved: { errorCode: 'IDEMPOTENCY_KEY_REUSED', httpStatus: 409 },
+  transferCount: 1,
+  ledgerEntryCount: 2
+}
+

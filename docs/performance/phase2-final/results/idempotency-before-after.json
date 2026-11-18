@@ -1,0 +1,14 @@
+{
+  "baseline": {
+    "changedRequestAmount": "11",
+    "returnedAmount": "10",
+    "isReplay": true,
+    "problem": "Changed payload silently treated as original request"
+  },
+  "improved": {
+    "errorCode": "IDEMPOTENCY_KEY_REUSED",
+    "httpStatus": 409
+  },
+  "transferCount": 1,
+  "ledgerEntryCount": 2
+}

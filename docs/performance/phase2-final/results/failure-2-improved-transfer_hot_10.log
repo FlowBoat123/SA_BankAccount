@@ -1,0 +1,37 @@
+
+83] POST /api/v1/transfers 201 +22ms[39m
+[32m[Nest] 10876  - [39m11/18/2026, 3:20:01 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32m[380bf04f-db4a-4dcb-b51f-99fa1b07a72b] POST /api/v1/transfers 201 +63ms[39m
+[32m[Nest] 10876  - [39m11/18/2026, 3:20:01 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32m[cf3a8240-cc00-4eaf-9dad-65774303cfb6] POST /api/v1/transfers 201 +29ms[39m
+[32m[Nest] 10876  - [39m11/18/2026, 3:20:01 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32m[23043de9-6dab-45d7-9436-8702bb9761c4] POST /api/v1/transfers 201 +30ms[39m
+[32m[Nest] 10876  - [39m11/18/2026, 3:20:01 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32m[1b71dbc2-d36f-4364-83f3-a1c1f90168f8] POST /api/v1/transfers 201 +24ms[39m
+[32m[Nest] 10876  - [39m11/18/2026, 3:20:01 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32m[45cf9ead-fdad-4a9b-996c-779bf374d316] POST /api/v1/transfers 201 +25ms[39m
+[32m[Nest] 10876  - [39m11/18/2026, 3:20:01 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32m[10edd380-e348-48ea-bf37-c6dacba49fb4] POST /api/v1/transfers 201 +24ms[39m
+[32m[Nest] 10876  - [39m11/18/2026, 3:20:01 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32m[516c4c14-e432-4c1f-8077-3c86a2af334d] POST /api/v1/transfers 201 +21ms[39m
+[32m[Nest] 10876  - [39m11/18/2026, 3:20:01 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32m[a4b10c3c-f0f5-4baa-b7d3-d3c021a8000a] POST /api/v1/transfers 201 +23ms[39m
+[32m[Nest] 10876  - [39m11/18/2026, 3:20:01 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32m[c0ab2c9f-745b-42d5-a501-a7ed92468824] POST /api/v1/transfers 201 +24ms[39m
+[32m[Nest] 10876  - [39m11/18/2026, 3:20:01 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32m[ac755a45-86bc-4f58-96da-b3149bb8e44b] POST /api/v1/transfers 201 +24ms[39m
+[32m[Nest] 10876  - [39m11/18/2026, 3:20:01 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32m[9dadce2e-b173-4c38-8f66-b6a37ec3bfbe] POST /api/v1/transfers 201 +92ms[39m
+[32m[Nest] 10876  - [39m11/18/2026, 3:20:01 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32m[2d5b1851-f3ee-4127-b8fe-f4afbde2f156] POST /api/v1/transfers 201 +32ms[39m
+[32m[Nest] 10876  - [39m11/18/2026, 3:20:01 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32m[bba70444-0c3d-4e9b-a5c7-6fc2de96303f] POST /api/v1/transfers 201 +22ms[39m
+[32m[Nest] 10876  - [39m11/18/2026, 3:20:01 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32m[76f8115f-44c7-4e8c-a6d3-ceca30ba746d] POST /api/v1/transfers 201 +38ms[39m
+[32m[Nest] 10876  - [39m11/18/2026, 3:20:01 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32m[50403cad-abf6-4bce-a378-74d7f3c06080] POST /api/v1/transfers 201 +21ms[39m
+[32m[Nest] 10876  - [39m11/18/2026, 3:20:01 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32m[6b2da85a-348d-4022-ad68-e7fa474c0bbb] POST /api/v1/transfers 201 +37ms[39m
+[32m[Nest] 10876  - [39m11/18/2026, 3:20:01 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32m[96eabab8-01a9-4904-bc9c-668bbad0f5fa] POST /api/v1/transfers 201 +28ms[39m
+[32m[Nest] 10876  - [39m11/18/2026, 3:20:01 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32m[3f6b12b9-7ac0-43f6-b1c1-41e1ed31122b] POST /api/v1/transfers 201 +21ms[39m
+[32m[Nest] 10876  - [39m11/18/2026, 3:20:01 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32m[d7d8f58a-611b-44be-8418-a649c5a49e3d] POST /api/v1/transfers 201 +22ms[39m
+[32m[Nest] 10876  - [39m11/18/2026, 3:20:01 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32m[6bcdc3b5-f525-46dd-9670-0b4ce3a87833] POST /api/v1/transfers 201 +46ms[39m
+[32m[Nest] 10876  - [39m11/18/2026, 3:20:01 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32m[afc3bdd0-651c-40e8-9224-ba0a288feaf9] POST /api/v1/transfers 201 +24ms[39m
+[32m[Nest] 10876  - [39m11/18/2026, 3:20:01 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32m[ed2c52e0-453e-489d-950a-c84eb58786bf] POST /api/v1/transfers 201 +21ms[39m
+[32m[Nest] 10876  - [39m11/18/2026, 3:20:01 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32m[1bec877f-8998-4003-b072-5059f63cf40b] POST /api/v1/transfers 201 +20ms[39m
+[32m[Nest] 10876  - [39m11/18/2026, 3:20:01 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32m[803195df-1d98-4695-b477-87a1fa1cad25] POST /api/v1/transfers 201 +18ms[39m
+[32m[Nest] 10876  - [39m11/18/2026, 3:20:01 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32m[b70bc5aa-3053-4a33-bc23-b82833d1c01b] POST /api/v1/transfers 201 +61ms[39m
+[32m[Nest] 10876  - [39m11/18/2026, 3:20:01 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32m[d7a626c4-0ec6-46cf-9b1b-480c0ff6d406] POST /api/v1/transfers 201 +19ms[39m
+[32m[Nest] 10876  - [39m11/18/2026, 3:20:01 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32m[ddff0905-e843-404c-a6e6-9f4c2d56160a] POST /api/v1/transfers 201 +35ms[39m
+[32m[Nest] 10876  - [39m11/18/2026, 3:20:01 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32m[3c25286c-5649-47b3-927e-a1a9a3b3a2f8] POST /api/v1/transfers 201 +26ms[39m
+[32m[Nest] 10876  - [39m11/18/2026, 3:20:01 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32m[e782fe2c-078e-467b-a5e0-8a2607459806] POST /api/v1/transfers 201 +25ms[39m
+[32m[Nest] 10876  - [39m11/18/2026, 3:20:01 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32m[7b0faf03-30a5-4d7d-946c-42072d240202] POST /api/v1/transfers 201 +268ms[39m
+[32m[Nest] 10876  - [39m11/18/2026, 3:20:01 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32m[c719464a-90a0-4af5-8a75-65784e8c8bae] POST /api/v1/transfers 201 +2072ms[39m
+[32m[Nest] 10876  - [39m11/18/2026, 3:20:01 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32m[7c3baffc-473f-43af-ba66-480b56e5191f] POST /api/v1/transfers 201 +1808ms[39m
+[32m[Nest] 10876  - [39m11/18/2026, 3:20:01 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32m[a9647fb7-c2a0-4816-9143-4fa9d1deff51] POST /api/v1/transfers 201 +589ms[39m
+[32m[Nest] 10876  - [39m11/18/2026, 3:20:01 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32m[37ad2422-2243-4fbd-910b-8fbaabee567a] POST /api/v1/transfers 201 +770ms[39m
+[32m[Nest] 10876  - [39m11/18/2026, 3:20:01 AM [32m    LOG[39m [38;5;3m[HTTP] [39m[32m[66ca1f82-94f2-46c9-a72b-55b45fc01ecc] POST /api/v1/transfers 201 +494ms[39m
