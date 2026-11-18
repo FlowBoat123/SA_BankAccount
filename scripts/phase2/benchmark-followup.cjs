@@ -61,34 +61,72 @@ async function reset(){
   await db.query('DELETE FROM transfers WHERE source_account_id=ANY($1::text[])',[ids]);
   await db.query('UPDATE bank_accounts SET current_balance=$2::numeric WHERE id=ANY($1::text[])',[ids,initial.toString()]);
 }
-async function reconcile(successes){
+async function reconcile(acknowledged, unconfirmed){
   const accounts=(await db.query('SELECT current_balance::text balance FROM bank_accounts WHERE id=ANY($1::text[])',[ids])).rows;
   assert.equal(accounts.reduce((sum,a)=>sum+BigInt(a.balance),0n),initial*20n);
   assert.ok(accounts.every(a=>BigInt(a.balance)>=0n));
-  const transfers=(await db.query('SELECT count(*)::int n FROM transfers WHERE source_account_id=ANY($1::text[])',[ids])).rows[0].n;
+  const posted = (await db.query(
+    'SELECT id, source_account_id, destination_account_id, idempotency_key, amount::text FROM transfers WHERE source_account_id=ANY($1::text[])', [ids],
+  )).rows;
+  const transfers = posted.length;
   const entries=(await db.query('SELECT count(*)::int n FROM financial_transactions WHERE account_id=ANY($1::text[])',[ids])).rows[0].n;
-  assert.equal(transfers,successes);assert.equal(entries,successes*2);
+  let committedWithoutAck = 0;
+  const seen = new Set();
+  for (const row of posted) {
+    const request = acknowledged.get(row.idempotency_key) ?? unconfirmed.get(row.idempotency_key);
+    assert.ok(request, 'Transfer committed without a submitted request');
+    assert.ok(!seen.has(row.idempotency_key), 'Duplicate transfer key');
+    seen.add(row.idempotency_key);
+    assert.equal(row.source_account_id, request.sourceId);
+    assert.equal(row.destination_account_id, request.destinationId);
+    assert.equal(row.amount, '1');
+    if (request.responseId) assert.equal(row.id, request.responseId);
+    else committedWithoutAck++;
+  }
+  assert.equal(transfers, acknowledged.size + committedWithoutAck, 'A client acknowledgement was missing in the database');
+  assert.equal(entries, transfers * 2);
+  const badTransfers = (await db.query(`
+    SELECT count(*)::int n FROM (
+      SELECT t.id FROM transfers t LEFT JOIN financial_transactions f ON f.transfer_id=t.id
+      WHERE t.source_account_id=ANY($1::text[])
+      GROUP BY t.id
+      HAVING count(*) FILTER (WHERE f.account_id=t.source_account_id AND
+        f.transaction_type='DEBIT' AND f.reference_type='TRANSFER_OUT' AND f.amount=t.amount)<>1
+        OR count(*) FILTER (WHERE f.account_id=t.destination_account_id AND
+        f.transaction_type='CREDIT' AND f.reference_type='TRANSFER_IN' AND f.amount=t.amount)<>1
+    ) q`, [ids])).rows[0].n;
+  assert.equal(badTransfers, 0);
   const mismatch=(await db.query(`SELECT count(*)::int n FROM (
     SELECT a.id FROM bank_accounts a LEFT JOIN financial_transactions f ON a.id=f.account_id
     WHERE a.id=ANY($1::text[]) GROUP BY a.id,a.current_balance
     HAVING a.current_balance<>$2::numeric+coalesce(sum(CASE WHEN f.transaction_type='CREDIT' THEN f.amount ELSE -f.amount END),0)
   ) q`,[ids,initial.toString()])).rows[0].n;
-  assert.equal(mismatch,0);return{transfers,ledgerEntries:entries,conserved:true,ledgerMatchesBalances:true};
+  assert.equal(mismatch,0);return{transfers,ledgerEntries:entries,committedWithoutAck,conserved:true,ledgerMatchesBalances:true};
 }
 async function load(scenario,seconds){
   let success=0;const errors={},latencies=[],successfulLatencies=[];const began=performance.now(),deadline=began+seconds*1000;
+  const acknowledged = new Map(), unconfirmed = new Map();
   await Promise.all(Array.from({length:scenario.clients},async(_,client)=>{
     while(performance.now()<deadline){
       const pair=scenario.distributed?client:0,start=performance.now();
+      const key = randomUUID();
+      const request = { sourceId: ids[pair * 2], destinationId: ids[pair * 2 + 1] };
       try{
-        const response=await fetch('http://127.0.0.1:3318/api/v1/transfers',{method:'POST',signal:AbortSignal.timeout(15000),
-          headers:{Authorization:`Bearer ${token}`,'Content-Type':'application/json','Idempotency-Key':randomUUID()},
-          body:JSON.stringify({sourceAccountId:ids[pair*2],destinationAccountNumber:numbers[pair*2+1],amount:'1'})});
+        const response=await fetch('http://127.0.0.1:3318/api/v1/transfers',{method:'POST',signal:AbortSignal.timeout(45000),
+          headers:{Authorization:`Bearer ${token}`,'Content-Type':'application/json','Idempotency-Key':key},
+          body:JSON.stringify({sourceAccountId:request.sourceId,destinationAccountNumber:numbers[pair*2+1],amount:'1'})});
         const body=await response.json();
         if(response.status!==201)throw Error(`${response.status}:${body.error?.code}`);
         assert.equal(body.data.sourceAccountId,ids[pair*2]);assert.equal(body.data.destinationAccountId,ids[pair*2+1]);assert.equal(body.data.amount,'1');success++;
+        acknowledged.set(key, { ...request, responseId: body.data.id });
         successfulLatencies.push(performance.now()-start);
-      }catch(error){const key=error.message.slice(0,160);errors[key]=(errors[key]||0)+1;}
+      }catch(error){
+        const label=error.message.slice(0,160);
+        errors[label]=(errors[label]||0)+1;
+        // A transport error after commit is an unknown outcome for the client.
+        // Explicit HTTP errors stay excluded so a 503/500 that wrote money fails reconciliation.
+        if (error.name === 'TimeoutError' || error instanceof TypeError) unconfirmed.set(key, request);
+      }
       latencies.push(performance.now()-start);
     }
   }));
@@ -96,8 +134,8 @@ async function load(scenario,seconds){
   const p=q=>latencies[Math.min(latencies.length-1,Math.ceil(q*latencies.length)-1)];
   successfulLatencies.sort((a,b)=>a-b);
   const successPercentile=q=>successfulLatencies[Math.ceil(q*successfulLatencies.length)-1]??null;
-  return{seconds:elapsed,requests:latencies.length,successes:success,errors,successRps:success/elapsed,
-    p50:p(.5),p95:p(.95),p99:p(.99),successP95:successPercentile(.95),successP99:successPercentile(.99)};
+  return{acknowledged,unconfirmed,metrics:{seconds:elapsed,requests:latencies.length,successes:success,errors,successRps:success/elapsed,
+    p50:p(.5),p95:p(.95),p99:p(.99),successP95:successPercentile(.95),successP99:successPercentile(.99)}};
 }
 async function sqlStats(){
   return(await db.query(`SELECT queryid::text,query,calls::text,total_exec_time,rows::text
@@ -122,7 +160,7 @@ async function measured(scenario){
       samples.push(row);await new Promise(ok=>setTimeout(ok,50));
     }
   })().catch(error=>{pollError=error;});
-  try{return{metrics:await load(scenario,duration),samples};}
+  try{return{...await load(scenario,duration),samples};}
   finally{done=true;await polling;if(pollError)throw pollError;}
 }
 async function main(){
@@ -137,7 +175,8 @@ async function main(){
       'Run prepare-followup-baseline after the latest build; UoW must be byte-identical');
     fs.writeFileSync(path.join(output,'environment.json'),JSON.stringify({runId,timestamp:new Date().toISOString(),platform:os.platform(),release:os.release(),cpu:os.cpus()[0].model,
       logicalCpus:os.cpus().length,ramBytes:os.totalmem(),node:process.version,postgres:(await db.query('SELECT version()')).rows[0].version,
-      rounds,duration,baselineCommit:'8ad478154e3772eb60e08cc8a741b087843dd35f',
+      rounds,duration,
+      baselineCommit:selectedProfiles ? undefined : '8ad478154e3772eb60e08cc8a741b087843dd35f',
       improvedCommit:execFileSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8'}).trim(),
       baselineTransferJsSha256:selectedProfiles ? undefined : hash(path.join(baseline,'modules/money-movement/application/use-cases/transfer-money.use-case.js')),
       improvedTransferJsSha256:hash(path.join(root,'dist/modules/money-movement/application/use-cases/transfer-money.use-case.js')),
@@ -156,14 +195,16 @@ async function main(){
       for(const scenario of scenarios){
         if(process.env.SCENARIOS&&!process.env.SCENARIOS.split(',').includes(scenario.name))continue;
         await reset();await load(scenario,2);await reset();await ipc('reset');
-        const before=await sqlStats();const {metrics,samples}=await measured(scenario);const after=await sqlStats();
+        const before=await sqlStats();
+        const {metrics,samples,acknowledged,unconfirmed}=await measured(scenario);
+        const after=await sqlStats();
         const telemetry=(await ipc('snapshot')).snapshot;
         const row={round,variant,scenario:scenario.name,clients:scenario.clients,...metrics,telemetry,
           lockSampling:{intervalMs:50,samples:samples.length,maxWaiting:Math.max(0,...samples.map(s=>s.waitingOnLock)),
             meanWaiting:samples.reduce((n,s)=>n+s.waitingOnLock,0)/samples.length,blockedSampleFraction:samples.filter(s=>s.waitingOnLock>0).length/samples.length},
           sql:sqlDiff(before,after)};
         let reconciliationError;
-        try{row.reconciliation=await reconcile(metrics.successes);}
+        try{row.reconciliation=await reconcile(acknowledged,unconfirmed);}
         catch(error){row.reconciliation={conserved:false,ledgerMatchesBalances:false,error:error.message};reconciliationError=error;}
         rows.push(row);fs.writeFileSync(path.join(output,'runs.json'),JSON.stringify(rows,null,2));
         if(Object.keys(metrics.errors).length)fs.writeFileSync(path.join(output,`failure-${round}-${variant}-${scenario.name}.log`),log);
