@@ -1,0 +1,52 @@
+{
+  "runId": "2bdc4edf-4216-49b6-809a-c97a59e054a5",
+  "timestamp": "2026-11-18T01:35:03.723Z",
+  "platform": "win32",
+  "release": "10.0.26300",
+  "cpu": "AMD Ryzen AI 9 365 w/ Radeon 880M              ",
+  "logicalCpus": 20,
+  "ramBytes": 29841813504,
+  "node": "v24.22.3",
+  "postgres": "PostgreSQL 15.19 (Debian 15.19-1.pgdg13+2) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit",
+  "rounds": 2,
+  "duration": 4,
+  "baselineCommit": "8ad478154e3772eb60e08cc8a741b087843dd35f",
+  "improvedCommit": "2302ec45518e2a7ce50d3f97c354b78aa97c884d",
+  "improvedTransferJsSha256": "e2b0e61b5f8de1caf52ae781212af421db78cd53d83ccd3c94c01f86da709d3f",
+  "uowIdentical": true,
+  "profiles": [
+    {
+      "name": "baseline",
+      "TRANSFER_ADMISSION": "off",
+      "TRANSFER_COMPACT_WRITE": "off"
+    },
+    {
+      "name": "global",
+      "TRANSFER_ADMISSION": "global",
+      "TRANSFER_COMPACT_WRITE": "off"
+    },
+    {
+      "name": "account",
+      "TRANSFER_ADMISSION": "account",
+      "TRANSFER_COMPACT_WRITE": "off"
+    },
+    {
+      "name": "compact",
+      "TRANSFER_ADMISSION": "off",
+      "TRANSFER_COMPACT_WRITE": "on"
+    },
+    {
+      "name": "combined",
+      "TRANSFER_ADMISSION": "account",
+      "TRANSFER_COMPACT_WRITE": "on"
+    }
+  ],
+  "lockfileSha256": "ad4393341fb3a2d6c29b92e755bdc1e0840d23885335ca92a5c614207c02e2fa",
+  "queue": {
+    "activeLimit": "8",
+    "limit": "128",
+    "waitMs": "3000"
+  },
+  "protocol": "Same compiled app/schema and frozen lockfile for all profiles; environment switches enable one or more candidates. Closed-loop HTTP, zero think time, 2-second warmup. Alternating version order. SQL deltas exclude warmup/reset/reconciliation. 50ms lock sampling is approximate. All services share the host.",
+  "sourceDiff": " package-lock.json                                  | 769 ++++++++++-----------\n scripts/phase2/benchmark-followup.cjs              |  46 +-\n scripts/phase2/verify.cjs                          |   4 +-\n src/common/config/env.schema.ts                    |  24 +\n .../observability/money-movement-telemetry.ts      |   5 +-\n .../application/ports/unit-of-work.port.ts         |   7 +\n .../use-cases/transfer-money.use-case.ts           |  24 +-\n .../domain/errors/money-movement.errors.ts         |   9 +\n .../persistence/prisma-unit-of-work.ts             |  24 +-\n .../money-movement/money-movement.module.ts        |   2 +\n .../presentation/http/transfers.controller.ts      |  23 +-\n test/e2e/phase2-persistence.e2e.cjs                |  35 +\n 12 files changed, 539 insertions(+), 433 deletions(-)\n"
+}

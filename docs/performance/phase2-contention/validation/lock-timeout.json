@@ -1,0 +1,8 @@
+{
+  "timestamp": "2026-11-18T02:28:18.605Z",
+  "localTimeoutMs": 100,
+  "elapsedMs": 102.97869999999999,
+  "sqlState": "55P03",
+  "sessionSettingAfterRollback": "0",
+  "lockAfterRelease": true
+}

@@ -1,0 +1,19 @@
+{
+  "passed": true,
+  "healthStatus": "healthy",
+  "imageId": "sha256:6f408166df84e80cd36d0795a031aac8f93883a3f14c6d9928d968ce2d276f31",
+  "containerNode": "v24.22.3",
+  "checks": [
+    "register/login",
+    "atomic transfer",
+    "identical replay",
+    "changed payload 409",
+    "balances",
+    "cursor pages",
+    "legacy pagination",
+    "cash deposit replay/conflict",
+    "cash withdrawal replay/conflict",
+    "key privacy in response and history"
+  ],
+  "timestamp": "2026-11-18T01:43:28.218Z"
+}

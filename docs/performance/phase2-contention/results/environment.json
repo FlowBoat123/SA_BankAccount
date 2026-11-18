@@ -1,0 +1,36 @@
+{
+  "runId": "6794e288-522b-42b0-8649-d3b6614ab6c9",
+  "timestamp": "2026-11-18T01:45:45.140Z",
+  "platform": "win32",
+  "release": "10.0.26300",
+  "cpu": "AMD Ryzen AI 9 365 w/ Radeon 880M              ",
+  "logicalCpus": 20,
+  "ramBytes": 29841813504,
+  "node": "v24.22.3",
+  "postgres": "PostgreSQL 15.19 (Debian 15.19-1.pgdg13+2) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit",
+  "rounds": 5,
+  "duration": 60,
+  "improvedCommit": "efd4d69964af2dbf9c898543c7c4a7bed3b2d7f0",
+  "improvedTransferJsSha256": "e2b0e61b5f8de1caf52ae781212af421db78cd53d83ccd3c94c01f86da709d3f",
+  "uowIdentical": true,
+  "profiles": [
+    {
+      "name": "baseline",
+      "TRANSFER_ADMISSION": "off",
+      "TRANSFER_COMPACT_WRITE": "off"
+    },
+    {
+      "name": "compact",
+      "TRANSFER_ADMISSION": "off",
+      "TRANSFER_COMPACT_WRITE": "on"
+    }
+  ],
+  "lockfileSha256": "ad4393341fb3a2d6c29b92e755bdc1e0840d23885335ca92a5c614207c02e2fa",
+  "queue": {
+    "activeLimit": "8",
+    "limit": "128",
+    "waitMs": "3000"
+  },
+  "protocol": "Same compiled app/schema and frozen lockfile for all profiles; environment switches enable one or more candidates. Closed-loop HTTP, zero think time, 2-second warmup. Alternating version order. SQL deltas exclude warmup/reset/reconciliation. 50ms lock sampling is approximate. All services share the host.",
+  "sourceDiff": " README.md | 2 ++\n 1 file changed, 2 insertions(+)\n"
+}
