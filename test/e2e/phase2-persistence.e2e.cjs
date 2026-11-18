@@ -117,7 +117,7 @@ test('compact posting rolls back account updates on a database constraint failur
       sourceAccountId: ids[0], destinationAccountId: ids[1], initiatedByUserId: stranger,
       amount: '10', idempotencyKey: randomUUID(), sourceBalance: '90', destinationBalance: '110',
     });
-  }), error => error.code === 'P2010' && error.meta?.code === '23503');
+  }), /violates foreign key constraint "transfers_initiated_by_user_id_fkey"/);
   assert.deepEqual(await balances(), old);
   assert.equal(await prisma.transfer.count({ where: { sourceAccountId: ids[0] } }), 0);
   assert.equal(await prisma.financialTransaction.count({ where: { accountId: { in: ids } } }), 0);
