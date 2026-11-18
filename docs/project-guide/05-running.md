@@ -22,15 +22,15 @@ Cách tiếp cận này không yêu cầu cài đặt sẵn Node.js hay PostgreS
 2. **Kiểm tra file cấu hình môi trường:**
    Đảm bảo các giá trị trong `.env` phù hợp với máy của bạn:
    ```env
-   DB_USER=khanhNguyenHong2311
-   DB_PASSWORD=az1978bl
+   DB_USER=your_db_user
+   DB_PASSWORD=replace_with_a_local_password
    DB_NAME=bank_account
    DB_PORT=5434
-   DATABASE_URL="postgresql://khanhNguyenHong2311:az1978bl@localhost:5434/bank_account?schema=public"
-   DOCKER_DATABASE_URL="postgresql://khanhNguyenHong2311:az1978bl@postgres:5432/bank_account?schema=public"
+   DATABASE_URL="postgresql://${DB_USER}:${DB_PASSWORD}@localhost:${DB_PORT}/${DB_NAME}?schema=public"
+   DOCKER_DATABASE_URL="postgresql://${DB_USER}:${DB_PASSWORD}@postgres:5432/${DB_NAME}?schema=public"
    APP_PORT=3000
    NODE_ENV=development
-   JWT_ACCESS_SECRET=khoa_bi_mat_jwt_cho_do_an_kien_truc_phan_mem_2026
+   JWT_ACCESS_SECRET=replace_with_a_random_secret_at_least_32_characters
    JWT_ACCESS_TTL=60m
    BCRYPT_ROUNDS=12
    ```

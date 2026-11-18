@@ -13,6 +13,8 @@ const root = path.resolve(__dirname, '../..');
 const databaseUrl = process.env.PHASE2_DATABASE_URL || process.env.DATABASE_URL;
 if (!databaseUrl || !new URL(databaseUrl).pathname.endsWith('_test')) throw Error('Set PHASE2_DATABASE_URL to a dedicated *_test DB');
 const rounds = Number(process.env.ROUNDS || 3), seconds = Number(process.env.DURATION || 10);
+const hotClients = (process.env.HOT_CLIENTS || '1,10').split(',').map(Number);
+assert.ok(hotClients.every(n => Number.isInteger(n) && n > 0 && n <= 200), 'HOT_CLIENTS must contain counts from 1 to 200');
 const historySize = Number(process.env.HISTORY_SIZE || 300000);
 const baseline = path.resolve(root, process.env.BASELINE_DIST || '.phase2/baseline-dist');
 const output = path.resolve(root, process.env.OUTPUT || 'docs/performance/phase2/results');
@@ -72,20 +74,44 @@ async function resetWrites() {
   await db.query('DELETE FROM transfers WHERE source_account_id=ANY($1::text[])', [accounts]);
   await db.query('UPDATE bank_accounts SET current_balance=1000000000 WHERE id=ANY($1::text[])', [accounts]);
 }
-async function reconcile(successes) {
+async function reconcile(acknowledged, uncertain) {
   const balances = (await db.query('SELECT id,current_balance::text AS balance FROM bank_accounts WHERE id=ANY($1::text[])', [accounts])).rows;
   assert.equal(balances.reduce((s, a) => s + BigInt(a.balance), 0n), 20000000000n);
   assert.ok(balances.every(a => BigInt(a.balance) >= 0n));
-  const count = (await db.query('SELECT count(*)::int AS n FROM transfers WHERE source_account_id=ANY($1::text[])', [accounts])).rows[0].n;
+  const posted = (await db.query(`SELECT id, source_account_id, destination_account_id, amount::text, idempotency_key
+    FROM transfers WHERE source_account_id=ANY($1::text[])`, [accounts])).rows;
   const entries = (await db.query('SELECT count(*)::int AS n FROM financial_transactions WHERE account_id=ANY($1::text[])', [accounts])).rows[0].n;
-  assert.equal(count, successes); assert.equal(entries, successes * 2);
+  let committedWithoutAck = 0;
+  const seen = new Set();
+  for (const row of posted) {
+    const request = acknowledged.get(row.idempotency_key) ?? uncertain.get(row.idempotency_key);
+    assert.ok(request, 'Unexpected committed transfer');
+    assert.ok(!seen.has(row.idempotency_key), 'Duplicate transfer key');
+    seen.add(row.idempotency_key);
+    assert.equal(row.source_account_id, request.sourceId);
+    assert.equal(row.destination_account_id, request.destinationId);
+    assert.equal(row.amount, '1');
+    if (request.id !== undefined) assert.equal(row.id, request.id);
+    else committedWithoutAck++;
+  }
+  assert.equal(posted.length, acknowledged.size + committedWithoutAck);
+  assert.equal(entries, posted.length * 2);
+  const mismatchedEntries = (await db.query(`SELECT count(*)::int n FROM (
+    SELECT t.id FROM transfers t LEFT JOIN financial_transactions f ON f.transfer_id=t.id
+    WHERE t.source_account_id=ANY($1::text[]) GROUP BY t.id
+    HAVING count(*) FILTER (WHERE f.account_id=t.source_account_id AND
+      f.transaction_type='DEBIT' AND f.reference_type='TRANSFER_OUT' AND f.amount=t.amount)<>1
+      OR count(*) FILTER (WHERE f.account_id=t.destination_account_id AND
+      f.transaction_type='CREDIT' AND f.reference_type='TRANSFER_IN' AND f.amount=t.amount)<>1
+  ) q`, [accounts])).rows[0].n;
+  assert.equal(mismatchedEntries, 0);
   const mismatch = (await db.query(`SELECT count(*)::int n FROM (
     SELECT a.id FROM bank_accounts a LEFT JOIN financial_transactions f ON f.account_id=a.id
     WHERE a.id=ANY($1::text[]) GROUP BY a.id,a.current_balance
     HAVING a.current_balance <> 1000000000 + coalesce(sum(CASE WHEN f.transaction_type='CREDIT' THEN f.amount ELSE -f.amount END),0)
   ) q`, [accounts])).rows[0].n;
   assert.equal(mismatch, 0);
-  return { transfers: count, ledgerEntries: entries, conserved: true, ledgerMatchesBalances: true };
+  return { transfers: posted.length, ledgerEntries: entries, committedWithoutAck, conserved: true, ledgerMatchesBalances: true };
 }
 function resources(pid) {
   if (process.platform === 'win32') {
@@ -103,15 +129,19 @@ function resources(pid) {
 }
 async function load(base, scenario, duration, measured = true) {
   const latencies = [], errors = {}, start = performance.now(), deadline = start + duration * 1000;
+  const acknowledged = new Map(), uncertain = new Map();
   let success = 0;
   await Promise.all(Array.from({ length: scenario.clients }, async (_, client) => {
     while (performance.now() < deadline) {
       const request = scenario.request(client);
       const t = performance.now();
+      const transfer = request.body ? { sourceId: request.body.sourceAccountId, destinationId: request.destination } : null;
+      let responseStatus;
       try {
-        const res = await fetch(base + request.path, { method: request.body ? 'POST' : 'GET', signal: AbortSignal.timeout(15000),
+        const res = await fetch(base + request.path, { method: request.body ? 'POST' : 'GET', signal: AbortSignal.timeout(45000),
           headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json', ...request.headers },
           ...(request.body ? { body: JSON.stringify(request.body) } : {}) });
+        responseStatus = res.status;
         const body = await res.json();
         if (res.status !== (request.body ? 201 : 200) || body.success !== true) throw Error(`${res.status}:${body.error?.code}`);
         if (scenario.expected) assert.deepEqual((body.data.items || body.data).map(r => r.id), scenario.expected);
@@ -119,17 +149,26 @@ async function load(base, scenario, duration, measured = true) {
           assert.equal(body.data.amount, '1');
           assert.equal(body.data.sourceAccountId, request.body.sourceAccountId);
           assert.equal(body.data.destinationAccountId, request.destination);
+          assert.equal(typeof body.data.id, 'string');
+          if (measured) acknowledged.set(request.headers['Idempotency-Key'], { ...transfer, id: body.data.id });
         }
         success++;
-      } catch (e) { const key = e.message.slice(0, 150); errors[key] = (errors[key] || 0) + 1; }
+      } catch (e) {
+        const key = e.message.slice(0, 150);
+        errors[key] = (errors[key] || 0) + 1;
+        if (measured && transfer && (!responseStatus || responseStatus === 201) &&
+            (e.name === 'TimeoutError' || e instanceof TypeError)) {
+          uncertain.set(request.headers['Idempotency-Key'], transfer);
+        }
+      }
       latencies.push(performance.now() - t);
     }
   }));
   const elapsed = (performance.now() - start) / 1000;
   latencies.sort((a,b) => a-b);
   const percentile = p => latencies[Math.min(latencies.length-1, Math.ceil(latencies.length*p)-1)];
-  return { seconds: elapsed, requests: latencies.length, successes: success, errors,
-    successRps: success / elapsed, p50: percentile(.5), p95: percentile(.95), p99: percentile(.99) };
+  return { acknowledged, uncertain, metrics: { seconds: elapsed, requests: latencies.length, successes: success, errors,
+    successRps: success / elapsed, p50: percentile(.5), p95: percentile(.95), p99: percentile(.99) } };
 }
 async function plans() {
   const h = histories.at(-1), queries = {
@@ -150,14 +189,16 @@ async function main() {
       cpu: os.cpus()[0].model, logicalCpus: os.cpus().length, ramBytes: os.totalmem(), node: process.version, postgres: serverInfo,
       location: process.env.MEASUREMENT_ENVIRONMENT || 'local',
       baselineCommit: 'c347c921d77ba533cfacd8e180feccef720be013',
+      improvedCommit: process.env.BENCHMARK_FINAL_COMMIT || execFileSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8'}).trim(),
       improvedDiff: execFileSync('git',['diff','--stat'],{cwd:root,encoding:'utf8'}), rounds, seconds, historySizes: histories.map(h=>h.size),
+      clientTimeoutMs: 45000, hotClients, scenarioFilter: process.env.SCENARIOS?.split(',') ?? null,
       protocol: 'Closed-loop HTTP, zero think time, 2s warm-up, no login traffic; API CPU endpoints sampled outside timing; DB/generator/API share host. Feed omits exact total, legacy includes it.' }, null, 2));
     for (let round = 1; round <= rounds; round++) {
       const variants = process.env.VARIANTS ? process.env.VARIANTS.split(',') : round % 2 ? ['baseline','improved'] : ['improved','baseline'];
       for (const variant of variants) {
         const port = 3317; await start(variant === 'baseline' ? baseline : path.join(root,'dist'), port);
         const scenarios = [
-          ...[1,10].map(clients => ({ name:`transfer_hot_${clients}`, clients, write:true,
+          ...hotClients.map(clients => ({ name:`transfer_hot_${clients}`, clients, write:true,
             request: () => ({path:'/transfers',destination:accounts[1],headers:{'Idempotency-Key':randomUUID()},body:{sourceAccountId:accounts[0],destinationAccountNumber:numbers[1],amount:'1'}}) })),
           { name:'transfer_distributed_10',clients:10,write:true,request: i => ({path:'/transfers',destination:accounts[2*i+1],headers:{'Idempotency-Key':randomUUID()},body:{sourceAccountId:accounts[2*i],destinationAccountNumber:numbers[2*i+1],amount:'1'}}) },
           ...histories.map(h=>({name:`history_${h.size}_deep`,clients:5,expected:h.expected,
@@ -169,14 +210,19 @@ async function main() {
           await load(`http://127.0.0.1:${port}/api/v1`,scenario,2,false);
           if (scenario.write) await resetWrites();
           const before = resources(child.pid);
-          const metrics = await load(`http://127.0.0.1:${port}/api/v1`,scenario,seconds);
+          const { metrics, acknowledged, uncertain } = await load(`http://127.0.0.1:${port}/api/v1`,scenario,seconds);
           const after = resources(child.pid);
           const row={round,variant,scenario:scenario.name,clients:scenario.clients,...metrics,
             apiCpuPercent: before&&after?(after.cpuMs-before.cpuMs)/(metrics.seconds*10):null,apiRssBytes:after?.rss,apiPeakRssBytes:after?.peakRss};
-          if (scenario.write) row.reconciliation=await reconcile(metrics.successes);
+          let reconciliationError;
+          if (scenario.write) {
+            try { row.reconciliation = await reconcile(acknowledged, uncertain); }
+            catch (error) { row.reconciliation = { conserved: false, ledgerMatchesBalances: false }; reconciliationError = error; }
+          }
           results.push(row); fs.writeFileSync(path.join(output,'runs.json'),JSON.stringify(results,null,2));
           if (Object.keys(row.errors).length) fs.writeFileSync(path.join(output,`failure-${round}-${variant}-${scenario.name}.log`),errorLogs+'\n'+logs);
           console.log(JSON.stringify({round,variant,scenario:scenario.name,rps:row.successRps,p95:row.p95,errors:row.errors}));
+          if (reconciliationError) throw reconciliationError;
           // Keep failures in the evidence rather than discarding a bad baseline
           // or rerunning until a clean sample happens to appear.
           assert.ok(row.successes > 0, 'No successful operations in this scenario');
