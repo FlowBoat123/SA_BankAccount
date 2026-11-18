@@ -1,5 +1,7 @@
 # SA Bank Account - Dịch vụ quản lý tài khoản và giao dịch ngân hàng
 
+> **Bản nộp Pha 2:** [hướng dẫn và notebook Kaggle CPU](docs/performance/phase2-final/README.md) · [sơ đồ kiến trúc trước–sau](docs/performance/phase2-final/ARCHITECTURE.md) · [kết quả CI](https://github.com/FlowBoat123/SA_BankAccount/actions).
+
 > **Tối ưu chuyển khoản khi tải cao:** [Báo cáo đánh giá](docs/performance/phase2-contention/REPORT.md) và [hướng dẫn cấu hình](docs/performance/phase2-contention/README.md). Luồng ghi gộp được bật mặc định, có tùy chọn hàng đợi trước transaction và CI kiểm tra PostgreSQL, Swagger, Docker.
 
 > **Đợt cải tiến tiếp theo:** [báo cáo đánh giá](docs/performance/phase2-followup/REPORT.md) và [hướng dẫn/API](docs/performance/phase2-followup/README.md): telemetry transaction/khóa, gộp truy vấn lấy khóa hai tài khoản và idempotency cho nạp/rút tiền.
