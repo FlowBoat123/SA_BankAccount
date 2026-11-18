@@ -1,8 +1,21 @@
-# Đánh giá tranh chấp chuyển khoản
+# Báo cáo kết quả cải tiến SA_BankAccount — Giai đoạn 2
 
 Với 50 client chuyển trên cùng cặp tài khoản, **p95 giảm từ 722,04 xuống 416,51 ms** và **thông lượng tăng từ 120,63 lên 191,15 giao dịch thành công/giây**. Cả năm lượt ghi gộp đều đạt p95 dưới 500 ms và thông lượng trên 158 giao dịch/giây.
 
 Bản tối ưu gộp cập nhật hai số dư, tạo giao dịch và ghi hai bút toán vào một câu SQL. Kiểm tra quyền sở hữu, số dư, trạng thái, idempotency và thứ tự khóa được thực hiện trước khi ghi. Nếu câu SQL gặp lỗi, transaction rollback toàn bộ. Cách ghi gộp được chọn làm mặc định sau đợt sàng lọc, với `TRANSFER_COMPACT_WRITE=off` để quay lại cách ghi cũ khi cần.
+
+## Hạng mục đã hoàn thành
+
+| Hạng mục | Thay đổi đã thực hiện | Kết quả kiểm chứng |
+|---|---|---|
+| Tối ưu truy vấn lịch sử | Bổ sung API duyệt bằng cursor, dùng chỉ mục hiện có và lấy thêm một dòng để xác định còn trang tiếp. API phân trang theo số trang vẫn được hỗ trợ. | Trên Kaggle CPU, p95 khi đọc cùng 20 giao dịch ở trang sâu trong lịch sử 300.000 bản ghi giảm từ 591,60 xuống 16,94 ms. API cursor phục vụ duyệt tuần tự và chỉ báo còn trang tiếp. [Báo cáo Kaggle](../phase2/kaggle/REPORT.md) |
+| Chống ghi tiền trùng | Chuyển khoản phát hiện key bị dùng lại với nội dung khác. Nạp/rút nhận `Idempotency-Key` tùy chọn. Các lần gửi lại cùng key và nội dung trả kết quả đã lưu. | Kiểm thử đồng thời, xung đột trả HTTP 409 và mất kết nối sau commit đều đạt. Số dư và bút toán chỉ thay đổi một lần khi dùng cùng key. [Báo cáo nạp/rút](../phase2-followup/REPORT.md) |
+| Bảo toàn giao dịch khi tranh chấp | Khóa hai tài khoản theo thứ tự ID trong một truy vấn. Giữ số dư, giao dịch và bút toán trong cùng transaction. Thử lại tối đa một lần với lỗi xác nhận transaction đã bị hủy. | Kiểm thử chuyển chéo, chống thấu chi và rollback khi phần ghi thất bại đều đạt trên PostgreSQL thật. [Kiểm thử](validation/validation.txt) |
+| Đo điểm nghẽn | Bổ sung đo thời gian bắt đầu transaction, truy vấn khóa, ghi dữ liệu và số lần retry. Lấy mẫu phiên chờ khóa ở PostgreSQL trong phép đo tải. | Thời gian ghi ở 50 client giảm từ 4,38 xuống 1,58 ms mỗi lần thử. Khoảng 8 phiên vẫn chờ khóa ở cả hai phiên bản, cho thấy tranh chấp còn tồn tại. [Số liệu từng lượt](results/runs.json) |
+| Tối ưu ghi khi tải cao | So sánh năm cấu hình, gồm giới hạn đồng thời, xếp hàng theo tài khoản, ghi gộp và kết hợp. Chọn ghi gộp làm mặc định và cung cấp tùy chọn hàng đợi có giới hạn. | Đo 40 lượt chính thức qua bốn kịch bản, tổng cộng 513.094 request. Cả 40 lượt đối soát đúng số dư và bút toán. Năm phản hồi lỗi đều thuộc bản mốc. [Kết quả chính thức](#kết-quả-chính-thức) |
+| Cập nhật dependency và tự động hóa kiểm thử | Cập nhật lockfile. Thêm workflow CI cho build, unit test, PostgreSQL, API HTTP, Swagger, audit runtime và Docker. | Audit runtime giảm từ 9 mục xuống 0 tại thời điểm đo. Bản cuối đạt 262 ca kiểm thử và Docker smoke test. Workflow đã được kiểm tra tại máy, chờ nhánh được đẩy lên để chạy trên GitHub Actions. [Audit sau cập nhật](audit/audit-after.json) · [Workflow CI](../../../.github/workflows/ci.yml) |
+
+Số liệu Kaggle và số liệu ở từng đợt tại máy dùng các bản mốc và quy trình đo riêng. Mỗi mức thay đổi trong báo cáo được tính từ hai cấu hình chạy trong cùng đợt. [Đợt đầu tại máy](../phase2/REPORT.md) · [Đợt bổ sung đo và idempotency](../phase2-followup/REPORT.md)
 
 ## Rà soát dependency
 
@@ -65,5 +78,11 @@ Thử riêng `SET LOCAL lock_timeout = '100ms'` khi một kết nối khác đan
 ## Kiểm chứng
 
 **262 ca kiểm thử đạt** (172 unit, 46 integration PostgreSQL và 44 HTTP/persistence/retry/telemetry/queue). Swagger đủ 10 operation, Prisma xác nhận schema khớp migration, Docker build và smoke test ghi gộp cùng hàng đợi đạt. Workflow chạy các bước này và audit dependency runtime, rồi lưu đầu ra làm artifact. Đã kiểm tra workflow bằng actionlint 1.7.12 và chạy các bước tại máy. GitHub Actions sẽ thực thi khi nhánh được đẩy lên. [Kết quả kiểm thử](validation/validation.txt) · [Docker](validation/docker-smoke.json).
+
+## Kết luận nghiệm thu
+
+Bản cải tiến **đạt tiêu chí nghiệm thu ở 50 client cùng chuyển trên một cặp tài khoản trong môi trường thử nghiệm**. Cả năm lượt của bản ghi gộp đều đạt p95 dưới 500 ms, trên 158 giao dịch thành công/giây, không ghi nhận lỗi và đối soát đúng.
+
+Ở 100 client cùng cặp, thông lượng gần như giữ ở 190 giao dịch/giây trong khi p95 tăng từ khoảng 417 lên 691 ms so với 50 client. Đây là dấu hiệu bão hòa của luồng chuyển cùng cặp trong cấu hình đã đo. Kịch bản 10 client cùng cặp cũng có đánh đổi riêng khi p95 cao hơn bản mốc dù p99 và thông lượng cải thiện. Độ ổn định khi chạy liên tục nhiều giờ hoặc triển khai nhiều tiến trình API vẫn cần được kiểm chứng. Audit cây dependency phát triển còn 51 mục tại thời điểm đánh giá.
 
 [Hướng dẫn cấu hình và chạy lại](README.md)
